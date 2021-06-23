@@ -1,0 +1,15 @@
+{
+  "text.graves.grave_of": "Grave of %s",
+  "text.graves.items_xp": "Items: %s XP: %s",
+  "text.graves.protected_time": "Protected for %s",
+  "text.graves.break_time": "Breaks in %s",
+  "text.graves.not_protected": "Not protected!",
+  "text.graves.players_grave": "%s's grave",
+  "text.graves.gui_title": "Your graves",
+  "text.graves.no_longer_protected": "Your grave at %s (%s) containing %s item(s) is no longer protected!",
+  "text.graves.expired": "Your grave at %s (%s) containing %s item(s) expired!",
+  "text.graves.somebody_broke": "Your grave at %s (%s) containing %s item(s) has been broken!",
+  "text.graves.created_at": "Created grave at %s (%s)",
+  "text.graves.creation_failed": "Couldn't create grave! Your items were dropped at %s (%s)",
+  "text.graves.creation_failed_pvp": "Grave wasn't created, because player killed you!"
+}

@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "universal-graves",
+  "version": "${version}",
+
+  "name": "Universal Graves",
+  "description": "Fully customisable grave mod that works server side!",
+  "authors": [
+    "Patbox"
+  ],
+  "contact": {
+    "homepage": "https://pb4.eu",
+    "sources": "https://github.com/Patbox/UniversalGraves"
+  },
+
+  "license": "LGPLv3",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "eu.pb4.graves.GravesMod"
+    ]
+  },
+  "mixins": [
+    "universal-graves.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.11.3",
+    "fabric": "*",
+    "minecraft": "1.17.0",
+    "java": ">=16"
+  }
+}

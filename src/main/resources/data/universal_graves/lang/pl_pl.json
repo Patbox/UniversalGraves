@@ -1,0 +1,15 @@
+{
+  "text.graves.grave_of": "Grób %s",
+  "text.graves.items_xp": "Przedmioty: %s XP: %s",
+  "text.graves.protected_time": "Chroniony przez %s",
+  "text.graves.break_time": "Zniszczy się za %s",
+  "text.graves.not_protected": "Nie chroniony!",
+  "text.graves.players_grave": "Grób %s",
+  "text.graves.gui_title": "Twoje groby",
+  "text.graves.no_longer_protected": "Twój grób na %s (%s) zawierający %s przedmiotów nie jest już chroniony!",
+  "text.graves.expired": "Twój grób na %s (%s) zawierający %s przedmiotów wygasł!",
+  "text.graves.somebody_broke": "Twój grób na %s (%s) zawierający %s przedmiotów został zniszczony!",
+  "text.graves.created_at": "Stworzono grób na %s (%s)",
+  "text.graves.creation_failed": "Nie można było stworzyć grobu! Twoje przedmioty leżą na %s (%s)",
+  "text.graves.creation_failed_pvp": "Nie stworzono grobu, ponieważ zostałeś zabity przez gracza!"
+}

@@ -1,0 +1,201 @@
+package eu.pb4.graves.grave;
+
+import com.mojang.authlib.GameProfile;
+import eu.pb4.graves.config.Config;
+import eu.pb4.graves.config.ConfigManager;
+import eu.pb4.graves.other.ImplementedInventory;
+import eu.pb4.holograms.api.holograms.WorldHologram;
+import eu.pb4.placeholders.PlaceholderAPI;
+import it.unimi.dsi.fastutil.ints.IntArrays;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.entity.ExperienceOrbEntity;
+import net.minecraft.inventory.Inventories;
+import net.minecraft.inventory.SidedInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtHelper;
+import net.minecraft.network.MessageType;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
+import net.minecraft.util.ItemScatterer;
+import net.minecraft.util.Util;
+import net.minecraft.util.collection.DefaultedList;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.*;
+
+public class GraveBlockEntity extends BlockEntity implements ImplementedInventory, SidedInventory {
+    public static BlockEntityType<GraveBlockEntity> BLOCK_ENTITY_TYPE;
+    public WorldHologram hologram = null;
+    public DefaultedList<ItemStack> stacks = DefaultedList.ofSize(27, ItemStack.EMPTY);
+    public GraveInfo info = new GraveInfo();
+    public BlockState replacedBlockState = Blocks.AIR.getDefaultState();
+
+    public GraveBlockEntity(BlockPos pos, BlockState state) {
+        super(BLOCK_ENTITY_TYPE, pos, state);
+    }
+
+    @Override
+    public DefaultedList<ItemStack> getItems() {
+        return this.stacks;
+    }
+
+    public void setGrave(GameProfile profile, Collection<ItemStack> itemStacks, int experience, Text deathCause, BlockState blockState) {
+        GraveManager.INSTANCE.remove(this.info);
+        this.stacks = DefaultedList.ofSize(itemStacks.size(), ItemStack.EMPTY);
+        for (ItemStack stack : itemStacks) {
+            this.addStack(stack);
+        }
+        this.replacedBlockState = blockState;
+        this.info = new GraveInfo(profile, this.pos, Objects.requireNonNull(this.getWorld()).getRegistryKey().getValue(), System.currentTimeMillis() / 1000, experience, itemStacks.size(), deathCause);
+        GraveManager.INSTANCE.add(this.info);
+        this.markDirty();
+    }
+
+    @Override
+    public NbtCompound writeNbt(NbtCompound nbt) {
+        super.writeNbt(nbt);
+        Inventories.writeNbt(nbt, this.stacks);
+
+        nbt.put("GraveInfo", this.info.writeNbt(new NbtCompound()));
+        nbt.put("BlockState", NbtHelper.fromBlockState(this.replacedBlockState));
+
+        return nbt;
+    }
+
+
+    @Override
+    public void readNbt(NbtCompound nbt) {
+        super.readNbt(nbt);
+        try {
+            Inventories.readNbt(nbt, this.stacks);
+            this.info.readNbt(nbt.getCompound("GraveInfo"));
+            this.replacedBlockState = NbtHelper.toBlockState((NbtCompound) Objects.requireNonNull(nbt.get("BlockState")));
+        } catch (Exception e) {
+            // Silence!
+        }
+    }
+
+    public void onBroken() {
+        if (this.hologram != null) {
+            this.hologram.hide();
+        }
+        Config config = ConfigManager.getConfig();
+        Text text = null;
+
+        boolean shouldBreak = this.info.shouldBreak();
+        if (!shouldBreak) {
+            if (config.configData.displayGraveBrokenMessage) {
+                text = config.graveBrokenMessage;
+            }
+        } else {
+            if (config.configData.displayGraveExpiredMessage) {
+                text = config.graveExpiredMessage;
+            }
+        }
+
+        if (text != null) {
+            assert world != null;
+            ServerPlayerEntity player = Objects.requireNonNull(world.getServer()).getPlayerManager().getPlayer(this.info.gameProfile.getId());
+            if (player != null) {
+                player.sendMessage(PlaceholderAPI.parsePredefinedText(text, PlaceholderAPI.PREDEFINED_PLACEHOLDER_PATTERN, this.info.getPlaceholders()), MessageType.SYSTEM, Util.NIL_UUID);
+            }
+        }
+
+        GraveManager.INSTANCE.remove(this.info);
+        if (config.configData.dropItemsAfterExpiring || !shouldBreak) {
+            ItemScatterer.spawn(this.world, this.pos, this);
+            ExperienceOrbEntity.spawn((ServerWorld) this.world, Vec3d.ofCenter(this.getPos()), this.info.xp);
+        }
+    }
+
+    public static <T extends BlockEntity> void tick(World world, BlockPos pos, BlockState state, T t) {
+        if (!(t instanceof GraveBlockEntity self) || world.isClient() || world.getTime() % 5 == 0) {
+            return;
+        }
+
+        Config config = ConfigManager.getConfig();
+
+        Map<String, Text> placeholders = self.info.getPlaceholders();
+
+        if (config.configData.shouldBreak && self.info.shouldBreak()) {
+            world.setBlockState(pos, self.replacedBlockState, Block.NOTIFY_ALL);
+            return;
+        }
+
+        boolean isProtected = state.get(GraveBlock.IS_LOCKED);
+
+        if (isProtected && !self.info.isProtected()) {
+            world.setBlockState(pos, state.with(GraveBlock.IS_LOCKED, false));
+            isProtected = false;
+
+
+            if (config.configData.displayNoLongerProtectedMessage) {
+                ServerPlayerEntity player = Objects.requireNonNull(world.getServer()).getPlayerManager().getPlayer(self.info.gameProfile.getId());
+                if (player != null) {
+                    player.sendMessage(PlaceholderAPI.parsePredefinedText(config.noLongerProtectedMessage, PlaceholderAPI.PREDEFINED_PLACEHOLDER_PATTERN, placeholders), MessageType.SYSTEM, Util.NIL_UUID);
+                }
+            }
+        }
+
+        if (config.configData.hologram) {
+            if (self.hologram == null) {
+                self.hologram = new WorldHologram((ServerWorld) world, new Vec3d(pos.getX(), pos.getY(), pos.getZ()).add(0.5, 1.2, 0.5));
+                self.hologram.show();
+            }
+
+            List<Text> texts = new ArrayList<>();
+
+            for (Text text : isProtected ? config.hologramProtectedText : config.hologramText) {
+                texts.add(PlaceholderAPI.parsePredefinedText(text, PlaceholderAPI.PREDEFINED_PLACEHOLDER_PATTERN, placeholders));
+            }
+
+            int x = 0;
+
+            for (Text text : texts) {
+                self.hologram.setText(x, text);
+                x++;
+            }
+            int size = self.hologram.getElements().size();
+
+            if (x < size) {
+                for (; x < size; x++) {
+                    self.hologram.removeElement(x);
+                }
+            }
+
+
+        } else {
+            if (self.hologram != null) {
+                self.hologram.hide();
+                self.hologram = null;
+            }
+        }
+    }
+
+
+
+    @Override
+    public int[] getAvailableSlots(Direction side) {
+        return IntArrays.EMPTY_ARRAY;
+    }
+
+    @Override
+    public boolean canInsert(int slot, ItemStack stack, @Nullable Direction dir) {
+        return false;
+    }
+
+    @Override
+    public boolean canExtract(int slot, ItemStack stack, Direction dir) {
+        return false;
+    }
+}

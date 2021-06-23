@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    "#minecraft:fire",
+	"#minecraft:flowers",
+	"minecraft:snow",
+	"minecraft:grass",
+	"minecraft:tall_grass",
+	"minecraft:seagrass",
+	"minecraft:glow_lichen",
+	"minecraft:moss_carpet",
+	"minecraft:large_fern",
+	"minecraft:fern",
+	"minecraft:lava",
+	"minecraft:water"
+  ]
+}
