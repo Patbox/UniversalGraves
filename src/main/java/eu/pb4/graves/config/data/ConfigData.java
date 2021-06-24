@@ -32,7 +32,7 @@ public class ConfigData {
     public String noLongerProtectedMessage = "<red><lang:'text.graves.no_longer_protected':'<gold>${position}':'<white>${world}':'<yellow>${item_count}'>";
 
     public boolean displayGraveExpiredMessage = true;
-    public String graveExpiredMessage = "<red><lang:'text.graves.expired':'<gold>${position}:'<white>${world}'':'<yellow>${item_count}'>";
+    public String graveExpiredMessage = "<red><lang:'text.graves.expired':'<gold>${position}':'<white>${world}':'<yellow>${item_count}'>";
 
     public boolean displayGraveBrokenMessage = true;
     public String graveBrokenMessage = "<gray><lang:'text.graves.somebody_broke':'<white>${position}':'<white>${world}':'<white>${item_count}'>";
@@ -44,7 +44,7 @@ public class ConfigData {
     public String creationFailedGraveMessage = "<red><lang:'text.graves.creation_failed':'<gold>${position}':'<yellow>${world}'>";
 
     public boolean displayCreationFailedPvPGraveMessage = true;
-    public String creationFailedPvPGraveMessage = "<red><lang:'text.graves.created_failed_pvp':'<gold>${position}:'<yellow>${world}''>";
+    public String creationFailedPvPGraveMessage = "<red><lang:'text.graves.created_failed_pvp':'<gold>${position}':'<yellow>${world}'>";
 
     public String neverExpires = "Never";
 

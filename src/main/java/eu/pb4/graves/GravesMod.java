@@ -6,6 +6,7 @@ import eu.pb4.graves.grave.GraveBlockEntity;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.grave.GraveManager;
 import eu.pb4.graves.other.Commands;
+import eu.pb4.polymer.PolymerMod;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
@@ -25,7 +26,7 @@ public class GravesMod implements ModInitializer {
 		Registry.register(Registry.BLOCK, new Identifier("universal_graves", "grave"), GraveBlock.INSTANCE);
 		GraveBlockEntity.BLOCK_ENTITY_TYPE = Registry.register(Registry.BLOCK_ENTITY_TYPE, "universal_graves:grave", FabricBlockEntityTypeBuilder.create(GraveBlockEntity::new, GraveBlock.INSTANCE).build(null));
 		Commands.register();
-
+		PolymerMod.registerVirtualBlockEntity(new Identifier("universal_graves", "grave"));
 		FabricLoader loader = FabricLoader.getInstance();
 
 		if (loader.isModLoaded("trinkets")) {
