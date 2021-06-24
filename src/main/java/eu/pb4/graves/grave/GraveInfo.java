@@ -13,10 +13,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class GraveInfo {
     private static final Text DEFAULT_DEATH_CAUSE = new LiteralText("Unknown cause");
@@ -59,6 +56,7 @@ public class GraveInfo {
         nbt.putInt("ItemCount", this.itemCount);
         nbt.putString("DeathCause", Text.Serializer.toJson(this.deathCause));
         nbt.putIntArray("Position", new int[] { position.getX(), position.getY(), position.getZ() });
+        nbt.putString("World", this.world.toString());
         return nbt;
     }
 
@@ -70,6 +68,7 @@ public class GraveInfo {
         this.deathCause = Text.Serializer.fromLenientJson(nbt.getString("DeathCause"));
         int[] pos = nbt.getIntArray("Position");
         this.position = new BlockPos(pos[0], pos[1], pos[2]);
+        this.world = Identifier.tryParse(nbt.getString("World"));
     }
 
     public Map<String, Text> getPlaceholders() {
@@ -88,9 +87,16 @@ public class GraveInfo {
         values.put("item_count", new LiteralText("" + this.itemCount));
         values.put("position", new LiteralText("" + this.position.toShortString()));
 
-        String[] world = this.world.getPath().split("", 2);
-        world[0] = world[0].toUpperCase(Locale.ROOT);
-        values.put("world", new LiteralText("" + String.join("", world)));
+        List<String> parts = new ArrayList<>();
+        {
+            String[] words = this.world.getPath().split("_");
+            for (String word : words) {
+                String[] s = word.split("", 2);
+                s[0] = s[0].toUpperCase(Locale.ROOT);
+                parts.add(String.join("", s));
+            }
+        }
+        values.put("world", new LiteralText(String.join(" ", parts)));
         values.put("death_cause", this.deathCause);
         return values;
     }
