@@ -35,8 +35,7 @@ public class TrinketsCompat {
 
                 switch (dropRule) {
                     case DROP:
-                        items.add(stack);
-
+                        items.add(stack.copy());
                     case DESTROY:
                         inventory.setStack(ref.index(), ItemStack.EMPTY);
                         break;

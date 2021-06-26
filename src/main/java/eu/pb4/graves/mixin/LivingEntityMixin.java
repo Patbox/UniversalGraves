@@ -61,10 +61,13 @@ public abstract class LivingEntityMixin {
                     if (gravePos != null) {
                         List<ItemStack> items = new ArrayList<>();
 
-                        for (DefaultedList<ItemStack> list : ImmutableList.of(player.getInventory().main, player.getInventory().armor, player.getInventory().offHand)) {
-                            for (ItemStack stack : list) {
-                                if (!stack.isEmpty()) {
-                                    items.add(stack);
+                        for (int i = 0; i < player.getInventory().size(); ++i) {
+                            ItemStack itemStack = player.getInventory().getStack(i);
+                            if (!itemStack.isEmpty()) {
+                                if (EnchantmentHelper.hasVanishingCurse(itemStack)) {
+                                    player.getInventory().removeStack(i);
+                                } else {
+                                    items.add(player.getInventory().removeStack(i));
                                 }
                             }
                         }
@@ -74,18 +77,12 @@ public abstract class LivingEntityMixin {
                         if (items.size() == 0) {
                             return;
                         }
+
                         BlockState blockState = player.getServerWorld().getBlockState(gravePos);
                         player.getServerWorld().setBlockState(gravePos, GraveBlock.INSTANCE.getDefaultState().with(Properties.ROTATION, player.getRandom().nextInt(15)));
                         BlockEntity entity = player.getServerWorld().getBlockEntity(gravePos);
 
                         if (entity instanceof GraveBlockEntity grave) {
-                            for (int i = 0; i < player.getInventory().size(); ++i) {
-                                ItemStack itemStack = player.getInventory().getStack(i);
-                                if (!itemStack.isEmpty() && EnchantmentHelper.hasVanishingCurse(itemStack)) {
-                                    player.getInventory().removeStack(i);
-                                }
-                            }
-
                             int i = player.experienceLevel * 7;
                             grave.setGrave(player.getGameProfile(), items, i > 100 ? 100 : i, source.getDeathMessage(player), blockState);
                             player.experienceLevel = 0;
@@ -93,7 +90,6 @@ public abstract class LivingEntityMixin {
                                 text = config.createdGraveMessage;
                                 placeholders = grave.info.getPlaceholders();
                             }
-                            ci.cancel();
                         } else {
                             if (config.configData.displayCreationFailedGraveMessage) {
                                 text = config.creationFailedGraveMessage;
