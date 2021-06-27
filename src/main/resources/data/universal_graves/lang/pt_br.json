@@ -1,0 +1,15 @@
+{
+  "text.graves.grave_of": "Túmulo of %s",
+  "text.graves.items_xp": "Items: %s XP: %s",
+  "text.graves.protected_time": "Protegido por %s",
+  "text.graves.break_time": "Quebrado em %s",
+  "text.graves.not_protected": "Não esta mais protegido!",
+  "text.graves.players_grave": "%s's túmulo",
+  "text.graves.gui_title": "Seus túmulos",
+  "text.graves.no_longer_protected": "Seu túmulo em %s (%s) que cotem %s item(s) não esta mais protegido",
+  "text.graves.expired": "Seu túmulo em %s (%s) que continha %s item(s) expirou!",
+  "text.graves.somebody_broke": "Seu túmulo em %s (%s) que continha %s item(s) foi quebrado!",
+  "text.graves.created_at": "Túmulo criado em %s (%s)",
+  "text.graves.creation_failed": "Não foi possivel cria o túmulo! Seus items serão dropados em %s (%s)",
+  "text.graves.creation_failed_pvp": "Túmulo não foi criado, por que um jogador te matou!"
+}
