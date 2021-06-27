@@ -15,7 +15,7 @@ import net.minecraft.util.math.BlockPos;
 
 import java.util.*;
 
-public class GraveInfo {
+public final class GraveInfo {
     private static final Text DEFAULT_DEATH_CAUSE = new LiteralText("Unknown cause");
     private static final GameProfile DEFAULT_GAME_PROFILE = new GameProfile(UUID.fromString("9586e5ab-157a-4658-ad80-b07552a9ca63"), "Herobrine");
 
@@ -81,8 +81,8 @@ public class GraveInfo {
 
         Map<String, Text> values = new HashMap<>();
         values.put("player", new LiteralText(this.gameProfile != null ? this.gameProfile.getName() : "<No player!>"));
-        values.put("protection_time", new LiteralText("" + config.getFormattedTime(protectionTime)));
-        values.put("break_time", new LiteralText("" + config.getFormattedTime(breakTime)));
+        values.put("protection_time", new LiteralText("" + (config.configData.shouldProtectionExpire ? config.getFormattedTime(protectionTime) : "∞")));
+        values.put("break_time", new LiteralText("" + (config.configData.shouldBreak ? config.getFormattedTime(breakTime) : "∞")));
         values.put("xp", new LiteralText("" + this.xp));
         values.put("item_count", new LiteralText("" + this.itemCount));
         values.put("position", new LiteralText("" + this.position.toShortString()));
@@ -104,22 +104,43 @@ public class GraveInfo {
     public boolean shouldBreak() {
         Config config = ConfigManager.getConfig();
 
-        long currentTime = System.currentTimeMillis() / 1000;
-        long breakTime = config.configData.shouldBreak ? config.configData.breakAfter - currentTime + this.creationTime : Long.MAX_VALUE;
+        if (config.configData.shouldBreak) {
+            long currentTime = System.currentTimeMillis() / 1000;
+            long breakTime = config.configData.breakAfter - currentTime + this.creationTime;
 
-        return breakTime <= 0;
+            return breakTime <= 0;
+        } else {
+            return false;
+        }
     }
 
     public boolean isProtected() {
         Config config = ConfigManager.getConfig();
 
-        long currentTime = System.currentTimeMillis() / 1000;
-        long protectionTime = config.configData.isProtected ? config.configData.protectionTime - currentTime + this.creationTime : Long.MAX_VALUE;
+        if (config.configData.shouldProtectionExpire && config.configData.isProtected) {
+            long currentTime = System.currentTimeMillis() / 1000;
+            long protectionTime = config.configData.protectionTime - currentTime + this.creationTime;
 
-        return protectionTime > 0;
+            return protectionTime > 0;
+        } else {
+            return config.configData.isProtected;
+        }
     }
 
     public boolean canTakeFrom(PlayerEntity entity) {
         return !this.isProtected() || this.gameProfile.getId().equals(entity.getUuid()) || Permissions.check(entity, "graves.can_open_others", 3);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GraveInfo graveInfo = (GraveInfo) o;
+        return Objects.equals(position, graveInfo.position);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(position);
     }
 }

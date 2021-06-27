@@ -28,11 +28,12 @@ Additionally, every message type has few own local variables.
   "lockedTexture": "...",             // Points to locked grave texture (`preset_head`), requires a value field (most sites have it described)
   "unlockedTexture": "...",           // Points to unlocked grave texture (`preset_head`), requires a value field
   "isProtected": true,                // Changes if graves should be protected by default
+  "shouldProtectionExpire": true,     // If protection should have time limit
   "protectionTime": 300,              // Time for which graves should be protected (is seconds)
   "shouldBreak": true,                // Changes if grave should break after some time
   "breakAfter": 900,                  // Time after which grave will break
   "createGravesFromPvP": true,        // If false, after dying from another players attack grave won't be created
-  "dropItemsAfterExpiring": true,     // If items should drop after expiring
+  "dropItemsAfterExpiring": true,     // If items should drop breaking from expiration
   "hologram": true,                   // Enables hologram
   "hologramProtectedText": [/*...*/], // Hologram lines while protected
   "hologramText": [/*...*/],          // Hologram lines while not protected

@@ -89,6 +89,7 @@ public class GraveBlockEntity extends BlockEntity implements ImplementedInventor
         if (this.hologram != null) {
             this.hologram.hide();
         }
+        this.hologram = null;
         Config config = ConfigManager.getConfig();
         Text text = null;
 
@@ -118,8 +119,17 @@ public class GraveBlockEntity extends BlockEntity implements ImplementedInventor
         }
     }
 
+    @Override
+    public void markRemoved() {
+        if (this.hologram != null) {
+            this.hologram.hide();
+        }
+        this.hologram = null;
+        super.markRemoved();
+    }
+
     public static <T extends BlockEntity> void tick(World world, BlockPos pos, BlockState state, T t) {
-        if (!(t instanceof GraveBlockEntity self) || world.isClient() || world.getTime() % 5 == 0) {
+        if (!(t instanceof GraveBlockEntity self) || world.isClient() || world.getTime() % 5 != 0) {
             return;
         }
 

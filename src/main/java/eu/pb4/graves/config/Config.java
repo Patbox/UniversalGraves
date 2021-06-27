@@ -74,7 +74,7 @@ public final class Config {
             if (minutes > 0) {
                 builder.append(minutes + configData.minutesText);
             }
-            if (seconds > 0) {
+            if (seconds >= 0) {
                 builder.append(seconds + configData.secondsText);
             } else {
                 builder.append(time + configData.secondsText);

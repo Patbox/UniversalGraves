@@ -13,6 +13,7 @@ public class ConfigData {
     public String unlockedTexture = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjdjYWI1NmM4MmNiODFiZGI5OTc5YTQ2NGJjOWQzYmEzZTY3MjJiYTEyMmNmNmM1Mjg3MzAxMGEyYjU5YWVmZSJ9fX0=";
 
     public boolean isProtected = true;
+    public boolean shouldProtectionExpire = true;
     public int protectionTime = 300;
     public boolean shouldBreak = true;
     public int breakAfter = 900;
@@ -65,6 +66,7 @@ public class ConfigData {
         list.add("");
         list.add("<gray><lang:'text.graves.items_xp':'<white>${item_count}':'<white>${xp}'>");
         list.add("<blue><lang:'text.graves.protected_time':'<white>${protection_time}'>");
+        list.add("<red><lang:'text.graves.break_time':'<white>${break_time}'>");
 
         return list;
     }
@@ -76,6 +78,7 @@ public class ConfigData {
         list.add("<yellow>${death_cause}");
         list.add("");
         list.add("<gray><lang:'text.graves.items_xp':'<white>${item_count}':'<white>${xp}'>");
+        list.add("<blue><lang:'text.graves.not_protected'>");
         list.add("<red><lang:'text.graves.break_time':'<white>${break_time}'>");
 
         return list;
