@@ -25,7 +25,7 @@ public class GraveGui extends SimpleGui {
         this.setTitle(PlaceholderAPI.parsePredefinedText(ConfigManager.getConfig().graveTitle, PlaceholderAPI.PREDEFINED_PLACEHOLDER_PATTERN, grave.info.getPlaceholders()));
         int x = 0;
         int skipped = 0;
-        for (; x < this.grave.size(); x++) {
+        for (; x < Math.min(this.grave.size(), this.getSize()); x++) {
             if (!grave.getStack(x).isEmpty()) {
                 this.addSlotRedirect(new OutputSlot(grave, x, 0, 0));
             } else {
@@ -69,13 +69,7 @@ public class GraveGui extends SimpleGui {
         if (this.grave.isEmpty() && !this.grave.isRemoved()) {
             this.grave.getWorld().setBlockState(this.grave.getPos(), Blocks.AIR.getDefaultState(), Block.NOTIFY_ALL);
         } else {
-            int x = 0;
-            for (ItemStack stack : this.grave.getItems()) {
-                if (!stack.isEmpty()) {
-                    x += 1;
-                }
-                this.grave.info.itemCount = x;
-            }
+            this.grave.updateItemCount();
         }
         super.onClose();
     }

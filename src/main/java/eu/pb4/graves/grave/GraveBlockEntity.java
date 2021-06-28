@@ -13,11 +13,12 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.ExperienceOrbEntity;
-import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.network.MessageType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -36,7 +37,7 @@ import java.util.*;
 public class GraveBlockEntity extends BlockEntity implements ImplementedInventory, SidedInventory {
     public static BlockEntityType<GraveBlockEntity> BLOCK_ENTITY_TYPE;
     public WorldHologram hologram = null;
-    public DefaultedList<ItemStack> stacks = DefaultedList.ofSize(27, ItemStack.EMPTY);
+    public DefaultedList<ItemStack> stacks = DefaultedList.ofSize(0, ItemStack.EMPTY);
     public GraveInfo info = new GraveInfo();
     public BlockState replacedBlockState = Blocks.AIR.getDefaultState();
 
@@ -51,12 +52,16 @@ public class GraveBlockEntity extends BlockEntity implements ImplementedInventor
 
     public void setGrave(GameProfile profile, Collection<ItemStack> itemStacks, int experience, Text deathCause, BlockState blockState) {
         GraveManager.INSTANCE.remove(this.info);
-        this.stacks = DefaultedList.ofSize(itemStacks.size(), ItemStack.EMPTY);
+
+        this.stacks = DefaultedList.ofSize(itemStacks.size() + 5, ItemStack.EMPTY);
         for (ItemStack stack : itemStacks) {
             this.addStack(stack);
         }
+
         this.replacedBlockState = blockState;
         this.info = new GraveInfo(profile, this.pos, Objects.requireNonNull(this.getWorld()).getRegistryKey().getValue(), System.currentTimeMillis() / 1000, experience, itemStacks.size(), deathCause);
+        this.updateItemCount();
+
         GraveManager.INSTANCE.add(this.info);
         this.markDirty();
     }
@@ -64,7 +69,20 @@ public class GraveBlockEntity extends BlockEntity implements ImplementedInventor
     @Override
     public NbtCompound writeNbt(NbtCompound nbt) {
         super.writeNbt(nbt);
-        Inventories.writeNbt(nbt, this.stacks);
+        NbtList nbtList = new NbtList();
+
+        for(int i = 0; i < this.stacks.size(); ++i) {
+            ItemStack itemStack = this.stacks.get(i);
+            if (!itemStack.isEmpty()) {
+                NbtCompound nbtCompound = new NbtCompound();
+                itemStack.writeNbt(nbtCompound);
+                nbtList.add(nbtCompound);
+            }
+        }
+
+        if (!nbtList.isEmpty()) {
+            nbt.put("Items", nbtList);
+        }
 
         nbt.put("GraveInfo", this.info.writeNbt(new NbtCompound()));
         nbt.put("BlockState", NbtHelper.fromBlockState(this.replacedBlockState));
@@ -77,8 +95,15 @@ public class GraveBlockEntity extends BlockEntity implements ImplementedInventor
     public void readNbt(NbtCompound nbt) {
         super.readNbt(nbt);
         try {
-            Inventories.readNbt(nbt, this.stacks);
             this.info.readNbt(nbt.getCompound("GraveInfo"));
+
+            NbtList nbtList = nbt.getList("Items", 10);
+            this.stacks = DefaultedList.ofSize(nbtList.size() + 5, ItemStack.EMPTY);
+
+            for(NbtElement compound : nbtList) {
+                this.addStack(ItemStack.fromNbt((NbtCompound) compound));
+            }
+            this.updateItemCount();
             this.replacedBlockState = NbtHelper.toBlockState((NbtCompound) Objects.requireNonNull(nbt.get("BlockState")));
         } catch (Exception e) {
             // Silence!
@@ -116,6 +141,24 @@ public class GraveBlockEntity extends BlockEntity implements ImplementedInventor
         if (config.configData.dropItemsAfterExpiring || !shouldBreak) {
             ItemScatterer.spawn(this.world, this.pos, this);
             ExperienceOrbEntity.spawn((ServerWorld) this.world, Vec3d.ofCenter(this.getPos()), this.info.xp);
+        }
+    }
+
+    public void updateItemCount() {
+        int x = 0;
+        for (ItemStack stack : this.getItems()) {
+            if (!stack.isEmpty()) {
+                x += 1;
+            }
+        }
+        this.info.itemCount = x;
+
+        List<GraveInfo> infoList = GraveManager.INSTANCE.get(this.info.gameProfile.getId());
+        if (infoList != null) {
+            int info = infoList.indexOf(this.info);
+            if (info != -1) {
+                infoList.get(info).itemCount = x;
+            }
         }
     }
 
