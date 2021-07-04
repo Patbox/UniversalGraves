@@ -1,0 +1,15 @@
+{
+  "text.graves.grave_of": "Grab von %s",
+  "text.graves.items_xp": "Gegenstände: %s XP: %s",
+  "text.graves.protected_time": "Geschützt für %s",
+  "text.graves.break_time": "Wird in %s zerstört",
+  "text.graves.not_protected": "Nicht geschützt!",
+  "text.graves.players_grave": "%s's Grab",
+  "text.graves.gui_title": "Deine Gräber",
+  "text.graves.no_longer_protected": "Dein Grab bei %s (%s), welches %s Gegenstände enhält, ist nicht mehr geschützt!",
+  "text.graves.expired": "Dein Grab bei %s (%s), welches %s Gegenstände enhält, abgelaufen!",
+  "text.graves.somebody_broke": "Dein Grab bei %s (%s), welches %s Gegenstände enhält, wurde geöffnet!",
+  "text.graves.created_at": "Grab bei %s (%s) wurde erstellt",
+  "text.graves.creation_failed": "Konnte kein Grab erstellen! Deine Gegenstände wurden bei %s (%s) fallen gelassen",
+  "text.graves.creation_failed_pvp": "Es wurde kein Grab erstellt, weil du von einem Spieler getötet wurdest!"
+}
