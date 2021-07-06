@@ -18,15 +18,24 @@ repositories {
 	// for more information about repositories.
 	maven { url 'https://maven.nucleoid.xyz' }
 	maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+	maven { url 'https://api.modrinth.com/maven' }
+	mavenLocal()
 
-	maven {
+	/*maven {
 		name = "TerraformersMC"
 		url = "https://maven.terraformersmc.com/"
-	}
+	}*/
+
 	maven {
 		name = "Ladysnake Libs"
 		url = "https://ladysnake.jfrog.io/artifactory/mods"
 	}
+
+	flatDir {
+		dirs './modsWithCompat'
+	}
+	maven { url "https://maven.jamieswhiteshirt.com/libs-release/" }
+
 }
 
 dependencies {
@@ -39,14 +48,20 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 
-	modImplementation include("eu.pb4:sgui:1.0.0-rc2-1.17")
+	modImplementation include("eu.pb4:sgui:1.0.0-rc3-1.17.1")
 	modImplementation include("eu.pb4:hologram-api:0.1.1+1.17")
-	modImplementation include("eu.pb4:placeholder-api:1.0.0-1.17")
+	modImplementation include("eu.pb4:placeholder-api:1.0.1+1.17")
 	modImplementation include("eu.pb4:polymer:0.1.0-pre5-1.17")
 	modImplementation include("fr.catcore:server-translations-api:1.4.5+1.17")
 	modImplementation include("me.lucko:fabric-permissions-api:0.1-SNAPSHOT")
 
-	modCompileOnly "dev.emi:trinkets:3.0.0"
+	//modCompileOnly "dev.emi:trinkets:3.0.0"
+	modCompileOnly "maven.modrinth:trinkets:3.0.0"
+
+	modCompileOnly "draylar:get-off-my-lawn:1.17-1.4.0-beta"
+	modCompileOnly "com.jamieswhiteshirt:rtree-3i-lite-fabric:0.3.0"
+	modCompileOnly "io.github.onyxstudios.Cardinal-Components-API:cardinal-components-base:3.0.0-nightly.21w19a"
+
 
 	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
 	// You may need to force-disable transitiveness on them.

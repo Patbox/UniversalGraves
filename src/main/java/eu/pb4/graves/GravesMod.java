@@ -1,5 +1,6 @@
 package eu.pb4.graves;
 
+import eu.pb4.graves.compat.GomlCompat;
 import eu.pb4.graves.compat.TrinketsCompat;
 import eu.pb4.graves.grave.GraveBlock;
 import eu.pb4.graves.grave.GraveBlockEntity;
@@ -31,6 +32,9 @@ public class GravesMod implements ModInitializer {
 
 		if (loader.isModLoaded("trinkets")) {
 			TrinketsCompat.register();
+		}
+		if (loader.isModLoaded("goml")) {
+			GomlCompat.register();
 		}
 
 		ServerLifecycleEvents.SERVER_STARTING.register((server) -> ConfigManager.loadConfig());
