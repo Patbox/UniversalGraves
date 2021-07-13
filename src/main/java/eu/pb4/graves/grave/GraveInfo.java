@@ -3,6 +3,7 @@ package eu.pb4.graves.grave;
 import com.mojang.authlib.GameProfile;
 import eu.pb4.graves.config.Config;
 import eu.pb4.graves.config.ConfigManager;
+import eu.pb4.graves.other.GraveUtils;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -86,17 +87,7 @@ public final class GraveInfo {
         values.put("xp", new LiteralText("" + this.xp));
         values.put("item_count", new LiteralText("" + this.itemCount));
         values.put("position", new LiteralText("" + this.position.toShortString()));
-
-        List<String> parts = new ArrayList<>();
-        {
-            String[] words = this.world.getPath().split("_");
-            for (String word : words) {
-                String[] s = word.split("", 2);
-                s[0] = s[0].toUpperCase(Locale.ROOT);
-                parts.add(String.join("", s));
-            }
-        }
-        values.put("world", new LiteralText(String.join(" ", parts)));
+        values.put("world", new LiteralText(GraveUtils.toWorldName(this.world)));
         values.put("death_cause", this.deathCause);
         return values;
     }

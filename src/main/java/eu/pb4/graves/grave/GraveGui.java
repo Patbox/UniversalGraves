@@ -25,7 +25,11 @@ public class GraveGui extends SimpleGui {
         this.setTitle(PlaceholderAPI.parsePredefinedText(ConfigManager.getConfig().graveTitle, PlaceholderAPI.PREDEFINED_PLACEHOLDER_PATTERN, grave.info.getPlaceholders()));
         int x = 0;
         int skipped = 0;
-        for (; x < Math.min(this.grave.size(), this.getSize()); x++) {
+        for (; x < this.grave.size(); x++) {
+            if (this.getFirstEmptySlot() == -1) {
+                return;
+            }
+
             if (!grave.getStack(x).isEmpty()) {
                 this.addSlotRedirect(new OutputSlot(grave, x, 0, 0));
             } else {
@@ -40,7 +44,7 @@ public class GraveGui extends SimpleGui {
     }
 
     public static ScreenHandlerType<?> getScreenHandlerType(int size) {
-        return switch (size / 9) {
+        return switch ((size - 1) / 9) {
             case 0 -> ScreenHandlerType.GENERIC_9X1;
             case 1 -> ScreenHandlerType.GENERIC_9X2;
             case 2 -> ScreenHandlerType.GENERIC_9X3;

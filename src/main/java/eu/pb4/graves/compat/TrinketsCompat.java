@@ -4,6 +4,7 @@ import dev.emi.trinkets.api.TrinketEnums;
 import dev.emi.trinkets.api.TrinketInventory;
 import dev.emi.trinkets.api.TrinketsApi;
 import dev.emi.trinkets.api.event.TrinketDropCallback;
+import eu.pb4.graves.event.PlayerGraveItemsEvent;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.item.ItemStack;
 

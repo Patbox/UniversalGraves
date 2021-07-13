@@ -11,5 +11,7 @@
   "text.graves.somebody_broke": "Your grave at %s (%s) containing %s item(s) has been broken!",
   "text.graves.created_at": "Created grave at %s (%s)",
   "text.graves.creation_failed": "Couldn't create grave! Your items were dropped at %s (%s)",
-  "text.graves.creation_failed_pvp": "Grave wasn't created, because player killed you!"
+  "text.graves.creation_failed_pvp": "Grave wasn't created, because player killed you! Your items were dropped at %s (%s)",
+  "text.graves.creation_failed_claim": "Grave wasn't created, because you were in a claim! Your items were dropped at %s (%s)"
+
 }

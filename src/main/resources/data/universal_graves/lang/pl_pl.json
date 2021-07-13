@@ -11,5 +11,7 @@
   "text.graves.somebody_broke": "Twój grób na %s (%s) zawierający %s przedmiotów został zniszczony!",
   "text.graves.created_at": "Stworzono grób na %s (%s)",
   "text.graves.creation_failed": "Nie można było stworzyć grobu! Twoje przedmioty leżą na %s (%s)",
-  "text.graves.creation_failed_pvp": "Nie stworzono grobu, ponieważ zostałeś zabity przez gracza!"
+  "text.graves.creation_failed_pvp": "Nie stworzono grobu, ponieważ zostałeś zabity przez gracza! Twoje przedmioty leżą na %s (%s)",
+  "text.graves.creation_failed_claim": "Nie stworzono grobu, ponieważ byłeś na działce! Twoje przedmioty leżą na %s (%s)"
+
 }

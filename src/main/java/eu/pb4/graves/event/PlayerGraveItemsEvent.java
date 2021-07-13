@@ -1,4 +1,4 @@
-package eu.pb4.graves.compat;
+package eu.pb4.graves.event;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;

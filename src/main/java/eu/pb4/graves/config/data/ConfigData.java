@@ -19,6 +19,7 @@ public class ConfigData {
     public int breakAfter = 900;
 
     public boolean createGravesFromPvP = true;
+    public boolean createGravesInClaims = true;
     public boolean dropItemsAfterExpiring = true;
 
     public boolean hologram = true;
@@ -45,7 +46,10 @@ public class ConfigData {
     public String creationFailedGraveMessage = "<red><lang:'text.graves.creation_failed':'<gold>${position}':'<yellow>${world}'>";
 
     public boolean displayCreationFailedPvPGraveMessage = true;
-    public String creationFailedPvPGraveMessage = "<red><lang:'text.graves.created_failed_pvp':'<gold>${position}':'<yellow>${world}'>";
+    public String creationFailedPvPGraveMessage = "<red><lang:'text.graves.creation_failed_pvp':'<gold>${position}':'<yellow>${world}'>";
+
+    public boolean displayCreationFailedClaimGraveMessage = true;
+    public String creationFailedClaimMessage = "<red><lang:'text.graves.creation_failed_claim':'<gold>${position}':'<yellow>${world}'>";
 
     public String neverExpires = "Never";
 

@@ -1,25 +1,33 @@
 package eu.pb4.graves.other;
 
 
+import eu.pb4.graves.event.GraveValidPosCheckEvent;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.tag.Tag;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.registry.Registry;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public class GraveUtils {
     public static final Identifier REPLACEABLE_TAG = new Identifier("universal_graves","replaceable");
 
-    public static BlockPos findGravePosition(ServerWorld world, BlockPos blockPos, Tag<Block> replaceable) {
-        int maxDistance = 5;
+    public static BlockCheckResult findGravePosition(ServerPlayerEntity player, ServerWorld world, BlockPos blockPos, Tag<Block> replaceable) {
+        int maxDistance = 8;
         int line = 1;
 
         blockPos = new BlockPos(blockPos.getX(), MathHelper.clamp(blockPos.getY(), world.getBottomY(), world.getTopY() - 1), blockPos.getZ());
-        if (isValidPos(world, blockPos, replaceable)) {
-            return blockPos;
+        BlockResult result = isValidPos(player, world, blockPos, replaceable);
+        BlockResult tempResult;
+        if (result.allow) {
+            return new BlockCheckResult(blockPos, result);
         } else {
             BlockPos.Mutable pos = new BlockPos.Mutable(blockPos.getX(), blockPos.getY(), blockPos.getZ());
 
@@ -33,21 +41,64 @@ public class GraveUtils {
                             if ((oX > 0 && oX < side - 1) && (oY > 0 && oY < side - 1) && (oZ > 0 && oZ < side - 1)) {
                                 continue;
                             }
-                            if (isValidPos(world, pos, replaceable)) {
-                                return pos.toImmutable();
+
+                            tempResult = isValidPos(player, world, pos, replaceable);
+                            if (tempResult.priority >= result.priority) {
+                                result = tempResult;
+                            }
+                            if (result.canCreate()) {
+                                return new BlockCheckResult(pos.toImmutable(), result);
                             }
                         }
                     }
                 }
                 line++;
             }
-            return null;
+            return new BlockCheckResult(null, result);
         }
     }
 
 
-    private static boolean isValidPos(ServerWorld world, BlockPos pos, Tag<Block> replaceable) {
+    private static BlockResult isValidPos(ServerPlayerEntity player, ServerWorld world, BlockPos pos, Tag<Block> replaceable) {
         BlockState state = world.getBlockState(pos);
-        return pos.getY() >= world.getBottomY() && pos.getY() < world.getTopY() && !state.hasBlockEntity() && (state.isAir() || replaceable.contains(state.getBlock()));
+        if (pos.getY() >= world.getBottomY() && pos.getY() < world.getTopY() && !state.hasBlockEntity() && (state.isAir() || replaceable.contains(state.getBlock()))) {
+            return GraveValidPosCheckEvent.EVENT.invoker().isValid(player, world, pos);
+        } else {
+            return BlockResult.BLOCK;
+        }
+    }
+
+    public enum BlockResult {
+        ALLOW(true, 2),
+        BLOCK(false, 0),
+        BLOCK_CLAIM(false, 1);
+
+        private final boolean allow;
+        private final int priority;
+
+        BlockResult(boolean allow, int priority) {
+            this.allow = allow;
+            this.priority = priority;
+        }
+
+        public boolean canCreate() {
+            return this.allow;
+        }
+    }
+
+    public static record BlockCheckResult(@Nullable BlockPos pos, BlockResult result) {}
+
+
+    public static String toWorldName(Identifier identifier) {
+        List<String> parts = new ArrayList<>();
+        {
+            String[] words = identifier.getPath().split("_");
+            for (String word : words) {
+                String[] s = word.split("", 2);
+                s[0] = s[0].toUpperCase(Locale.ROOT);
+                parts.add(String.join("", s));
+            }
+        }
+        return String.join("", parts);
     }
 }

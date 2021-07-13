@@ -1,7 +1,7 @@
 package eu.pb4.graves.mixin;
 
-import com.google.common.collect.ImmutableList;
-import eu.pb4.graves.compat.PlayerGraveItemsEvent;
+import eu.pb4.graves.event.PlayerGraveCreationEvent;
+import eu.pb4.graves.event.PlayerGraveItemsEvent;
 import eu.pb4.graves.config.Config;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.grave.GraveBlock;
@@ -22,7 +22,6 @@ import net.minecraft.state.property.Properties;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Util;
-import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GameRules;
 import org.spongepowered.asm.mixin.Mixin;
@@ -46,56 +45,70 @@ public abstract class LivingEntityMixin {
             }
 
             try {
-
                 Config config = ConfigManager.getConfig();
                 Text text = null;
-                Map<String, Text> placeholders = Collections.emptyMap();
+                Map<String, Text> placeholders = Map.of(
+                        "position", new LiteralText("" + player.getBlockPos().toShortString()),
+                        "world", new LiteralText(GraveUtils.toWorldName(player.getServerWorld().getRegistryKey().getValue()))
+                );
+
 
                 if (!config.configData.createGravesFromPvP && source.getAttacker() instanceof PlayerEntity) {
-                    if (config.configData.displayCreationFailedPvPGraveMessage) {
-                        text = config.creationFailedPvPGraveMessage;
-                    }
+                    text = config.creationFailedPvPGraveMessage;
                 } else {
-                    BlockPos gravePos = GraveUtils.findGravePosition(player.getServerWorld(), player.getBlockPos(), TagRegistry.block(GraveUtils.REPLACEABLE_TAG));
+                    var eventResult = PlayerGraveCreationEvent.EVENT.invoker().shouldCreate(player);
 
-                    if (gravePos != null) {
-                        List<ItemStack> items = new ArrayList<>();
+                    if (eventResult.canCreate()) {
+                        var result = GraveUtils.findGravePosition(player, player.getServerWorld(), player.getBlockPos(), TagRegistry.block(GraveUtils.REPLACEABLE_TAG));
 
-                        for (int i = 0; i < player.getInventory().size(); ++i) {
-                            ItemStack itemStack = player.getInventory().getStack(i);
-                            if (!itemStack.isEmpty()) {
-                                if (EnchantmentHelper.hasVanishingCurse(itemStack)) {
-                                    player.getInventory().removeStack(i);
-                                } else {
-                                    items.add(player.getInventory().removeStack(i));
+                        if (result.result().canCreate()) {
+                            BlockPos gravePos = result.pos();
+                            List<ItemStack> items = new ArrayList<>();
+
+                            for (int i = 0; i < player.getInventory().size(); ++i) {
+                                ItemStack itemStack = player.getInventory().getStack(i);
+                                if (!itemStack.isEmpty()) {
+                                    if (EnchantmentHelper.hasVanishingCurse(itemStack)) {
+                                        player.getInventory().removeStack(i);
+                                    } else {
+                                        items.add(player.getInventory().removeStack(i));
+                                    }
                                 }
                             }
-                        }
 
-                        PlayerGraveItemsEvent.EVENT.invoker().modifyItems(player, items);
+                            PlayerGraveItemsEvent.EVENT.invoker().modifyItems(player, items);
 
-                        if (items.size() == 0) {
-                            return;
-                        }
+                            if (items.size() == 0) {
+                                return;
+                            }
 
-                        BlockState blockState = player.getServerWorld().getBlockState(gravePos);
-                        player.getServerWorld().setBlockState(gravePos, GraveBlock.INSTANCE.getDefaultState().with(Properties.ROTATION, player.getRandom().nextInt(15)));
-                        BlockEntity entity = player.getServerWorld().getBlockEntity(gravePos);
+                            BlockState blockState = player.getServerWorld().getBlockState(gravePos);
+                            player.getServerWorld().setBlockState(gravePos, GraveBlock.INSTANCE.getDefaultState().with(Properties.ROTATION, player.getRandom().nextInt(15)));
+                            BlockEntity entity = player.getServerWorld().getBlockEntity(gravePos);
 
-                        if (entity instanceof GraveBlockEntity grave) {
-                            int i = player.experienceLevel * 7;
-                            grave.setGrave(player.getGameProfile(), items, i > 100 ? 100 : i, source.getDeathMessage(player), blockState);
-                            player.experienceLevel = 0;
-                            if (config.configData.displayCreatedGraveMessage) {
+                            if (entity instanceof GraveBlockEntity grave) {
+                                int i = player.experienceLevel * 7;
+                                grave.setGrave(player.getGameProfile(), items, i > 100 ? 100 : i, source.getDeathMessage(player), blockState);
+                                player.experienceLevel = 0;
                                 text = config.createdGraveMessage;
                                 placeholders = grave.info.getPlaceholders();
+                            } else {
+                                text = config.creationFailedGraveMessage;
                             }
                         } else {
-                            if (config.configData.displayCreationFailedGraveMessage) {
-                                text = config.creationFailedGraveMessage;
-                                placeholders = Map.of("position", new LiteralText("" + player.getBlockPos().toShortString()));
-                            }
+                            text = switch (result.result()) {
+                                case BLOCK -> config.creationFailedGraveMessage;
+                                case BLOCK_CLAIM -> config.creationFailedClaimGraveMessage;
+                                case ALLOW -> null;
+                            };
                         }
+                    } else {
+                        text = switch (eventResult) {
+                            case BLOCK -> config.creationFailedGraveMessage;
+                            case BLOCK_CLAIM -> config.creationFailedClaimGraveMessage;
+                            case BLOCK_PVP -> config.creationFailedPvPGraveMessage;
+                            default -> null;
+                        };
                     }
                 }
 

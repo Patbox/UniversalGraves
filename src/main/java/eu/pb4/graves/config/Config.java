@@ -5,6 +5,7 @@ import eu.pb4.graves.grave.GravesLookType;
 import eu.pb4.graves.config.data.ConfigData;
 import eu.pb4.placeholders.TextParser;
 import net.minecraft.text.Text;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,12 +23,20 @@ public final class Config {
     public final List<Text> guiProtectedText;
     public final List<Text> guiText;
 
+    @Nullable
     public final Text noLongerProtectedMessage;
+    @Nullable
     public final Text graveExpiredMessage;
+    @Nullable
     public final Text graveBrokenMessage;
+    @Nullable
     public final Text createdGraveMessage;
+    @Nullable
     public final Text creationFailedGraveMessage;
+    @Nullable
     public final Text creationFailedPvPGraveMessage;
+    @Nullable
+    public final Text creationFailedClaimGraveMessage;
 
 
     public Config(ConfigData data) {
@@ -42,12 +51,13 @@ public final class Config {
         this.guiProtectedText = parse(data.guiProtectedText);
         this.guiText = parse(data.guiText);
 
-        this.noLongerProtectedMessage = TextParser.parse(data.noLongerProtectedMessage);
-        this.graveExpiredMessage = TextParser.parse(data.graveExpiredMessage);
-        this.graveBrokenMessage = TextParser.parse(data.graveBrokenMessage);
-        this.createdGraveMessage = TextParser.parse(data.createdGraveMessage);
-        this.creationFailedGraveMessage = TextParser.parse(data.creationFailedGraveMessage);
-        this.creationFailedPvPGraveMessage = TextParser.parse(data.creationFailedPvPGraveMessage);
+        this.noLongerProtectedMessage = data.displayNoLongerProtectedMessage ? TextParser.parse(data.noLongerProtectedMessage) : null;
+        this.graveExpiredMessage = data.displayGraveExpiredMessage ? TextParser.parse(data.graveExpiredMessage) : null;
+        this.graveBrokenMessage = data.displayGraveBrokenMessage ? TextParser.parse(data.graveBrokenMessage) : null;
+        this.createdGraveMessage = data.displayCreatedGraveMessage ? TextParser.parse(data.createdGraveMessage) : null;
+        this.creationFailedGraveMessage = data.displayCreationFailedGraveMessage ? TextParser.parse(data.creationFailedGraveMessage) : null;
+        this.creationFailedPvPGraveMessage = data.displayCreationFailedPvPGraveMessage ? TextParser.parse(data.creationFailedPvPGraveMessage) : null;
+        this.creationFailedClaimGraveMessage = data.displayCreationFailedClaimGraveMessage ? TextParser.parse(data.creationFailedClaimMessage) : null;
     }
 
 
