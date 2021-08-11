@@ -1,0 +1,17 @@
+{
+  "text.graves.grave_of": "%s之墓",
+  "text.graves.items_xp": "物品：%s 经验：%s",
+  "text.graves.protected_time": "将在%s后启封",
+  "text.graves.break_time": "将在%s后自动洒落",
+  "text.graves.not_protected": "已启封！",
+  "text.graves.players_grave": "%s的坟墓",
+  "text.graves.gui_title": "你的坟墓",
+  "text.graves.no_longer_protected": "你在%s（%s）的坟墓（含有%s个物品）已启封！任何人都可以开启！",
+  "text.graves.expired": "你在%s（%s）的坟墓（含有%s个物品）已洒落！",
+  "text.graves.somebody_broke": "你在%s（%s）的坟墓（含有%s个物品）已被拆毁！",
+  "text.graves.created_at": "坟墓已生成：%s（%s）",
+  "text.graves.creation_failed": "坟墓生成失败！你的物品洒在了%s（%s）",
+  "text.graves.creation_failed_pvp": "玩家击杀不生成坟墓！你的物品洒在了%s（%s）",
+  "text.graves.creation_failed_claim": "领地内不生成坟墓！你的物品洒在了%s（%s）"
+  
+}
