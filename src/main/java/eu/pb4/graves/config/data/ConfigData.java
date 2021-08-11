@@ -1,6 +1,8 @@
 package eu.pb4.graves.config.data;
 
 import eu.pb4.graves.config.ConfigManager;
+import eu.pb4.graves.grave.GravesLookType;
+import eu.pb4.graves.grave.GravesXPCalculation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +10,7 @@ import java.util.List;
 public class ConfigData {
     public int CONFIG_VERSION_DONT_TOUCH_THIS = ConfigManager.VERSION;
     public String _comment = "Before changing anything, see https://github.com/Patbox/UniversalGraves#configuration";
-    public String graveType = "player_head";
+    public String graveType = GravesLookType.PLAYER_HEAD.name;
     public String lockedTexture = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjdjYWI1NmM4MmNiODFiZGI5OTc5YTQ2NGJjOWQzYmEzZTY3MjJiYTEyMmNmNmM1Mjg3MzAxMGEyYjU5YWVmZSJ9fX0=";
     public String unlockedTexture = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjdjYWI1NmM4MmNiODFiZGI5OTc5YTQ2NGJjOWQzYmEzZTY3MjJiYTEyMmNmNmM1Mjg3MzAxMGEyYjU5YWVmZSJ9fX0=";
 
@@ -17,6 +19,10 @@ public class ConfigData {
     public int protectionTime = 300;
     public boolean shouldBreak = true;
     public int breakAfter = 900;
+
+    public boolean storeExperience = true;
+    public String xpStorageType = GravesXPCalculation.VANILLA.name;
+    public double xpPercentTypeValue = 100;
 
     public boolean createGravesFromPvP = true;
     public boolean createGravesInClaims = true;

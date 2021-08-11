@@ -2,12 +2,15 @@ package eu.pb4.graves.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import eu.pb4.graves.GravesMod;
 import eu.pb4.graves.config.data.ConfigData;
 import net.fabricmc.loader.api.FabricLoader;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 public class ConfigManager {
     public static final int VERSION = 1;
@@ -34,14 +37,14 @@ public class ConfigManager {
 
 
             if (configFile.exists()) {
-                String json = IOUtils.toString(new InputStreamReader(new FileInputStream(configFile), "UTF-8"));
+                String json = IOUtils.toString(new InputStreamReader(new FileInputStream(configFile), StandardCharsets.UTF_8));
 
                 config = GSON.fromJson(json, ConfigData.class);
             } else {
                 config = new ConfigData();
             }
 
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(configFile), "UTF-8"));
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(configFile), StandardCharsets.UTF_8));
             writer.write(GSON.toJson(config));
             writer.close();
 

@@ -19,7 +19,6 @@ repositories {
 	maven { url 'https://maven.nucleoid.xyz' }
 	maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
 	maven { url 'https://api.modrinth.com/maven' }
-	//mavenLocal()
 
 	/*maven {
 		name = "TerraformersMC"
@@ -48,10 +47,10 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 
-	modImplementation include("eu.pb4:sgui:1.0.0-rc3-1.17.1")
-	modImplementation include("eu.pb4:hologram-api:0.1.2+1.17.1")
-	modImplementation include("eu.pb4:placeholder-api:1.0.1+1.17")
-	modImplementation include("eu.pb4:polymer:0.1.0-pre9+1.17.1")
+	modImplementation include("eu.pb4:sgui:1.0.0-rc4+1.17.1")
+	modImplementation include("eu.pb4:hologram-api:0.2.1+1.17.1")
+	modImplementation include("eu.pb4:placeholder-api:1.1.0+1.17.1")
+	modImplementation include("eu.pb4:polymer:0.1.0-rc.4+1.17.1")
 	modImplementation include("fr.catcore:server-translations-api:1.4.5+1.17")
 	modImplementation include("me.lucko:fabric-permissions-api:0.1-SNAPSHOT")
 

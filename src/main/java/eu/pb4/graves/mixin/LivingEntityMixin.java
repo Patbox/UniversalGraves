@@ -1,6 +1,7 @@
 package eu.pb4.graves.mixin;
 
 import eu.pb4.graves.event.PlayerGraveCreationEvent;
+import eu.pb4.graves.event.PlayerGraveItemAddedEvent;
 import eu.pb4.graves.event.PlayerGraveItemsEvent;
 import eu.pb4.graves.config.Config;
 import eu.pb4.graves.config.ConfigManager;
@@ -21,10 +22,14 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.property.Properties;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.Util;
+import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GameRules;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -36,6 +41,7 @@ import java.util.Map;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin {
+    @Shadow protected int playerHitTimer;
 
     @Inject(method = "drop", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;dropInventory()V", shift = At.Shift.BEFORE), cancellable = true)
     private void replaceWithGrave(DamageSource source, CallbackInfo ci) {
@@ -46,7 +52,7 @@ public abstract class LivingEntityMixin {
 
             try {
                 Config config = ConfigManager.getConfig();
-                Text text = null;
+                Text text;
                 Map<String, Text> placeholders = Map.of(
                         "position", new LiteralText("" + player.getBlockPos().toShortString()),
                         "world", new LiteralText(GraveUtils.toWorldName(player.getServerWorld().getRegistryKey().getValue()))
@@ -67,33 +73,38 @@ public abstract class LivingEntityMixin {
 
                             for (int i = 0; i < player.getInventory().size(); ++i) {
                                 ItemStack itemStack = player.getInventory().getStack(i);
-                                if (!itemStack.isEmpty()) {
-                                    if (EnchantmentHelper.hasVanishingCurse(itemStack)) {
-                                        player.getInventory().removeStack(i);
-                                    } else {
-                                        items.add(player.getInventory().removeStack(i));
-                                    }
+                                if (!itemStack.isEmpty()
+                                        && PlayerGraveItemAddedEvent.EVENT.invoker().canAddItem(player, itemStack) != ActionResult.FAIL
+                                        && !GraveUtils.hasSoulboundEnchantment(itemStack)) {
+                                    items.add(player.getInventory().removeStack(i));
                                 }
                             }
 
                             PlayerGraveItemsEvent.EVENT.invoker().modifyItems(player, items);
+                            int i = 0;
+                            if (config.configData.storeExperience) {
+                                i = config.xpCalc.converter.calc(player);
+                            }
 
-                            if (items.size() == 0) {
+                            if (items.size() == 0 && i == 0) {
                                 return;
                             }
 
-                            BlockState blockState = player.getServerWorld().getBlockState(gravePos);
+                            BlockState oldBlockState = player.getServerWorld().getBlockState(gravePos);
                             player.getServerWorld().setBlockState(gravePos, GraveBlock.INSTANCE.getDefaultState().with(Properties.ROTATION, player.getRandom().nextInt(15)));
                             BlockEntity entity = player.getServerWorld().getBlockEntity(gravePos);
 
                             if (entity instanceof GraveBlockEntity grave) {
-                                int i = player.experienceLevel * 7;
-                                grave.setGrave(player.getGameProfile(), items, i > 100 ? 100 : i, source.getDeathMessage(player), blockState);
-                                player.experienceLevel = 0;
+                                if (config.configData.storeExperience) {
+                                    player.experienceLevel = 0;
+                                }
+
+                                grave.setGrave(player.getGameProfile(), items, i, source.getDeathMessage(player), oldBlockState);
                                 text = config.createdGraveMessage;
                                 placeholders = grave.info.getPlaceholders();
                             } else {
                                 text = config.creationFailedGraveMessage;
+                                ItemScatterer.spawn(player.getServerWorld(), gravePos, DefaultedList.copyOf(ItemStack.EMPTY, items.toArray(new ItemStack[0])));
                             }
                         } else {
                             text = switch (result.result()) {

@@ -7,7 +7,7 @@ If you have any questions, you can ask them on my [Discord](https://discord.com/
 
 ![Example image](https://i.imgur.com/hfyd10Q.png)
 
-Fun fact, I died 147 times while making this mod + 17 on 2nd account (so far)
+Fun fact, I died 237 times while making this mod + 35 on 2nd account (so far)
 
 ## Commands (and permissions):
 - `/graves` - Main command, shows list of users graves (`universal_graves.list`, available by default)
@@ -18,7 +18,7 @@ Additionally, by having `universal_graves.teleport` permission, you can teleport
 
 ## Configuration:
 You can find config file in `./config/unicversal-graves.json`.
-[Formatting uses PlaceholderAPI's Text Parser for which docs you can find here](https://github.com/Patbox/FabricPlaceholderAPI/blob/1.17/TEXT_FORMATTING.md).
+[Formatting uses Simplified Text for which docs you can find here]().
 Additionally, every message type has few own local variables.
 
 ```json5
@@ -32,6 +32,9 @@ Additionally, every message type has few own local variables.
   "protectionTime": 300,              // Time for which graves should be protected (is seconds)
   "shouldBreak": true,                // Changes if grave should break after some time
   "breakAfter": 900,                  // Time after which grave will break
+  "storeExperience": true,            // If true, experience points will be stored in grave
+  "xpStorageType": "vanilla",         // Allows to change how much of xp is stored, `none` for nothing, `vanilla` for vanilla amount `percent_levels` for percent of levels and `percent_points` for percent of points
+  "xpPercentTypeValue": 100.0,        // Changes how much percent of xp will be stored, works only with xpStorageType of `percent_...`
   "createGravesFromPvP": true,        // If false, after dying from another players attack grave won't be created
   "dropItemsAfterExpiring": true,     // If items should drop breaking from expiration
   "hologram": true,                   // Enables hologram

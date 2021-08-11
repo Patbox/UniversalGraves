@@ -65,7 +65,11 @@ public class GraveBlock extends Block implements VirtualBlock, BlockEntityProvid
         BlockEntity blockEntity = world.getBlockEntity(pos);
 
         if (blockEntity instanceof GraveBlockEntity grave && grave.info.canTakeFrom(player)) {
-            new GraveGui((ServerPlayerEntity) player, grave).open();
+            if (grave.info.itemCount > 0) {
+                new GraveGui((ServerPlayerEntity) player, grave).open();
+            } else {
+                world.setBlockState(pos, grave.replacedBlockState, Block.NOTIFY_ALL);
+            }
             return ActionResult.SUCCESS;
         }
         return super.onUse(state, world, pos, player, hand, hit);

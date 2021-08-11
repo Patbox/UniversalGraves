@@ -4,12 +4,15 @@ package eu.pb4.graves.other;
 import eu.pb4.graves.event.GraveValidPosCheckEvent;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.tag.Tag;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -18,6 +21,8 @@ import java.util.Locale;
 
 public class GraveUtils {
     public static final Identifier REPLACEABLE_TAG = new Identifier("universal_graves","replaceable");
+
+
 
     public static BlockCheckResult findGravePosition(ServerPlayerEntity player, ServerWorld world, BlockPos blockPos, Tag<Block> replaceable) {
         int maxDistance = 8;
@@ -100,5 +105,15 @@ public class GraveUtils {
             }
         }
         return String.join("", parts);
+    }
+
+    public static boolean hasSoulboundEnchantment(ItemStack stack) {
+        for (var enchant : EnchantmentHelper.get(stack).keySet()) {
+            var key = Registry.ENCHANTMENT.getId(enchant);
+            if (key.getPath().contains("soulbound") || key.getPath().contains("soul_bound")) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -30,9 +30,9 @@ public class GraveListGui extends SimpleGui {
 
     public GraveListGui(ServerPlayerEntity player, GameProfile profile) {
         super(ScreenHandlerType.GENERIC_9X3, player, false);
-        targetUUID = player.getUuid();
+        this.targetUUID = profile.getId();
 
-        if (player.getUuid().equals(profile.getId())) {
+        if (player.getUuid().equals(this.targetUUID)) {
             this.setTitle(ConfigManager.getConfig().guiTitle);
         } else {
             this.setTitle(PlaceholderAPI.parsePredefinedText(

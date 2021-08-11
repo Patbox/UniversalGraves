@@ -3,6 +3,7 @@ package eu.pb4.graves.config;
 
 import eu.pb4.graves.grave.GravesLookType;
 import eu.pb4.graves.config.data.ConfigData;
+import eu.pb4.graves.grave.GravesXPCalculation;
 import eu.pb4.placeholders.TextParser;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
@@ -37,11 +38,13 @@ public final class Config {
     public final Text creationFailedPvPGraveMessage;
     @Nullable
     public final Text creationFailedClaimGraveMessage;
+    public final GravesXPCalculation xpCalc;
 
 
     public Config(ConfigData data) {
         this.configData = data;
         this.style = GravesLookType.byName(configData.graveType);
+        this.xpCalc = GravesXPCalculation.byName(configData.xpStorageType);
         this.hologramProtectedText = parse(data.hologramProtectedText);
         this.hologramText = parse(data.hologramText);
 
