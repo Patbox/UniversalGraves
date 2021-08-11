@@ -1,17 +1,17 @@
 {
-  "text.graves.grave_of": "Grave of %s",
-  "text.graves.items_xp": "Items: %s XP: %s",
-  "text.graves.protected_time": "Protected for %s",
-  "text.graves.break_time": "Breaks in %s",
-  "text.graves.not_protected": "Not protected!",
-  "text.graves.players_grave": "%s's grave",
-  "text.graves.gui_title": "Your graves",
-  "text.graves.no_longer_protected": "Your grave at %s (%s) containing %s item(s) is no longer protected!",
-  "text.graves.expired": "Your grave at %s (%s) containing %s item(s) expired!",
-  "text.graves.somebody_broke": "Your grave at %s (%s) containing %s item(s) has been broken!",
-  "text.graves.created_at": "Created grave at %s (%s)",
-  "text.graves.creation_failed": "Couldn't create grave! Your items were dropped at %s (%s)",
-  "text.graves.creation_failed_pvp": "Grave wasn't created, because player killed you! Your items were dropped at %s (%s)",
-  "text.graves.creation_failed_claim": "Grave wasn't created, because you were in a claim! Your items were dropped at %s (%s)"
-
+  "text.graves.grave_of": "%s之墓",
+  "text.graves.items_xp": "物品：%s 经验：%s",
+  "text.graves.protected_time": "将在%s后启封",
+  "text.graves.break_time": "将在%s后自动洒落",
+  "text.graves.not_protected": "已启封！",
+  "text.graves.players_grave": "%s的坟墓",
+  "text.graves.gui_title": "你的坟墓",
+  "text.graves.no_longer_protected": "你在%s（%s）的坟墓（含有%s个物品）已启封！任何人都可以开启！",
+  "text.graves.expired": "你在%s（%s）的坟墓（含有%s个物品）已洒落！",
+  "text.graves.somebody_broke": "你在%s（%s）的坟墓（含有%s个物品）已被拆毁！",
+  "text.graves.created_at": "坟墓已生成：%s（%s）",
+  "text.graves.creation_failed": "坟墓生成失败！你的物品洒在了%s（%s）",
+  "text.graves.creation_failed_pvp": "玩家击杀不生成坟墓！你的物品洒在了%s（%s）",
+  "text.graves.creation_failed_claim": "领地内不生成坟墓！你的物品洒在了%s（%s）"
+  
 }
