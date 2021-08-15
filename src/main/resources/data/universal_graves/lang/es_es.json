@@ -1,0 +1,16 @@
+{
+  "text.graves.grave_of": "Tumba de %s",
+  "text.graves.items_xp": "Items: %s XP: %s",
+  "text.graves.protected_time": "Protegido para %s",
+  "text.graves.break_time": "Se rompe en %s",
+  "text.graves.not_protected": "¡No protegido!",
+  "text.graves.players_grave": "Tumba de %s",
+  "text.graves.gui_title": "Tus tumbas",
+  "text.graves.no_longer_protected": "¡Tu tumba en %s (%s) que contiene %s item(s) ya no está protegida!",
+  "text.graves.expired": "¡Tu tumba en %s (%s) que contiene %s item(s) ha expirado!",
+  "text.graves.somebody_broke": "¡Tu tumba en %s (%s) que contiene %s item(s) ha sido rota!",
+  "text.graves.created_at": "Tumba creada en %s (%s)",
+  "text.graves.creation_failed": "¡No se ha podido crear la tumba! Tus items fueron soltados en %s (%s)",
+  "text.graves.creation_failed_pvp": "¡La tumba no fue creada, porque un jugador te mató! Tus items fueron soltados en %s (%s)",
+  "text.graves.creation_failed_claim": "¡La tumba no fue creada, porque estabas en terreno protegido! Tus items fueron soltados en %s (%s)"
+}
