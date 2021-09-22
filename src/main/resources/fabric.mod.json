@@ -12,9 +12,8 @@
     "homepage": "https://pb4.eu",
     "sources": "https://github.com/Patbox/UniversalGraves"
   },
-
   "license": "LGPLv3",
-
+  "icon": "assets/logo.png",
   "environment": "*",
   "entrypoints": {
     "main": [

@@ -49,7 +49,7 @@ public class GraveListGui extends SimpleGui {
             this.clearSlot(x);
         }
 
-        for (GraveInfo graveInfo : GraveManager.INSTANCE.get(this.targetUUID)) {
+        for (GraveInfo graveInfo : GraveManager.INSTANCE.getByUuid(this.targetUUID)) {
             if (this.getFirstEmptySlot() == -1) {
                 return;
             }
@@ -75,7 +75,7 @@ public class GraveListGui extends SimpleGui {
                             ServerWorld world = this.player.getServer().getWorld(RegistryKey.of(Registry.WORLD_KEY, graveInfo.world));
 
                             if (world != null) {
-                                this.player.teleport(world, graveInfo.position.getX() + 0.5, graveInfo.position.getY(), graveInfo.position.getZ() + 0.5, this.player.getYaw(), this.player.getPitch());
+                                this.player.teleport(world, graveInfo.position.getX() + 0.5, graveInfo.position.getY() + 1, graveInfo.position.getZ() + 0.5, this.player.getYaw(), this.player.getPitch());
                             }
                         }
                     })

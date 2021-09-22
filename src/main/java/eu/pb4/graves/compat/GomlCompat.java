@@ -22,7 +22,7 @@ public class GomlCompat {
         });
 
         GraveValidPosCheckEvent.EVENT.register(((player, world, pos) -> {
-            if (!ConfigManager.getConfig().configData.createGravesInClaims) {
+            if (!ConfigManager.getConfig().configData.createInClaims) {
                 for (var entry : ClaimUtils.getClaimsAt(world, pos).collect(Collectors.toList())) {
                     if (!entry.getValue().hasPermission(player)) {
                         return GraveUtils.BlockResult.BLOCK_CLAIM;

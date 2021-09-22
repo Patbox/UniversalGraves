@@ -8,6 +8,9 @@ import net.minecraft.util.ActionResult;
 
 import java.util.List;
 
+/**
+ * This is invoked before item is added to the grave
+ */
 public interface PlayerGraveItemAddedEvent {
     Event<PlayerGraveItemAddedEvent> EVENT = EventFactory.createArrayBacked(PlayerGraveItemAddedEvent.class,
                 (listeners) -> (player, item) -> {

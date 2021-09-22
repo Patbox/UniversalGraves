@@ -77,13 +77,13 @@ public final class GraveInfo {
 
         long currentTime = System.currentTimeMillis() / 1000;
 
-        long protectionTime = config.configData.isProtected ? config.configData.protectionTime - currentTime + this.creationTime : Long.MAX_VALUE;
-        long breakTime = config.configData.shouldBreak ? config.configData.breakAfter - currentTime + this.creationTime : Long.MAX_VALUE;
+        long protectionTime = config.configData.protectionTime > -1 ? config.configData.protectionTime - currentTime + this.creationTime : Long.MAX_VALUE;
+        long breakTime = config.configData.breakingTime > -1 ? config.configData.breakingTime - currentTime + this.creationTime : Long.MAX_VALUE;
 
         Map<String, Text> values = new HashMap<>();
         values.put("player", new LiteralText(this.gameProfile != null ? this.gameProfile.getName() : "<No player!>"));
-        values.put("protection_time", new LiteralText("" + (config.configData.shouldProtectionExpire ? config.getFormattedTime(protectionTime) : "∞")));
-        values.put("break_time", new LiteralText("" + (config.configData.shouldBreak ? config.getFormattedTime(breakTime) : "∞")));
+        values.put("protection_time", new LiteralText("" + (config.configData.protectionTime > -1 ? config.getFormattedTime(protectionTime) : "∞")));
+        values.put("break_time", new LiteralText("" + (config.configData.breakingTime > -1 ? config.getFormattedTime(breakTime) : "∞")));
         values.put("xp", new LiteralText("" + this.xp));
         values.put("item_count", new LiteralText("" + this.itemCount));
         values.put("position", new LiteralText("" + this.position.toShortString()));
@@ -95,9 +95,9 @@ public final class GraveInfo {
     public boolean shouldBreak() {
         Config config = ConfigManager.getConfig();
 
-        if (config.configData.shouldBreak) {
+        if (config.configData.breakingTime > -1) {
             long currentTime = System.currentTimeMillis() / 1000;
-            long breakTime = config.configData.breakAfter - currentTime + this.creationTime;
+            long breakTime = config.configData.breakingTime - currentTime + this.creationTime;
 
             return breakTime <= 0;
         } else {
@@ -108,7 +108,7 @@ public final class GraveInfo {
     public boolean isProtected() {
         Config config = ConfigManager.getConfig();
 
-        if (config.configData.shouldProtectionExpire && config.configData.isProtected) {
+        if (config.configData.protectionTime > -1 && config.configData.isProtected) {
             long currentTime = System.currentTimeMillis() / 1000;
             long protectionTime = config.configData.protectionTime - currentTime + this.creationTime;
 

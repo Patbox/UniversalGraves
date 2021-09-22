@@ -6,6 +6,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 public enum GravesXPCalculation {
     NONE("none", (p) -> 0),
     VANILLA("vanilla", (p) -> Math.min(p.experienceLevel * 7, 100)),
+    DROP("drop", (p) -> Math.min(p.experienceLevel * 7, 100)),
     PERCENT_POINTS("percent_points", (p) -> {
         int points = 0;
 
@@ -52,6 +53,12 @@ public enum GravesXPCalculation {
             }
         }
         return GravesXPCalculation.NONE;
+    }
+
+    public static String next(String xpStorageType) {
+        var byName = byName(xpStorageType);
+
+        return GravesXPCalculation.values()[(byName.ordinal() + 1) % GravesXPCalculation.values().length].name;
     }
 
     @FunctionalInterface

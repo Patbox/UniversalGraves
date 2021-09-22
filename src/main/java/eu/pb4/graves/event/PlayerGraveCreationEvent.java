@@ -6,6 +6,9 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 
+/**
+ * This event is called before grave is created to check if it's allowed
+ */
 public interface PlayerGraveCreationEvent {
     Event<PlayerGraveCreationEvent> EVENT = EventFactory.createArrayBacked(PlayerGraveCreationEvent.class,
                 (listeners) -> (player) -> {

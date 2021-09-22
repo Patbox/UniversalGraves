@@ -1,34 +1,48 @@
 package eu.pb4.graves.config.data;
 
-import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.grave.GravesLookType;
 import eu.pb4.graves.grave.GravesXPCalculation;
+import eu.pb4.graves.other.GraveUtils;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.WallBlock;
+import net.minecraft.block.enums.WallShape;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class ConfigData {
-    public int CONFIG_VERSION_DONT_TOUCH_THIS = ConfigManager.VERSION;
+public class ConfigData extends VersionedConfigData implements Cloneable {
     public String _comment = "Before changing anything, see https://github.com/Patbox/UniversalGraves#configuration";
-    public String graveType = GravesLookType.PLAYER_HEAD.name;
-    public String lockedTexture = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjdjYWI1NmM4MmNiODFiZGI5OTc5YTQ2NGJjOWQzYmEzZTY3MjJiYTEyMmNmNmM1Mjg3MzAxMGEyYjU5YWVmZSJ9fX0=";
-    public String unlockedTexture = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjdjYWI1NmM4MmNiODFiZGI5OTc5YTQ2NGJjOWQzYmEzZTY3MjJiYTEyMmNmNmM1Mjg3MzAxMGEyYjU5YWVmZSJ9fX0=";
+
+    public String graveStyle = GravesLookType.PLAYER_HEAD.name;
+    public String presetHeadLockedTexture = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjdjYWI1NmM4MmNiODFiZGI5OTc5YTQ2NGJjOWQzYmEzZTY3MjJiYTEyMmNmNmM1Mjg3MzAxMGEyYjU5YWVmZSJ9fX0=";
+    public String presetHeadUnlockedTexture = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjdjYWI1NmM4MmNiODFiZGI5OTc5YTQ2NGJjOWQzYmEzZTY3MjJiYTEyMmNmNmM1Mjg3MzAxMGEyYjU5YWVmZSJ9fX0=";
+    public List<String> customBlockStateLockedStyles = List.of(
+            GraveUtils.blockStateToString(Blocks.STONE_BRICK_WALL.getDefaultState().with(WallBlock.NORTH_SHAPE, WallShape.LOW).with(WallBlock.SOUTH_SHAPE, WallShape.LOW).with(WallBlock.UP, true)),
+            GraveUtils.blockStateToString(Blocks.STONE_BRICK_WALL.getDefaultState().with(WallBlock.EAST_SHAPE, WallShape.LOW).with(WallBlock.WEST_SHAPE, WallShape.LOW).with(WallBlock.UP, true))
+    );
+
+    public List<String> customBlockStateUnlockedStyles = List.of(
+            GraveUtils.blockStateToString(Blocks.MOSSY_STONE_BRICK_WALL.getDefaultState().with(WallBlock.NORTH_SHAPE, WallShape.LOW).with(WallBlock.SOUTH_SHAPE, WallShape.LOW).with(WallBlock.UP, true)),
+            GraveUtils.blockStateToString(Blocks.MOSSY_STONE_BRICK_WALL.getDefaultState().with(WallBlock.EAST_SHAPE, WallShape.LOW).with(WallBlock.WEST_SHAPE, WallShape.LOW).with(WallBlock.UP, true))
+    );
 
     public boolean isProtected = true;
-    public boolean shouldProtectionExpire = true;
     public int protectionTime = 300;
-    public boolean shouldBreak = true;
-    public int breakAfter = 900;
+    public int breakingTime = 900;
 
-    public boolean storeExperience = true;
     public String xpStorageType = GravesXPCalculation.VANILLA.name;
     public double xpPercentTypeValue = 100;
 
-    public boolean createGravesFromPvP = true;
-    public boolean createGravesInClaims = true;
+    public boolean createFromPvP = true;
+    public boolean createInClaims = true;
     public boolean dropItemsAfterExpiring = true;
 
+    public String graveTitle = "<lang:'text.graves.players_grave':'${player}'>";
+
     public boolean hologram = true;
+    public double hologramOffset = 1.2;
     public List<String> hologramProtectedText = getDefaultProtectedHologram();
     public List<String> hologramText = getDefaultHologram();
 
@@ -36,26 +50,13 @@ public class ConfigData {
     public List<String> guiProtectedText = getDefaultProtectedGui();
     public List<String> guiText = getDefaultGui();
 
-    public boolean displayNoLongerProtectedMessage = true;
-    public String noLongerProtectedMessage = "<red><lang:'text.graves.no_longer_protected':'<gold>${position}':'<white>${world}':'<yellow>${item_count}'>";
-
-    public boolean displayGraveExpiredMessage = true;
-    public String graveExpiredMessage = "<red><lang:'text.graves.expired':'<gold>${position}':'<white>${world}':'<yellow>${item_count}'>";
-
-    public boolean displayGraveBrokenMessage = true;
-    public String graveBrokenMessage = "<gray><lang:'text.graves.somebody_broke':'<white>${position}':'<white>${world}':'<white>${item_count}'>";
-
-    public boolean displayCreatedGraveMessage = true;
-    public String createdGraveMessage = "<white><lang:'text.graves.created_at':'<yellow>${position}':'<gray>${world}'>";
-
-    public boolean displayCreationFailedGraveMessage = true;
-    public String creationFailedGraveMessage = "<red><lang:'text.graves.creation_failed':'<gold>${position}':'<yellow>${world}'>";
-
-    public boolean displayCreationFailedPvPGraveMessage = true;
-    public String creationFailedPvPGraveMessage = "<red><lang:'text.graves.creation_failed_pvp':'<gold>${position}':'<yellow>${world}'>";
-
-    public boolean displayCreationFailedClaimGraveMessage = true;
-    public String creationFailedClaimMessage = "<red><lang:'text.graves.creation_failed_claim':'<gold>${position}':'<yellow>${world}'>";
+    public String messageGraveCreated = "<white><lang:'text.graves.created_at':'<yellow>${position}':'<gray>${world}'>";
+    public String messageProtectionEnded = "<red><lang:'text.graves.no_longer_protected':'<gold>${position}':'<white>${world}':'<yellow>${item_count}'>";
+    public String messageGraveExpired = "<red><lang:'text.graves.expired':'<gold>${position}':'<white>${world}':'<yellow>${item_count}'>";
+    public String messageGraveBroken = "<gray><lang:'text.graves.somebody_broke':'<white>${position}':'<white>${world}':'<white>${item_count}'>";
+    public String messageCreationFailed = "<red><lang:'text.graves.creation_failed':'<gold>${position}':'<yellow>${world}'>";
+    public String messageCreationFailedPvP = "<red><lang:'text.graves.creation_failed_pvp':'<gold>${position}':'<yellow>${world}'>";
+    public String messageCreationFailedClaim = "<red><lang:'text.graves.creation_failed_claim':'<gold>${position}':'<yellow>${world}'>";
 
     public String neverExpires = "Never";
 
@@ -65,7 +66,8 @@ public class ConfigData {
     public String minutesText = "m";
     public String secondsText = "s";
 
-    public String graveTitle = "<lang:'text.graves.players_grave':'${player}'>";
+    public Map<String, String> worldNameOverrides = new HashMap<>();
+
 
 
     private static List<String> getDefaultProtectedHologram() {
@@ -116,5 +118,15 @@ public class ConfigData {
         list.add("<red><lang:'text.graves.break_time':'<white>${break_time}'>");
 
         return list;
+    }
+
+    @Override
+    public ConfigData clone() {
+        try {
+            var result = (ConfigData) super.clone();
+            return result;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }

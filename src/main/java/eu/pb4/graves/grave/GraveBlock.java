@@ -97,15 +97,7 @@ public class GraveBlock extends Block implements VirtualBlock, BlockEntityProvid
         BlockEntity blockEntity = player.world.getBlockEntity(pos);
 
         if (blockEntity instanceof GraveBlockEntity grave) {
-            NbtCompound compound = ConfigManager.getConfig().style.converter.getNbtToSend(new NbtCompound(), state.get(Properties.ROTATION), state.get(IS_LOCKED), grave.info.gameProfile);
-
-            if (compound != null) {
-                compound.putString("id", "minecraft:skull");
-                compound.putInt("x", pos.getX());
-                compound.putInt("y", pos.getY());
-                compound.putInt("z", pos.getZ());
-                player.networkHandler.sendPacket(new BlockEntityUpdateS2CPacket(pos, 4, compound));
-            }
+            ConfigManager.getConfig().style.converter.sendNbt(player, state, pos, state.get(Properties.ROTATION), state.get(IS_LOCKED), grave.info.gameProfile);
         }
     }
 

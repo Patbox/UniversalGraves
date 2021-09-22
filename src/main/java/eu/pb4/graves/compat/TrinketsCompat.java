@@ -17,6 +17,10 @@ public class TrinketsCompat {
                 return;
             }
 
+            if (PlayerGraveItemAddedEvent.EVENT.invoker().canAddItem(player, stack) == ActionResult.FAIL) {
+                return;
+            }
+
             TrinketEnums.DropRule dropRule = TrinketsApi.getTrinket(stack.getItem()).getDropRule(stack, ref, player);
 
             dropRule = TrinketDropCallback.EVENT.invoker().drop(dropRule, stack, ref, player);

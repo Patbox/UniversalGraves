@@ -7,6 +7,9 @@ import net.minecraft.server.network.ServerPlayerEntity;
 
 import java.util.List;
 
+/**
+ * This event is called after collecting all items from vanilla inventory
+ */
 public interface PlayerGraveItemsEvent {
     Event<PlayerGraveItemsEvent> EVENT = EventFactory.createArrayBacked(PlayerGraveItemsEvent.class,
                 (listeners) -> (player, items) -> {

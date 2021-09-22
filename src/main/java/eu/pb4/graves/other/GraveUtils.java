@@ -1,6 +1,7 @@
 package eu.pb4.graves.other;
 
 
+import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.event.GraveValidPosCheckEvent;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -8,6 +9,7 @@ import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.state.property.Property;
 import net.minecraft.tag.Tag;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -18,11 +20,26 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class GraveUtils {
-    public static final Identifier REPLACEABLE_TAG = new Identifier("universal_graves","replaceable");
+    public static final Identifier REPLACEABLE_TAG = new Identifier("universal_graves", "replaceable");
+    private static final Function<Map.Entry<Property<?>, Comparable<?>>, String> PROPERTY_MAP_PRINTER = new Function<>() {
+        public String apply(@Nullable Map.Entry<Property<?>, Comparable<?>> entry) {
+            if (entry == null) {
+                return "<NULL>";
+            } else {
+                Property<?> property = entry.getKey();
+                return property.getName() + "=" + this.nameValue(property, entry.getValue());
+            }
+        }
 
-
+        private <T extends Comparable<T>> String nameValue(Property<T> property, Comparable<?> value) {
+            return property.name((T) value);
+        }
+    };
 
     public static BlockCheckResult findGravePosition(ServerPlayerEntity player, ServerWorld world, BlockPos blockPos, Tag<Block> replaceable) {
         int maxDistance = 8;
@@ -73,6 +90,47 @@ public class GraveUtils {
         }
     }
 
+    public static String blockStateToString(BlockState state) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(Registry.BLOCK.getId(state.getBlock()));
+        if (!state.getEntries().isEmpty()) {
+            stringBuilder.append('[');
+            stringBuilder.append(state.getEntries().entrySet().stream().map(PROPERTY_MAP_PRINTER).collect(Collectors.joining(",")));
+            stringBuilder.append(']');
+        }
+
+        return stringBuilder.toString();
+    }
+
+    public static String toWorldName(Identifier identifier) {
+        var override = ConfigManager.getConfig().configData.worldNameOverrides.get(identifier.toString());
+        if (override != null) {
+            return override;
+        }
+
+        List<String> parts = new ArrayList<>();
+        {
+            String[] words = identifier.getPath().split("_");
+            for (String word : words) {
+                String[] s = word.split("", 2);
+                s[0] = s[0].toUpperCase(Locale.ROOT);
+                parts.add(String.join("", s));
+            }
+        }
+        return String.join(" ", parts);
+    }
+
+    public static boolean hasSoulboundEnchantment(ItemStack stack) {
+        for (var enchant : EnchantmentHelper.get(stack).keySet()) {
+            var key = Registry.ENCHANTMENT.getId(enchant);
+            if (key.getPath().contains("soulbound") || key.getPath().contains("soul_bound")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
     public enum BlockResult {
         ALLOW(true, 2),
         BLOCK(false, 0),
@@ -91,29 +149,6 @@ public class GraveUtils {
         }
     }
 
-    public static record BlockCheckResult(@Nullable BlockPos pos, BlockResult result) {}
-
-
-    public static String toWorldName(Identifier identifier) {
-        List<String> parts = new ArrayList<>();
-        {
-            String[] words = identifier.getPath().split("_");
-            for (String word : words) {
-                String[] s = word.split("", 2);
-                s[0] = s[0].toUpperCase(Locale.ROOT);
-                parts.add(String.join("", s));
-            }
-        }
-        return String.join("", parts);
-    }
-
-    public static boolean hasSoulboundEnchantment(ItemStack stack) {
-        for (var enchant : EnchantmentHelper.get(stack).keySet()) {
-            var key = Registry.ENCHANTMENT.getId(enchant);
-            if (key.getPath().contains("soulbound") || key.getPath().contains("soul_bound")) {
-                return true;
-            }
-        }
-        return false;
+    public static record BlockCheckResult(@Nullable BlockPos pos, BlockResult result) {
     }
 }

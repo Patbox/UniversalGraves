@@ -6,8 +6,11 @@ import net.minecraft.block.*;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.Util;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
 public enum GravesLookType {
@@ -25,13 +28,15 @@ public enum GravesLookType {
         }
 
         @Override
-        public NbtCompound getNbtToSend(NbtCompound nbt, int direction, boolean isLocked, GameProfile owner) {
+        public void sendNbt(ServerPlayerEntity player, BlockState state, BlockPos pos, int direction, boolean isLocked, GameProfile owner) {
             if (owner != null) {
+                var nbt = new NbtCompound();
                 NbtCompound nbtCompound = new NbtCompound();
                 NbtHelper.writeGameProfile(nbtCompound, owner);
                 nbt.put("SkullOwner", nbtCompound);
+                sendHeadToPlayer(player, pos, nbt);
+
             }
-            return nbt;
         }
     }),
     PRESET_HEAD("preset_head", new Converter() {
@@ -46,13 +51,14 @@ public enum GravesLookType {
         }
 
         @Override
-        public NbtCompound getNbtToSend(NbtCompound nbt, int direction, boolean isLocked, GameProfile owner) {
+        public void sendNbt(ServerPlayerEntity player, BlockState state, BlockPos pos, int direction, boolean isLocked, GameProfile owner) {
+            var nbt = new NbtCompound();
             NbtCompound skullOwner = new NbtCompound();
             NbtCompound properties = new NbtCompound();
             NbtCompound valueData = new NbtCompound();
             NbtList textures = new NbtList();
 
-            valueData.putString("Value", isLocked ? ConfigManager.getConfig().configData.lockedTexture : ConfigManager.getConfig().configData.unlockedTexture);
+            valueData.putString("Value", isLocked ? ConfigManager.getConfig().configData.presetHeadLockedTexture : ConfigManager.getConfig().configData.presetHeadUnlockedTexture);
 
             textures.add(valueData);
             properties.put("textures", textures);
@@ -62,7 +68,38 @@ public enum GravesLookType {
 
             nbt.put("SkullOwner", skullOwner);
 
-            return nbt;
+            sendHeadToPlayer(player, pos, nbt);
+        }
+    }),
+    CUSTOM("custom", new Converter() {
+        @Override
+        public Block getBlock(boolean isLocked) {
+            var config = ConfigManager.getConfig();
+            return config.customBlockStateStylesUnlocked.get(0).state().getBlock();
+        }
+
+        @Override
+        public BlockState getBlockState(int direction, boolean isLocked) {
+            var config = ConfigManager.getConfig();
+            var list = (isLocked ? config.customBlockStateStylesLocked : config.customBlockStateStylesUnlocked);
+            return list.get(direction % list.size()).state();
+        }
+
+        @Override
+        public void sendNbt(ServerPlayerEntity player, BlockState state, BlockPos pos, int direction, boolean isLocked, GameProfile owner) {
+            var config = ConfigManager.getConfig();
+            var list = (isLocked ? config.customBlockStateStylesLocked : config.customBlockStateStylesUnlocked);
+            var entry = list.get(direction % list.size());
+
+            if (entry.blockEntityId() != -1 && entry.blockEntityNbt() != null) {
+                var compound = entry.blockEntityNbt().copy();
+
+                compound.putInt("x", pos.getX());
+                compound.putInt("y", pos.getY());
+                compound.putInt("z", pos.getZ());
+
+                player.networkHandler.sendPacket(new BlockEntityUpdateS2CPacket(pos, entry.blockEntityId(), compound));
+            }
         }
     });
 
@@ -83,11 +120,16 @@ public enum GravesLookType {
         return GravesLookType.PRESET_HEAD;
     }
 
+    public static String next(String lookType) {
+        var byName = byName(lookType);
+
+        return GravesLookType.values()[(byName.ordinal() + 1) % GravesLookType.values().length].name;
+    }
 
     public interface Converter {
         Block getBlock(boolean isLocked);
         BlockState getBlockState(int direction, boolean isLocked);
-        NbtCompound getNbtToSend(NbtCompound compound, int direction, boolean isLocked, GameProfile owner);
+        void sendNbt(ServerPlayerEntity player, BlockState state, BlockPos pos, int direction, boolean isLocked, GameProfile owner);
     }
 
     private static Converter getChestLike(BlockState unlocked, BlockState locked) {
@@ -107,9 +149,17 @@ public enum GravesLookType {
             }
 
             @Override
-            public NbtCompound getNbtToSend(NbtCompound compound, int direction, boolean isLocked, GameProfile owner) {
-                return null;
-            }
+            public void sendNbt(ServerPlayerEntity player, BlockState state, BlockPos pos, int direction, boolean isLocked, GameProfile owner) { }
         };
+    }
+
+    public static void sendHeadToPlayer(ServerPlayerEntity player, BlockPos pos, NbtCompound compound) {
+        if (compound != null) {
+            compound.putString("id", "minecraft:skull");
+            compound.putInt("x", pos.getX());
+            compound.putInt("y", pos.getY());
+            compound.putInt("z", pos.getZ());
+            player.networkHandler.sendPacket(new BlockEntityUpdateS2CPacket(pos, 4, compound));
+        }
     }
 }

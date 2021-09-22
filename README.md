@@ -23,28 +23,28 @@ Additionally, every message type has few own local variables.
 
 ```json5
 {
-  "CONFIG_VERSION_DONT_TOUCH_THIS": 1,
-  "graveType": "player_head",         // Changes how block appears, `player_head` for owner's head, `preset_head` for head using values below, `chest` for chest and `barrel` for barrel
-  "lockedTexture": "...",             // Points to locked grave texture (`preset_head`), requires a value field (most sites have it described)
-  "unlockedTexture": "...",           // Points to unlocked grave texture (`preset_head`), requires a value field
-  "isProtected": true,                // Changes if graves should be protected by default
-  "shouldProtectionExpire": true,     // If protection should have time limit
-  "protectionTime": 300,              // Time for which graves should be protected (is seconds)
-  "shouldBreak": true,                // Changes if grave should break after some time
-  "breakAfter": 900,                  // Time after which grave will break
-  "storeExperience": true,            // If true, experience points will be stored in grave
-  "xpStorageType": "vanilla",         // Allows to change how much of xp is stored, `none` for nothing, `vanilla` for vanilla amount `percent_levels` for percent of levels and `percent_points` for percent of points
-  "xpPercentTypeValue": 100.0,        // Changes how much percent of xp will be stored, works only with xpStorageType of `percent_...`
-  "createGravesFromPvP": true,        // If false, after dying from another players attack grave won't be created
-  "dropItemsAfterExpiring": true,     // If items should drop breaking from expiration
-  "hologram": true,                   // Enables hologram
-  "hologramProtectedText": [/*...*/], // Hologram lines while protected
-  "hologramText": [/*...*/],          // Hologram lines while not protected
-  "guiTitle": "...",                  // Gui title of list of player's graves
-  "guiProtectedText": [/*...*/],      // Gui text while protected
-  "guiText": [/*...*/],               // Gui text while protected
-  "display[Type]Message": true,       // Enables displaying of message
-  "[Type]Message": "...",             // Changes message formatting
-  "graveTitle": "..."                 // Changes grave title
+  "CONFIG_VERSION_DONT_TOUCH_THIS": 2,
+  "graveStyle": "player_head",               // Changes how block appears, "player_head" for owner's head, "preset_head" for head using values below, "chest" for chest, "barrel" for barrel and "custom" for custom
+  "presetHeadLockedTexture": "...",          // Points to locked grave texture ("preset_head"), requires a value field (most sites have it described)
+  "presetHeadUnlockedTexture": "...",        // Points to unlocked grave texture ("preset_head"), requires a value field
+  "customBlockStateLockedStyles": ["..."],   // Custom visual blockstate for locked graves for style "custom". Limited to 16, uses same formatting as /setblock
+  "customBlockStateUnlockedStyles": ["..."], // Custom visual blockstate for unlocked graves for style "custom". Limited to 16, uses same formatting as /setblock
+  "isProtected": true,                       // Changes if graves should be protected by default
+  "protectionTime": 300,                     // Time for which graves should be protected (is seconds), -1 for infinite
+  "breakingTime": 900,                       // Time after which grave will break, -1 to disable breaking
+  "xpStorageType": "vanilla",                // Allows to change how much of xp is stored, "none" for nothing/destroying, "vanilla" for vanilla amount, "percent_levels" for percent of levels, "percent_points" for percent of points and "drop" for dropping outside of grave
+  "xpPercentTypeValue": 100.0,               // Changes how much percent of xp will be stored, works only with xpStorageType of `percent_...`
+  "createFromPvP": true,                     // If false, after dying from another players attack grave won't be created
+  "createInClaims": true,                    // if false, graves won't be created in claims
+  "dropItemsAfterExpiring": true,            // If items should drop breaking from expiration
+  "hologram": true,                          // Enables hologram
+  "hologramOffset": 1.2,                     // Changes vertical offset of hologram
+  "hologramProtectedText": [/*...*/],        // Hologram lines while protected
+  "hologramText": [/*...*/],                 // Hologram lines while not protected
+  "guiTitle": "...",                         // Gui title of list of player's graves
+  "guiProtectedText": [/*...*/],             // Gui text while protected
+  "guiText": [/*...*/],                      // Gui text while protected
+  "message[Type]": "...",                    // Allows to change message, leave empty ("") to disable it
+  "graveTitle": "..."                        // Changes grave title
 }
 ```

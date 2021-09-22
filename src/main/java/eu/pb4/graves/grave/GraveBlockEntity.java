@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import eu.pb4.graves.config.Config;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.other.ImplementedInventory;
+import eu.pb4.holograms.api.elements.SpacingHologramElement;
 import eu.pb4.holograms.api.holograms.WorldHologram;
 import eu.pb4.placeholders.PlaceholderAPI;
 import it.unimi.dsi.fastutil.ints.IntArrays;
@@ -22,6 +23,7 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.network.MessageType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.Util;
@@ -120,11 +122,11 @@ public class GraveBlockEntity extends BlockEntity implements ImplementedInventor
 
         boolean shouldBreak = this.info.shouldBreak();
         if (!shouldBreak) {
-            if (config.configData.displayGraveBrokenMessage) {
+            if (config.graveBrokenMessage != null) {
                 text = config.graveBrokenMessage;
             }
         } else {
-            if (config.configData.displayGraveExpiredMessage) {
+            if (config.graveExpiredMessage != null) {
                 text = config.graveExpiredMessage;
             }
         }
@@ -153,7 +155,7 @@ public class GraveBlockEntity extends BlockEntity implements ImplementedInventor
         }
         this.info.itemCount = x;
 
-        List<GraveInfo> infoList = GraveManager.INSTANCE.get(this.info.gameProfile.getId());
+        List<GraveInfo> infoList = GraveManager.INSTANCE.getByUuid(this.info.gameProfile.getId());
         if (infoList != null) {
             int info = infoList.indexOf(this.info);
             if (info != -1) {
@@ -180,7 +182,7 @@ public class GraveBlockEntity extends BlockEntity implements ImplementedInventor
 
         Map<String, Text> placeholders = self.info.getPlaceholders();
 
-        if (config.configData.shouldBreak && self.info.shouldBreak()) {
+        if (config.configData.breakingTime > -1 && self.info.shouldBreak()) {
             world.setBlockState(pos, self.replacedBlockState, Block.NOTIFY_ALL);
             return;
         }
@@ -192,7 +194,7 @@ public class GraveBlockEntity extends BlockEntity implements ImplementedInventor
             isProtected = false;
 
 
-            if (config.configData.displayNoLongerProtectedMessage) {
+            if (config.noLongerProtectedMessage != null) {
                 ServerPlayerEntity player = Objects.requireNonNull(world.getServer()).getPlayerManager().getPlayer(self.info.gameProfile.getId());
                 if (player != null) {
                     player.sendMessage(PlaceholderAPI.parsePredefinedText(config.noLongerProtectedMessage, PlaceholderAPI.PREDEFINED_PLACEHOLDER_PATTERN, placeholders), MessageType.SYSTEM, Util.NIL_UUID);
@@ -202,20 +204,28 @@ public class GraveBlockEntity extends BlockEntity implements ImplementedInventor
 
         if (config.configData.hologram) {
             if (self.hologram == null) {
-                self.hologram = new WorldHologram((ServerWorld) world, new Vec3d(pos.getX(), pos.getY(), pos.getZ()).add(0.5, 1.2, 0.5));
+                self.hologram = new WorldHologram((ServerWorld) world, new Vec3d(pos.getX(), pos.getY(), pos.getZ()).add(0.5, config.configData.hologramOffset, 0.5));
                 self.hologram.show();
             }
 
             List<Text> texts = new ArrayList<>();
 
             for (Text text : isProtected ? config.hologramProtectedText : config.hologramText) {
-                texts.add(PlaceholderAPI.parsePredefinedText(text, PlaceholderAPI.PREDEFINED_PLACEHOLDER_PATTERN, placeholders));
+                if (text != LiteralText.EMPTY) {
+                    texts.add(PlaceholderAPI.parsePredefinedText(text, PlaceholderAPI.PREDEFINED_PLACEHOLDER_PATTERN, placeholders));
+                } else {
+                    texts.add(LiteralText.EMPTY);
+                }
             }
 
             int x = 0;
 
             for (Text text : texts) {
-                self.hologram.setText(x, text);
+                if (text == LiteralText.EMPTY) {
+                    self.hologram.setElement(x, new SpacingHologramElement(0.28));
+                } else {
+                    self.hologram.setText(x, text);
+                }
                 x++;
             }
             int size = self.hologram.getElements().size();
