@@ -55,11 +55,11 @@ dependencies {
 	modImplementation include("eu.pb4:sgui:1.0.0-rc4+1.17.1")
 	modImplementation include("eu.pb4:hologram-api:0.2.1+1.17.1")
 	modImplementation include("eu.pb4:placeholder-api:1.1.1+1.17.1")
-	modImplementation include("eu.pb4:polymer:0.1.5+1.17.1")
+	modImplementation include("eu.pb4:polymer:0.1.6+1.17.1")
 	modImplementation include("fr.catcore:server-translations-api:1.4.5+1.17")
 	modImplementation include("me.lucko:fabric-permissions-api:0.1-SNAPSHOT")
 
-	modCompileOnly "dev.emi:trinkets:3.0.0"
+	modCompileOnly "dev.emi:trinkets:3.0.4"
 	modCompileOnly ('com.github.Lizard-Of-Oz.Inventorio:inventorio-1.17-fabric:1.17-SNAPSHOT') { transitive = false }
 
 	modCompileOnly "draylar:get-off-my-lawn:1.17-1.4.0-beta"
