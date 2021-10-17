@@ -1,13 +1,16 @@
+![Logo](https://i.imgur.com/otnGmMi.png)
 # Universal Graves
 It's a simple, but really customisable grave/death chest mod! 
 You can change how every message, block and hologram looks, how long it will be protected,
 if should drop items after expiring and alike.
 
-If you have any questions, you can ask them on my [Discord](https://discord.com/invite/AbqPPppgrd)
+*This mod works only on Fabric Mod Loader and compatible!*
+
+If you have any questions, you can ask them on my [Discord](https://pb4.eu/discord)
+
+[Also check out my other mods and project, as you might find them useful!](https://pb4.eu)
 
 ![Example image](https://i.imgur.com/hfyd10Q.png)
-
-Fun fact, I died 237 times while making this mod + 35 on 2nd account (so far)
 
 ## Commands (and permissions):
 - `/graves` - Main command, shows list of users graves (`universal_graves.list`, available by default)
