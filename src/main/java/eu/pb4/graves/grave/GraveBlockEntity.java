@@ -261,4 +261,16 @@ public class GraveBlockEntity extends BlockEntity implements ImplementedInventor
     public boolean canExtract(int slot, ItemStack stack, Direction dir) {
         return false;
     }
+
+    public void clearGrave() {
+        if (this.info.xp != 0) {
+            ExperienceOrbEntity.spawn((ServerWorld) this.world, Vec3d.ofCenter(this.getPos()), this.info.xp);
+            this.info.xp = 0;
+        }
+        if (this.info.itemCount != 0) {
+            ItemScatterer.spawn(this.world, this.pos, this);
+            this.info.itemCount = 0;
+        }
+        GraveManager.INSTANCE.remove(this.info);
+    }
 }

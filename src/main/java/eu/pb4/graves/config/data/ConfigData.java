@@ -31,6 +31,7 @@ public class ConfigData extends VersionedConfigData implements Cloneable {
     public boolean isProtected = true;
     public int protectionTime = 300;
     public int breakingTime = 900;
+    public boolean breakEmptyGraves = true;
 
     public String xpStorageType = GravesXPCalculation.VANILLA.name;
     public double xpPercentTypeValue = 100;
