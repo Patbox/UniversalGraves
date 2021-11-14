@@ -1,6 +1,7 @@
 {
   "text.graves.grave_of": "Grave of %s",
   "text.graves.items_xp": "Items: %s XP: %s",
+  "text.graves.items": "Items: %s",
   "text.graves.protected_time": "Protected for %s",
   "text.graves.break_time": "Breaks in %s",
   "text.graves.not_protected": "Not protected!",

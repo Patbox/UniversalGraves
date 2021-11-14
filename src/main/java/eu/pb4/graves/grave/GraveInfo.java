@@ -17,16 +17,17 @@ import net.minecraft.util.math.BlockPos;
 import java.util.*;
 
 public final class GraveInfo {
+    public static final GraveInfo DEFAULT = new GraveInfo();
     private static final Text DEFAULT_DEATH_CAUSE = new LiteralText("Unknown cause");
     private static final GameProfile DEFAULT_GAME_PROFILE = new GameProfile(UUID.fromString("9586e5ab-157a-4658-ad80-b07552a9ca63"), "Herobrine");
 
-    public GameProfile gameProfile;
-    public int xp;
-    public long creationTime;
-    public int itemCount;
-    public Text deathCause;
-    public BlockPos position;
-    public Identifier world;
+    protected GameProfile gameProfile;
+    protected int xp;
+    protected long creationTime;
+    protected int itemCount;
+    protected Text deathCause;
+    protected BlockPos position;
+    protected Identifier world;
 
     public GraveInfo() {
         this.gameProfile = DEFAULT_GAME_PROFILE;
@@ -122,6 +123,30 @@ public final class GraveInfo {
         return !this.isProtected() || this.gameProfile.getId().equals(entity.getUuid()) || Permissions.check(entity, "graves.can_open_others", 3);
     }
 
+    public GameProfile getProfile() {
+        return this.gameProfile;
+    }
+
+    public int getXp() {
+        return xp;
+    }
+
+    public long getCreationTime() {
+        return creationTime;
+    }
+
+    public int getItemCount() {
+        return itemCount;
+    }
+
+    public Text getDeathCause() {
+        return deathCause;
+    }
+
+    public BlockPos getPosition() {
+        return position;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -132,6 +157,10 @@ public final class GraveInfo {
 
     @Override
     public int hashCode() {
-        return Objects.hash(position);
+        return position.hashCode();
+    }
+
+    public Identifier getWorld() {
+        return this.world;
     }
 }

@@ -47,8 +47,11 @@ public class Commands {
     private static int list(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerPlayerEntity player = context.getSource().getPlayer();
 
-        new GraveListGui(player, player.getGameProfile()).open();
-
+        try {
+            new GraveListGui(player, player.getGameProfile()).open();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return 0;
     }
 
@@ -63,8 +66,11 @@ public class Commands {
             context.getSource().sendFeedback(new LiteralText("Only one player can be selected!"), false);
             return 0;
         }
-
-        new GraveListGui(player, profiles.get(0)).open();
+        try {
+            new GraveListGui(player, profiles.get(0)).open();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return 0;
     }

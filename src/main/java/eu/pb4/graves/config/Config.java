@@ -2,22 +2,23 @@ package eu.pb4.graves.config;
 
 
 import com.mojang.brigadier.StringReader;
+import eu.pb4.graves.config.data.ConfigData;
 import eu.pb4.graves.grave.GraveBlock;
 import eu.pb4.graves.grave.GravesLookType;
-import eu.pb4.graves.config.data.ConfigData;
 import eu.pb4.graves.grave.GravesXPCalculation;
 import eu.pb4.placeholders.TextParser;
-import net.minecraft.block.*;
-import net.minecraft.block.entity.*;
+import net.minecraft.block.BlockEntityProvider;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.CropBlock;
 import net.minecraft.command.argument.BlockArgumentParser;
-import net.minecraft.command.argument.BlockStateArgument;
+import net.minecraft.command.argument.ItemStringReader;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.StringNbtReader;
-import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -27,14 +28,20 @@ public final class Config {
     public final ConfigData configData;
     public final GravesLookType style;
 
-    public final List<Text> hologramProtectedText;
-    public final List<Text> hologramText;
+    public final Text[] hologramProtectedText;
+    public final Text[] hologramText;
+
+    public final Text[] signProtectedText;
+    public final Text[] signText;
 
     public final Text graveTitle;
 
     public final Text guiTitle;
-    public final List<Text> guiProtectedText;
-    public final List<Text> guiText;
+    public final Text[] guiProtectedText;
+    public final Text[] guiText;
+
+    public final ItemStack[] guiProtectedItem;
+    public final ItemStack[] guiItem;
 
     @Nullable
     public final Text noLongerProtectedMessage;
@@ -52,8 +59,8 @@ public final class Config {
     public final Text creationFailedClaimGraveMessage;
     public final GravesXPCalculation xpCalc;
 
-    public final List<BlockStyleEntry> customBlockStateStylesLocked;
-    public final List<BlockStyleEntry> customBlockStateStylesUnlocked;
+    public final BlockStyleEntry[] customBlockStateStylesLocked;
+    public final BlockStyleEntry[] customBlockStateStylesUnlocked;
 
 
     public Config(ConfigData data) {
@@ -62,6 +69,8 @@ public final class Config {
         this.xpCalc = GravesXPCalculation.byName(configData.xpStorageType);
         this.hologramProtectedText = parse(data.hologramProtectedText);
         this.hologramText = parse(data.hologramText);
+        this.signProtectedText = parse(data.customStyleSignProtectedText);
+        this.signText = parse(data.customStyleSignText);
 
         this.graveTitle = TextParser.parse(data.graveTitle);
 
@@ -79,37 +88,55 @@ public final class Config {
 
         this.customBlockStateStylesLocked = parseBlockStyles(this.configData.customBlockStateLockedStyles);
         this.customBlockStateStylesUnlocked = parseBlockStyles(this.configData.customBlockStateUnlockedStyles);
+
+        this.guiProtectedItem = parseItems(this.configData.guiProtectedItem);
+        this.guiItem = parseItems(this.configData.guiItem);
     }
 
-    public static List<BlockStyleEntry> parseBlockStyles(List<String> stringList) {
+    public static ItemStack[] parseItems(List<String> stringList) {
+        var items = new ArrayList<ItemStack>();
+
+        for (var itemDef : stringList) {
+            try {
+                var item = new ItemStringReader(new StringReader(itemDef), true).consume();
+                var itemStack = item.getItem().getDefaultStack();
+
+                if (item.getNbt() != null) {
+                    itemStack.setNbt(item.getNbt());
+                }
+                items.add(itemStack);
+            } catch (Exception e) {
+                // noop
+            }
+        }
+        if (items.isEmpty()) {
+            items.add(Items.CHEST.getDefaultStack());
+        }
+
+        return items.toArray(new ItemStack[0]);
+    }
+
+    public static BlockStyleEntry[] parseBlockStyles(List<String> stringList) {
         var blockStates = new ArrayList<BlockStyleEntry>();
 
         for (String stateName : stringList) {
             try {
                 var stateData = new BlockArgumentParser(new StringReader(stateName), true).parse(true);
-                if (stateData.getBlockState().getBlock() != GraveBlock.INSTANCE) {
+                if (stateData.getBlockState().getBlock() != GraveBlock.INSTANCE && stateData.getBlockState() != null) {
                     if (stateData.getBlockState().hasBlockEntity()) {
                         var blockEntity = ((BlockEntityProvider) stateData.getBlockState().getBlock()).createBlockEntity(BlockPos.ORIGIN, stateData.getBlockState());
                         int i = -1;
-                        if (blockEntity instanceof SkullBlockEntity) {
-                            i = BlockEntityUpdateS2CPacket.SKULL;
-                        } else if (blockEntity instanceof BannerBlockEntity) {
-                            i = BlockEntityUpdateS2CPacket.BANNER;
-                        } else if (blockEntity instanceof CampfireBlockEntity) {
-                            i = BlockEntityUpdateS2CPacket.CAMPFIRE;
-                        } else if (blockEntity instanceof ConduitBlockEntity) {
-                            i = BlockEntityUpdateS2CPacket.CONDUIT;
-                        } else if (blockEntity instanceof SignBlockEntity) {
-                            i = BlockEntityUpdateS2CPacket.SIGN;
-                        } else if (blockEntity instanceof MobSpawnerBlockEntity) {
-                            i = BlockEntityUpdateS2CPacket.MOB_SPAWNER;
+
+                        var packet = blockEntity.toUpdatePacket();
+                        if (packet != null) {
+                            i = packet.getBlockEntityType();
                         }
 
-                        var nbt = stateData.getNbtData().copy();
+                        if (stateData.getNbtData() != null) {
+                            blockEntity.readNbt(stateData.getNbtData());
+                        }
 
-                        nbt.putString("id", Registry.BLOCK_ENTITY_TYPE.getId(blockEntity.getType()).toString());
-
-                        blockStates.add(new BlockStyleEntry(stateData.getBlockState(), i, stateData.getNbtData()));
+                        blockStates.add(new BlockStyleEntry(stateData.getBlockState(), i, blockEntity.toInitialChunkDataNbt()));
                     } else {
                         blockStates.add(new BlockStyleEntry(stateData.getBlockState(), -1, null));
                     }
@@ -126,7 +153,7 @@ public final class Config {
             blockStates.add(new BlockStyleEntry(Blocks.SKELETON_SKULL.getDefaultState(), -1, null));
         }
 
-        return blockStates;
+        return blockStates.toArray(new BlockStyleEntry[0]);
     }
 
 
@@ -142,21 +169,21 @@ public final class Config {
             StringBuilder builder = new StringBuilder();
 
             if (years > 0) {
-                builder.append(years + configData.yearsText);
+                builder.append(years).append(configData.yearsText);
             }
             if (days > 0) {
-                builder.append(days + configData.daysText);
+                builder.append(days).append(configData.daysText);
             }
             if (hours > 0) {
-                builder.append(hours + configData.hoursText);
+                builder.append(hours).append(configData.hoursText);
             }
             if (minutes > 0) {
-                builder.append(minutes + configData.minutesText);
+                builder.append(minutes).append(configData.minutesText);
             }
             if (seconds >= 0) {
-                builder.append(seconds + configData.secondsText);
+                builder.append(seconds).append(configData.secondsText);
             } else {
-                builder.append(time + configData.secondsText);
+                builder.append(time).append(configData.secondsText);
             }
             return builder.toString();
         } else {
@@ -164,7 +191,7 @@ public final class Config {
         }
     }
 
-    public static List<Text> parse(List<String> strings) {
+    public static Text[] parse(List<String> strings) {
         List<Text> texts = new ArrayList<>();
 
         for (String line : strings) {
@@ -174,8 +201,10 @@ public final class Config {
                 texts.add(TextParser.parse(line));
             }
         }
-        return texts;
+        return texts.toArray(new Text[0]);
     }
 
-    public static record BlockStyleEntry(BlockState state, int blockEntityId, NbtCompound blockEntityNbt) {};
+    public static record BlockStyleEntry(BlockState state, int blockEntityId, NbtCompound blockEntityNbt) {
+    }
+
 }

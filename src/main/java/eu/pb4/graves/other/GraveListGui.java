@@ -8,7 +8,6 @@ import eu.pb4.placeholders.PlaceholderAPI;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import me.lucko.fabric.api.permissions.v0.Permissions;
-import net.minecraft.item.Items;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -25,7 +24,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class GraveListGui extends SimpleGui {
-    private UUID targetUUID;
+    private final UUID targetUUID;
     private int ticker = 0;
 
     public GraveListGui(ServerPlayerEntity player, GameProfile profile) {
@@ -45,6 +44,7 @@ public class GraveListGui extends SimpleGui {
     }
 
     private void updateIcons() {
+        var config = ConfigManager.getConfig();
         for (int x = 0; x < this.size; x++) {
             this.clearSlot(x);
         }
@@ -65,17 +65,19 @@ public class GraveListGui extends SimpleGui {
                 parsed.add(out);
             }
 
-            this.addSlot(new GuiElementBuilder(Items.CHEST)
+            var list = graveInfo.isProtected() ? config.guiProtectedItem : config.guiItem;
+            this.addSlot(GuiElementBuilder.from(list[Math.abs(graveInfo.hashCode() % list.length)])
                     .setName((MutableText) parsed.remove(0))
                     .setLore(parsed)
                     .setCallback((index, type, action) -> {
                         if (Permissions.check(this.player, "universal_graves.teleport", 3)) {
                             this.close();
 
-                            ServerWorld world = this.player.getServer().getWorld(RegistryKey.of(Registry.WORLD_KEY, graveInfo.world));
+                            ServerWorld world = this.player.getServer().getWorld(RegistryKey.of(Registry.WORLD_KEY, graveInfo.getWorld()));
 
                             if (world != null) {
-                                this.player.teleport(world, graveInfo.position.getX() + 0.5, graveInfo.position.getY() + 1, graveInfo.position.getZ() + 0.5, this.player.getYaw(), this.player.getPitch());
+                                var pos = graveInfo.getPosition();
+                                this.player.teleport(world, pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, this.player.getYaw(), this.player.getPitch());
                             }
                         }
                     })

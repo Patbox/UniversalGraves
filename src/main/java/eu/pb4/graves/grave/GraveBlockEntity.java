@@ -21,14 +21,17 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.network.MessageType;
+import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.state.property.Properties;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.Util;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -53,6 +56,10 @@ public class GraveBlockEntity extends BlockEntity implements ImplementedInventor
     }
 
     public void setGrave(GameProfile profile, Collection<ItemStack> itemStacks, int experience, Text deathCause, BlockState blockState) {
+        if (this.world == null || !(this.world instanceof ServerWorld)) {
+            return;
+        }
+
         GraveManager.INSTANCE.remove(this.info);
 
         this.stacks = DefaultedList.ofSize(itemStacks.size() + 5, ItemStack.EMPTY);
@@ -62,10 +69,11 @@ public class GraveBlockEntity extends BlockEntity implements ImplementedInventor
 
         this.replacedBlockState = blockState;
         this.info = new GraveInfo(profile, this.pos, Objects.requireNonNull(this.getWorld()).getRegistryKey().getValue(), System.currentTimeMillis() / 1000, experience, itemStacks.size(), deathCause);
-        this.updateItemCount();
 
         GraveManager.INSTANCE.add(this.info);
         this.markDirty();
+
+        this.updateState();
     }
 
     @Override
@@ -73,8 +81,7 @@ public class GraveBlockEntity extends BlockEntity implements ImplementedInventor
         super.writeNbt(nbt);
         NbtList nbtList = new NbtList();
 
-        for(int i = 0; i < this.stacks.size(); ++i) {
-            ItemStack itemStack = this.stacks.get(i);
+        for (ItemStack itemStack : this.stacks) {
             if (!itemStack.isEmpty()) {
                 NbtCompound nbtCompound = new NbtCompound();
                 itemStack.writeNbt(nbtCompound);
@@ -164,6 +171,30 @@ public class GraveBlockEntity extends BlockEntity implements ImplementedInventor
         }
     }
 
+    public void updateState() {
+        if (this.isEmpty() && !this.isRemoved()) {
+            assert this.getWorld() != null;
+
+            if (ConfigManager.getConfig().configData.breakEmptyGraves) {
+                this.getWorld().setBlockState(this.getPos(), this.replacedBlockState, Block.NOTIFY_ALL);
+            } else {
+                this.clearGrave();
+                this.updateForPlayers();
+            }
+        } else {
+            this.updateItemCount();
+            this.updateForPlayers();
+        }
+    }
+
+    protected void updateForPlayers() {
+        assert this.world != null;
+
+        var converter = ConfigManager.getConfig().style.converter;
+        ((ServerWorld) this.world).getChunkManager().threadedAnvilChunkStorage.getPlayersWatchingChunk(new ChunkPos(this.pos), false)
+                .forEach((p) -> converter.sendNbt(p, this.getCachedState(), this.pos, this.getCachedState().get(Properties.ROTATION), this.info.isProtected(), this.info));
+    }
+
     @Override
     public void markRemoved() {
         if (this.hologram != null) {
@@ -200,6 +231,12 @@ public class GraveBlockEntity extends BlockEntity implements ImplementedInventor
                     player.sendMessage(PlaceholderAPI.parsePredefinedText(config.noLongerProtectedMessage, PlaceholderAPI.PREDEFINED_PLACEHOLDER_PATTERN, placeholders), MessageType.SYSTEM, Util.NIL_UUID);
                 }
             }
+            self.updateForPlayers();
+        }
+
+        var updateRate = config.style.converter.updateRate(state, pos, self.info);
+        if (updateRate > 0 && world.getTime() % updateRate == 0) {
+            self.updateForPlayers();
         }
 
         if (config.configData.hologram) {

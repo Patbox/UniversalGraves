@@ -15,6 +15,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.border.WorldBorder;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -45,8 +46,9 @@ public class GraveUtils {
         int maxDistance = 8;
         int line = 1;
 
-        blockPos = new BlockPos(blockPos.getX(), MathHelper.clamp(blockPos.getY(), world.getBottomY(), world.getTopY() - 1), blockPos.getZ());
-        BlockResult result = isValidPos(player, world, blockPos, replaceable);
+        var border = world.getWorldBorder();
+        blockPos = new BlockPos(MathHelper.clamp(blockPos.getX(), border.getBoundWest() + 1, border.getBoundEast() - 1), MathHelper.clamp(blockPos.getY(), world.getBottomY(), world.getTopY() - 1), MathHelper.clamp(blockPos.getZ() + 1, border.getBoundNorth(), border.getBoundSouth() - 1));
+        BlockResult result = isValidPos(player, world, border, blockPos, replaceable);
         BlockResult tempResult;
         if (result.allow) {
             return new BlockCheckResult(blockPos, result);
@@ -64,7 +66,7 @@ public class GraveUtils {
                                 continue;
                             }
 
-                            tempResult = isValidPos(player, world, pos, replaceable);
+                            tempResult = isValidPos(player, world, border, pos, replaceable);
                             if (tempResult.priority >= result.priority) {
                                 result = tempResult;
                             }
@@ -81,9 +83,9 @@ public class GraveUtils {
     }
 
 
-    private static BlockResult isValidPos(ServerPlayerEntity player, ServerWorld world, BlockPos pos, Tag<Block> replaceable) {
+    private static BlockResult isValidPos(ServerPlayerEntity player, ServerWorld world, WorldBorder border, BlockPos pos, Tag<Block> replaceable) {
         BlockState state = world.getBlockState(pos);
-        if (pos.getY() >= world.getBottomY() && pos.getY() < world.getTopY() && !state.hasBlockEntity() && (state.isAir() || replaceable.contains(state.getBlock()))) {
+        if (border.contains(pos) && pos.getY() >= world.getBottomY() && pos.getY() < world.getTopY() && !state.hasBlockEntity() && (state.isAir() || replaceable.contains(state.getBlock()))) {
             return GraveValidPosCheckEvent.EVENT.invoker().isValid(player, world, pos);
         } else {
             return BlockResult.BLOCK;

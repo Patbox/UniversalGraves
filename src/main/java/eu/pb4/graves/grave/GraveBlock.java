@@ -1,16 +1,21 @@
 package eu.pb4.graves.grave;
 
 import eu.pb4.graves.config.ConfigManager;
+import eu.pb4.graves.mixin.PlayerInventoryAccessor;
 import eu.pb4.polymer.block.VirtualBlock;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.piston.PistonBehavior;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.ShieldItem;
+import net.minecraft.item.Wearable;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
@@ -30,6 +35,32 @@ public class GraveBlock extends Block implements VirtualBlock, BlockEntityProvid
 
     private GraveBlock() {
         super(AbstractBlock.Settings.of(Material.METAL).dropsNothing().strength(2, 999));
+    }
+
+    public static void insertStack(PlayerInventory inventory, ItemStack stack) {
+        if (!stack.isEmpty()) {
+            int slot;
+            try {
+                if (stack.isDamaged()) {
+                    slot = inventory.getEmptySlot();
+
+
+                    if (slot >= 0) {
+                        inventory.main.set(slot, stack.copy());
+                        inventory.main.get(slot).setCooldown(5);
+                        stack.setCount(0);
+                    }
+                } else {
+                    int i;
+                    do {
+                        i = stack.getCount();
+                        stack.setCount(((PlayerInventoryAccessor) inventory).callAddStack(stack));
+                    } while (!stack.isEmpty() && stack.getCount() < i);
+                }
+            } catch (Exception e) {
+                // Silence!
+            }
+        }
     }
 
     @Override
@@ -59,20 +90,45 @@ public class GraveBlock extends Block implements VirtualBlock, BlockEntityProvid
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-        if (world.isClient() || hand == Hand.OFF_HAND) {
+        if (!(player instanceof ServerPlayerEntity) || hand == Hand.OFF_HAND) {
             return ActionResult.FAIL;
         }
         BlockEntity blockEntity = world.getBlockEntity(pos);
 
         if (blockEntity instanceof GraveBlockEntity grave && grave.info.canTakeFrom(player)) {
-            if (grave.info.itemCount > 0) {
-                new GraveGui((ServerPlayerEntity) player, grave).open();
-            } else if (ConfigManager.getConfig().configData.breakEmptyGraves) {
-                world.setBlockState(pos, grave.replacedBlockState, Block.NOTIFY_ALL);
-            } else {
-                grave.clearGrave();
+            try {
+                var config = ConfigManager.getConfig();
+                if (grave.info.itemCount > 0) {
+                    if (config.configData.shiftClickTakesItems && player.isSneaking()) {
+                        for (int i = 0; i < grave.size(); i++) {
+                            var stack = grave.getStack(i);
+                            if (!stack.isEmpty()) {
+                                if ((stack.getItem() instanceof Wearable || stack.getItem() instanceof ShieldItem) && stack.getCount() == 1 && !EnchantmentHelper.hasBindingCurse(stack)) {
+                                    var slot = LivingEntity.getPreferredEquipmentSlot(stack);
+
+                                    if (player.getEquippedStack(slot).isEmpty()) {
+                                        player.equipStack(slot, stack.copy());
+                                        stack.setCount(0);
+                                        continue;
+                                    }
+                                }
+
+                                insertStack(player.getInventory(), stack);
+                            }
+                        }
+                        grave.updateState();
+                    } else {
+                        new GraveGui((ServerPlayerEntity) player, grave).open();
+                    }
+                } else if (ConfigManager.getConfig().configData.breakEmptyGraves) {
+                    world.setBlockState(pos, grave.replacedBlockState, Block.NOTIFY_ALL);
+                } else {
+                    grave.clearGrave();
+                }
+                return ActionResult.SUCCESS;
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            return ActionResult.SUCCESS;
         }
         return super.onUse(state, world, pos, player, hand, hit);
     }
@@ -99,7 +155,7 @@ public class GraveBlock extends Block implements VirtualBlock, BlockEntityProvid
         BlockEntity blockEntity = player.world.getBlockEntity(pos);
 
         if (blockEntity instanceof GraveBlockEntity grave) {
-            ConfigManager.getConfig().style.converter.sendNbt(player, state, pos, state.get(Properties.ROTATION), state.get(IS_LOCKED), grave.info.gameProfile);
+            ConfigManager.getConfig().style.converter.sendNbt(player, state, pos, state.get(Properties.ROTATION), state.get(IS_LOCKED), grave.info);
         }
     }
 

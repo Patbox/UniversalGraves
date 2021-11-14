@@ -70,17 +70,7 @@ public class GraveGui extends SimpleGui {
 
     @Override
     public void onClose() {
-        if (this.grave.isEmpty() && !this.grave.isRemoved()) {
-            assert this.grave.getWorld() != null;
-
-            if (ConfigManager.getConfig().configData.breakEmptyGraves) {
-                this.grave.getWorld().setBlockState(this.grave.getPos(), this.grave.replacedBlockState, Block.NOTIFY_ALL);
-            } else {
-                this.grave.clearGrave();
-            }
-        } else {
-            this.grave.updateItemCount();
-        }
+        this.grave.updateState();
         super.onClose();
     }
 }

@@ -7,10 +7,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.WallBlock;
 import net.minecraft.block.enums.WallShape;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ConfigData extends VersionedConfigData implements Cloneable {
     public String _comment = "Before changing anything, see https://github.com/Patbox/UniversalGraves#configuration";
@@ -28,6 +25,12 @@ public class ConfigData extends VersionedConfigData implements Cloneable {
             GraveUtils.blockStateToString(Blocks.MOSSY_STONE_BRICK_WALL.getDefaultState().with(WallBlock.EAST_SHAPE, WallShape.LOW).with(WallBlock.WEST_SHAPE, WallShape.LOW).with(WallBlock.UP, true))
     );
 
+    public List<String> customStyleSignText = getDefaultSign();
+
+    public List<String> customStyleSignProtectedText = getDefaultProtectedSign();
+
+    public int customStyleUpdateRate = 20;
+
     public boolean isProtected = true;
     public int protectionTime = 300;
     public int breakingTime = 900;
@@ -40,6 +43,8 @@ public class ConfigData extends VersionedConfigData implements Cloneable {
     public boolean createInClaims = true;
     public boolean dropItemsAfterExpiring = true;
 
+    public boolean shiftClickTakesItems = true;
+
     public String graveTitle = "<lang:'text.graves.players_grave':'${player}'>";
 
     public boolean hologram = true;
@@ -50,6 +55,9 @@ public class ConfigData extends VersionedConfigData implements Cloneable {
     public String guiTitle = "<lang:'text.graves.gui_title':'${player}'>";
     public List<String> guiProtectedText = getDefaultProtectedGui();
     public List<String> guiText = getDefaultGui();
+
+    public List<String> guiProtectedItem = Collections.singletonList("chest");
+    public List<String> guiItem = Collections.singletonList("trapped_chest");
 
     public String messageGraveCreated = "<white><lang:'text.graves.created_at':'<yellow>${position}':'<gray>${world}'>";
     public String messageProtectionEnded = "<red><lang:'text.graves.no_longer_protected':'<gold>${position}':'<white>${world}':'<yellow>${item_count}'>";
@@ -121,11 +129,32 @@ public class ConfigData extends VersionedConfigData implements Cloneable {
         return list;
     }
 
+    private static List<String> getDefaultProtectedSign() {
+        List<String> list = new ArrayList<>();
+
+        list.add("<white>${player}");
+        list.add("<gray><lang:'text.graves.items_xp':'<white>${item_count}':'<white>${xp}'>");
+        list.add("<blue><lang:'text.graves.protected_time':''>");
+        list.add("<white>${protection_time}");
+
+        return list;
+    }
+
+    private static List<String> getDefaultSign() {
+        List<String> list = new ArrayList<>();
+
+        list.add("<white>${player}");
+        list.add("<gray><lang:'text.graves.items_xp':'<white>${item_count}':'<white>${xp}'>");
+        list.add("<red><lang:'text.graves.break_time':''>");
+        list.add("<white>${break_time}");
+
+        return list;
+    }
+
     @Override
     public ConfigData clone() {
         try {
-            var result = (ConfigData) super.clone();
-            return result;
+            return (ConfigData) super.clone();
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }

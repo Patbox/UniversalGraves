@@ -1,6 +1,5 @@
 package eu.pb4.graves.grave;
 
-import eu.pb4.graves.config.ConfigManager;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
@@ -81,6 +80,10 @@ public class GraveManager extends PersistentState {
 
     public GraveInfo getByPos(BlockPos pos) {
         return this.byPos.get(pos);
+    }
+
+    public Collection<GraveInfo> getAll() {
+        return this.graves;
     }
 
     public void tick() {
