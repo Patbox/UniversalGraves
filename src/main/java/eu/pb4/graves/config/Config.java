@@ -7,6 +7,7 @@ import eu.pb4.graves.grave.GraveBlock;
 import eu.pb4.graves.grave.GravesLookType;
 import eu.pb4.graves.grave.GravesXPCalculation;
 import eu.pb4.placeholders.TextParser;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -19,6 +20,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -125,11 +127,11 @@ public final class Config {
                 if (stateData.getBlockState().getBlock() != GraveBlock.INSTANCE && stateData.getBlockState() != null) {
                     if (stateData.getBlockState().hasBlockEntity()) {
                         var blockEntity = ((BlockEntityProvider) stateData.getBlockState().getBlock()).createBlockEntity(BlockPos.ORIGIN, stateData.getBlockState());
-                        int i = -1;
+                        BlockEntityType<?> i = null;
 
                         var packet = blockEntity.toUpdatePacket();
-                        if (packet != null) {
-                            i = packet.getBlockEntityType();
+                        if (packet != null && packet instanceof BlockEntityUpdateS2CPacket) {
+                            i = ((BlockEntityUpdateS2CPacket) packet).getBlockEntityType();
                         }
 
                         if (stateData.getNbtData() != null) {
@@ -138,19 +140,19 @@ public final class Config {
 
                         blockStates.add(new BlockStyleEntry(stateData.getBlockState(), i, blockEntity.toInitialChunkDataNbt()));
                     } else {
-                        blockStates.add(new BlockStyleEntry(stateData.getBlockState(), -1, null));
+                        blockStates.add(new BlockStyleEntry(stateData.getBlockState(), null, null));
                     }
                 } else {
-                    blockStates.add(new BlockStyleEntry(Blocks.POTATOES.getDefaultState().with(CropBlock.AGE, 7), -1, null));
+                    blockStates.add(new BlockStyleEntry(Blocks.POTATOES.getDefaultState().with(CropBlock.AGE, 7), null, null));
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                blockStates.add(new BlockStyleEntry(Blocks.SKELETON_SKULL.getDefaultState(), -1, null));
+                blockStates.add(new BlockStyleEntry(Blocks.SKELETON_SKULL.getDefaultState(), null, null));
             }
         }
 
         if (blockStates.size() == 0) {
-            blockStates.add(new BlockStyleEntry(Blocks.SKELETON_SKULL.getDefaultState(), -1, null));
+            blockStates.add(new BlockStyleEntry(Blocks.SKELETON_SKULL.getDefaultState(), null, null));
         }
 
         return blockStates.toArray(new BlockStyleEntry[0]);
@@ -204,7 +206,7 @@ public final class Config {
         return texts.toArray(new Text[0]);
     }
 
-    public static record BlockStyleEntry(BlockState state, int blockEntityId, NbtCompound blockEntityNbt) {
+    public static record BlockStyleEntry(BlockState state, BlockEntityType<?> blockEntityType, NbtCompound blockEntityNbt) {
     }
 
 }

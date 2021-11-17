@@ -47,7 +47,7 @@ public class GraveBlock extends Block implements VirtualBlock, BlockEntityProvid
 
                     if (slot >= 0) {
                         inventory.main.set(slot, stack.copy());
-                        inventory.main.get(slot).setCooldown(5);
+                        inventory.main.get(slot).setBobbingAnimationTime(5);
                         stack.setCount(0);
                     }
                 } else {
