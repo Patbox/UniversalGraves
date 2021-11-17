@@ -6,7 +6,8 @@
   "mixins": [
     "LivingEntityMixin",
     "PlayerInventoryAccessor",
-    "ServerWorldMixin"
+    "ServerWorldMixin",
+    "BlockEntityUpdateS2CPacket"
   ],
   "injectors": {
     "defaultRequire": 1

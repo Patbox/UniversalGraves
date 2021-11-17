@@ -1,8 +1,10 @@
 package eu.pb4.graves.grave;
 
 import eu.pb4.graves.config.ConfigManager;
+import eu.pb4.graves.mixin.BlockEntityUpdateS2CPacketInvoker;
 import eu.pb4.placeholders.PlaceholderAPI;
 import net.minecraft.block.*;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.NbtList;
@@ -101,10 +103,10 @@ public final class GravesLookType {
             var list = (isLocked ? config.customBlockStateStylesLocked : config.customBlockStateStylesUnlocked);
             var entry = list[direction % list.length];
 
-            if (entry.blockEntityId() != -1 && entry.blockEntityNbt() != null) {
+            if (entry.blockEntityType() != null && entry.blockEntityNbt() != null) {
                 var compound = entry.blockEntityNbt().copy();
 
-                if (entry.blockEntityId() == BlockEntityUpdateS2CPacket.SIGN) {
+                if (entry.blockEntityType() == BlockEntityType.SIGN) {
                     var texts = isLocked ? config.signProtectedText : config.signText;
                     var placeholders = graveInfo.getPlaceholders();
                     var size = Math.min(4, texts.length);
@@ -121,7 +123,7 @@ public final class GravesLookType {
                 compound.putInt("y", pos.getY());
                 compound.putInt("z", pos.getZ());
 
-                player.networkHandler.sendPacket(new BlockEntityUpdateS2CPacket(pos, entry.blockEntityId(), compound));
+                player.networkHandler.sendPacket(BlockEntityUpdateS2CPacketInvoker.create(pos, entry.blockEntityType(), compound));
             }
         }
 
@@ -181,7 +183,7 @@ public final class GravesLookType {
             compound.putInt("x", pos.getX());
             compound.putInt("y", pos.getY());
             compound.putInt("z", pos.getZ());
-            player.networkHandler.sendPacket(new BlockEntityUpdateS2CPacket(pos, 4, compound));
+            player.networkHandler.sendPacket(BlockEntityUpdateS2CPacketInvoker.create(pos, BlockEntityType.SKULL, compound));
         }
     }
 
