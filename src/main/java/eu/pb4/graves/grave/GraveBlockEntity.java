@@ -77,7 +77,7 @@ public class GraveBlockEntity extends BlockEntity implements ImplementedInventor
     }
 
     @Override
-    public NbtCompound writeNbt(NbtCompound nbt) {
+    public void writeNbt(NbtCompound nbt) {
         super.writeNbt(nbt);
         NbtList nbtList = new NbtList();
 
@@ -95,8 +95,6 @@ public class GraveBlockEntity extends BlockEntity implements ImplementedInventor
 
         nbt.put("GraveInfo", this.info.writeNbt(new NbtCompound()));
         nbt.put("BlockState", NbtHelper.fromBlockState(this.replacedBlockState));
-
-        return nbt;
     }
 
 
