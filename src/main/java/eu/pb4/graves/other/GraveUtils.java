@@ -3,10 +3,13 @@ package eu.pb4.graves.other;
 
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.event.GraveValidPosCheckEvent;
+import net.fabricmc.fabric.api.tag.TagFactory;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.property.Property;
@@ -26,7 +29,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class GraveUtils {
-    public static final Identifier REPLACEABLE_TAG = new Identifier("universal_graves", "replaceable");
+    public static final Identifier REPLACEABLE_ID = new Identifier("universal_graves", "replaceable");
+    public static final Tag<Block> REPLACEABLE_TAG = TagFactory.BLOCK.create(GraveUtils.REPLACEABLE_ID);
     private static final Function<Map.Entry<Property<?>, Comparable<?>>, String> PROPERTY_MAP_PRINTER = new Function<>() {
         public String apply(@Nullable Map.Entry<Property<?>, Comparable<?>> entry) {
             if (entry == null) {
@@ -42,13 +46,13 @@ public class GraveUtils {
         }
     };
 
-    public static BlockCheckResult findGravePosition(ServerPlayerEntity player, ServerWorld world, BlockPos blockPos, Tag<Block> replaceable) {
+    public static BlockCheckResult findGravePosition(ServerPlayerEntity player, ServerWorld world, BlockPos blockPos, boolean anyBlock) {
         int maxDistance = 8;
         int line = 1;
 
         var border = world.getWorldBorder();
-        blockPos = new BlockPos(MathHelper.clamp(blockPos.getX(), border.getBoundWest() + 1, border.getBoundEast() - 1), MathHelper.clamp(blockPos.getY(), world.getBottomY(), world.getTopY() - 1), MathHelper.clamp(blockPos.getZ() + 1, border.getBoundNorth(), border.getBoundSouth() - 1));
-        BlockResult result = isValidPos(player, world, border, blockPos, replaceable);
+        blockPos = new BlockPos(MathHelper.clamp(blockPos.getX(), border.getBoundWest() + 1, border.getBoundEast() - 1), MathHelper.clamp(blockPos.getY(), world.getBottomY(), world.getTopY() - 1), MathHelper.clamp(blockPos.getZ(), border.getBoundNorth() + 1, border.getBoundSouth() - 1));
+        BlockResult result = isValidPos(player, world, border, blockPos, anyBlock);
         BlockResult tempResult;
         if (result.allow) {
             return new BlockCheckResult(blockPos, result);
@@ -66,7 +70,7 @@ public class GraveUtils {
                                 continue;
                             }
 
-                            tempResult = isValidPos(player, world, border, pos, replaceable);
+                            tempResult = isValidPos(player, world, border, pos, anyBlock);
                             if (tempResult.priority >= result.priority) {
                                 result = tempResult;
                             }
@@ -83,9 +87,9 @@ public class GraveUtils {
     }
 
 
-    private static BlockResult isValidPos(ServerPlayerEntity player, ServerWorld world, WorldBorder border, BlockPos pos, Tag<Block> replaceable) {
+    private static BlockResult isValidPos(ServerPlayerEntity player, ServerWorld world, WorldBorder border, BlockPos pos, boolean anyBlock) {
         BlockState state = world.getBlockState(pos);
-        if (border.contains(pos) && pos.getY() >= world.getBottomY() && pos.getY() < world.getTopY() && !state.hasBlockEntity() && (state.isAir() || replaceable.contains(state.getBlock()))) {
+        if (border.contains(pos) && pos.getY() >= world.getBottomY() && pos.getY() < world.getTopY() && !state.hasBlockEntity() && (state.isAir() || anyBlock || REPLACEABLE_TAG.contains(state.getBlock()))) {
             return GraveValidPosCheckEvent.EVENT.invoker().isValid(player, world, pos);
         } else {
             return BlockResult.BLOCK;
@@ -122,11 +126,14 @@ public class GraveUtils {
         return String.join(" ", parts);
     }
 
-    public static boolean hasSoulboundEnchantment(ItemStack stack) {
-        for (var enchant : EnchantmentHelper.get(stack).keySet()) {
-            var key = Registry.ENCHANTMENT.getId(enchant);
-            if (key.getPath().contains("soulbound") || key.getPath().contains("soul_bound")) {
-                return true;
+    public static boolean hasSkippedEnchantment(ItemStack stack) {
+        var config = ConfigManager.getConfig().configData;
+        for (var enchant : stack.getEnchantments()) {
+            if (enchant instanceof NbtCompound compound) {
+                var key = EnchantmentHelper.getIdFromNbt(compound);
+                if (key != null && config.skippedEnchantments.contains(key.toString()) || (config.tryDetectionSoulbound && (key.getPath().contains("soulbound") || key.getPath().contains("soul_bound")))) {
+                    return true;
+                }
             }
         }
         return false;

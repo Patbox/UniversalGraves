@@ -29,6 +29,7 @@ public interface PlayerGraveCreationEvent {
         BLOCK(false),
         BLOCK_PVP(false),
         BLOCK_CLAIM(false),
+        BLOCK_VOID(false),
         BLOCK_SILENT(false);
 
         private final boolean allow;

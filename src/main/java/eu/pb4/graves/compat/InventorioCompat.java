@@ -16,7 +16,7 @@ public class InventorioCompat {
                 var stack = inv.getStack(i);
                 if (!stack.isEmpty()
                         && PlayerGraveItemAddedEvent.EVENT.invoker().canAddItem(player, stack) != ActionResult.FAIL
-                        && !GraveUtils.hasSoulboundEnchantment(stack)
+                        && !GraveUtils.hasSkippedEnchantment(stack)
                         && !EnchantmentHelper.hasVanishingCurse(stack)
                 ) {
                     items.add(inv.removeStack(i));

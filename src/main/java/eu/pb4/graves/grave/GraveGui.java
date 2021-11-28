@@ -22,7 +22,7 @@ public class GraveGui extends SimpleGui {
         super(getScreenHandlerType(grave.info.itemCount), player, false);
         this.grave = grave;
         GuiElementBuilder emptyPane = new GuiElementBuilder(Items.GRAY_STAINED_GLASS_PANE).hideFlags().setName(new LiteralText(""));
-        this.setTitle(PlaceholderAPI.parsePredefinedText(ConfigManager.getConfig().graveTitle, PlaceholderAPI.PREDEFINED_PLACEHOLDER_PATTERN, grave.info.getPlaceholders()));
+        this.setTitle(PlaceholderAPI.parsePredefinedText(ConfigManager.getConfig().graveTitle, PlaceholderAPI.PREDEFINED_PLACEHOLDER_PATTERN, grave.info.getPlaceholders(grave.getWorld().getServer())));
         int x = 0;
         int skipped = 0;
         for (; x < this.grave.size(); x++) {

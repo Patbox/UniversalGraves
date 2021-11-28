@@ -55,7 +55,7 @@ public class GraveBlockEntity extends BlockEntity implements ImplementedInventor
         return this.stacks;
     }
 
-    public void setGrave(GameProfile profile, Collection<ItemStack> itemStacks, int experience, Text deathCause, BlockState blockState) {
+    public void setGrave(GameProfile profile, Collection<ItemStack> itemStacks, int experience, Text deathCause, BlockState blockState, Collection<UUID> allowedUUIDs) {
         if (this.world == null || !(this.world instanceof ServerWorld)) {
             return;
         }
@@ -68,7 +68,7 @@ public class GraveBlockEntity extends BlockEntity implements ImplementedInventor
         }
 
         this.replacedBlockState = blockState;
-        this.info = new GraveInfo(profile, this.pos, Objects.requireNonNull(this.getWorld()).getRegistryKey().getValue(), System.currentTimeMillis() / 1000, experience, itemStacks.size(), deathCause);
+        this.info = new GraveInfo(profile, this.pos, Objects.requireNonNull(this.getWorld()).getRegistryKey().getValue(), System.currentTimeMillis() / 1000, experience, itemStacks.size(), deathCause, allowedUUIDs);
 
         GraveManager.INSTANCE.add(this.info);
         this.markDirty();
@@ -77,7 +77,7 @@ public class GraveBlockEntity extends BlockEntity implements ImplementedInventor
     }
 
     @Override
-    public NbtCompound writeNbt(NbtCompound nbt) {
+    protected void writeNbt(NbtCompound nbt) {
         super.writeNbt(nbt);
         NbtList nbtList = new NbtList();
 
@@ -96,7 +96,6 @@ public class GraveBlockEntity extends BlockEntity implements ImplementedInventor
         nbt.put("GraveInfo", this.info.writeNbt(new NbtCompound()));
         nbt.put("BlockState", NbtHelper.fromBlockState(this.replacedBlockState));
 
-        return nbt;
     }
 
 
@@ -142,7 +141,7 @@ public class GraveBlockEntity extends BlockEntity implements ImplementedInventor
             assert world != null;
             ServerPlayerEntity player = Objects.requireNonNull(world.getServer()).getPlayerManager().getPlayer(this.info.gameProfile.getId());
             if (player != null) {
-                player.sendMessage(PlaceholderAPI.parsePredefinedText(text, PlaceholderAPI.PREDEFINED_PLACEHOLDER_PATTERN, this.info.getPlaceholders()), MessageType.SYSTEM, Util.NIL_UUID);
+                player.sendMessage(PlaceholderAPI.parsePredefinedText(text, PlaceholderAPI.PREDEFINED_PLACEHOLDER_PATTERN, this.info.getPlaceholders(this.world.getServer())), MessageType.SYSTEM, Util.NIL_UUID);
             }
         }
 
@@ -211,7 +210,7 @@ public class GraveBlockEntity extends BlockEntity implements ImplementedInventor
 
         Config config = ConfigManager.getConfig();
 
-        Map<String, Text> placeholders = self.info.getPlaceholders();
+        Map<String, Text> placeholders = self.info.getPlaceholders(self.world.getServer());
 
         if (config.configData.breakingTime > -1 && self.info.shouldBreak()) {
             world.setBlockState(pos, self.replacedBlockState, Block.NOTIFY_ALL);

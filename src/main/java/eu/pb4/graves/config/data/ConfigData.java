@@ -3,9 +3,11 @@ package eu.pb4.graves.config.data;
 import eu.pb4.graves.grave.GravesLookType;
 import eu.pb4.graves.grave.GravesXPCalculation;
 import eu.pb4.graves.other.GraveUtils;
+import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.WallBlock;
 import net.minecraft.block.enums.WallShape;
+import net.minecraft.tag.Tag;
 
 import java.util.*;
 
@@ -32,18 +34,24 @@ public class ConfigData extends VersionedConfigData implements Cloneable {
     public int customStyleUpdateRate = 20;
 
     public boolean isProtected = true;
-    public int protectionTime = 300;
-    public int breakingTime = 900;
+    public int protectionTime = 900;
+    public int breakingTime = 1800;
     public boolean breakEmptyGraves = true;
 
-    public String xpStorageType = GravesXPCalculation.VANILLA.name;
+    public String xpStorageType = GravesXPCalculation.PERCENT_POINTS.name;
     public double xpPercentTypeValue = 100;
 
+    public boolean replaceAnyBlock = false;
+    //public boolean useRealTime = true;
+
     public boolean createFromPvP = true;
+    public boolean createFromVoid = true;
+    public boolean createFromCommandDeaths = true;
     public boolean createInClaims = true;
     public boolean dropItemsAfterExpiring = true;
 
     public boolean shiftClickTakesItems = true;
+    public boolean allowAttackersToTakeItems = false;
 
     public String graveTitle = "<lang:'text.graves.players_grave':'${player}'>";
 
@@ -59,15 +67,14 @@ public class ConfigData extends VersionedConfigData implements Cloneable {
     public List<String> guiProtectedItem = Collections.singletonList("chest");
     public List<String> guiItem = Collections.singletonList("trapped_chest");
 
-    public String messageGraveCreated = "<white><lang:'text.graves.created_at':'<yellow>${position}':'<gray>${world}'>";
+    public String messageGraveCreated = "<white><lang:'text.graves.created_at_expire':'<yellow>${position}':'<gray>${world}':'<red>${break_time}'>";
     public String messageProtectionEnded = "<red><lang:'text.graves.no_longer_protected':'<gold>${position}':'<white>${world}':'<yellow>${item_count}'>";
     public String messageGraveExpired = "<red><lang:'text.graves.expired':'<gold>${position}':'<white>${world}':'<yellow>${item_count}'>";
     public String messageGraveBroken = "<gray><lang:'text.graves.somebody_broke':'<white>${position}':'<white>${world}':'<white>${item_count}'>";
     public String messageCreationFailed = "<red><lang:'text.graves.creation_failed':'<gold>${position}':'<yellow>${world}'>";
+    public String messageCreationFailedVoid = "<red><lang:'text.graves.creation_failed_void':'<gold>${position}':'<yellow>${world}'>";
     public String messageCreationFailedPvP = "<red><lang:'text.graves.creation_failed_pvp':'<gold>${position}':'<yellow>${world}'>";
     public String messageCreationFailedClaim = "<red><lang:'text.graves.creation_failed_claim':'<gold>${position}':'<yellow>${world}'>";
-
-    public String neverExpires = "Never";
 
     public String yearsText = "y";
     public String daysText = "d";
@@ -75,8 +82,12 @@ public class ConfigData extends VersionedConfigData implements Cloneable {
     public String minutesText = "m";
     public String secondsText = "s";
 
+    public String infinityText = "∞";
+
     public Map<String, String> worldNameOverrides = new HashMap<>();
 
+    public boolean tryDetectionSoulbound = true;
+    public List<String> skippedEnchantments = new ArrayList<>();
 
 
     private static List<String> getDefaultProtectedHologram() {

@@ -6,8 +6,8 @@ import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.other.GraveUtils;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtHelper;
+import net.minecraft.nbt.*;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
@@ -28,6 +28,7 @@ public final class GraveInfo {
     protected Text deathCause;
     protected BlockPos position;
     protected Identifier world;
+    protected Set<UUID> allowedUUIDs;
 
     public GraveInfo() {
         this.gameProfile = DEFAULT_GAME_PROFILE;
@@ -37,9 +38,10 @@ public final class GraveInfo {
         this.deathCause = DEFAULT_DEATH_CAUSE;
         this.position = BlockPos.ORIGIN;
         this.world = ServerWorld.OVERWORLD.getValue();
+        this.allowedUUIDs = new HashSet<>();
     }
 
-    public GraveInfo(GameProfile profile, BlockPos position, Identifier world, long creationTime, int xp, int itemCount, Text deathCause) {
+    public GraveInfo(GameProfile profile, BlockPos position, Identifier world, long creationTime, int xp, int itemCount, Text deathCause, Collection<UUID> allowedUUIDs) {
         this.gameProfile = profile;
         this.creationTime = creationTime;
         this.xp = xp;
@@ -47,6 +49,7 @@ public final class GraveInfo {
         this.deathCause = deathCause;
         this.position = position;
         this.world = world;
+        this.allowedUUIDs = new HashSet<>(allowedUUIDs);
     }
 
     public NbtCompound writeNbt(NbtCompound nbt) {
@@ -59,21 +62,37 @@ public final class GraveInfo {
         nbt.putString("DeathCause", Text.Serializer.toJson(this.deathCause));
         nbt.putIntArray("Position", new int[] { position.getX(), position.getY(), position.getZ() });
         nbt.putString("World", this.world.toString());
+
+        var list = new NbtList();
+        for (var uuid : this.allowedUUIDs) {
+            list.add(NbtHelper.fromUuid(uuid));
+        }
+
+        nbt.put("AllowedUUIDs", list);
         return nbt;
     }
 
     public void readNbt(NbtCompound nbt) {
-        this.gameProfile = NbtHelper.toGameProfile(nbt.getCompound("GameProfile"));
-        this.xp = nbt.getInt("XP");
-        this.creationTime = nbt.getLong("CreationTime");
-        this.itemCount = nbt.getInt("ItemCount");
-        this.deathCause = Text.Serializer.fromLenientJson(nbt.getString("DeathCause"));
-        int[] pos = nbt.getIntArray("Position");
-        this.position = new BlockPos(pos[0], pos[1], pos[2]);
-        this.world = Identifier.tryParse(nbt.getString("World"));
+        try {
+            this.gameProfile = NbtHelper.toGameProfile(nbt.getCompound("GameProfile"));
+            this.xp = nbt.getInt("XP");
+            this.creationTime = nbt.getLong("CreationTime");
+            this.itemCount = nbt.getInt("ItemCount");
+            this.deathCause = Text.Serializer.fromLenientJson(nbt.getString("DeathCause"));
+            int[] pos = nbt.getIntArray("Position");
+            this.position = new BlockPos(pos[0], pos[1], pos[2]);
+            this.world = Identifier.tryParse(nbt.getString("World"));
+            this.allowedUUIDs.clear();
+
+            for (var nbtUUID : nbt.getList("AllowedUUIDs", NbtElement.INT_ARRAY_TYPE)) {
+                this.allowedUUIDs.add(NbtHelper.toUuid(nbtUUID));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    public Map<String, Text> getPlaceholders() {
+    public Map<String, Text> getPlaceholders(MinecraftServer server) {
         Config config = ConfigManager.getConfig();
 
         long currentTime = System.currentTimeMillis() / 1000;
@@ -83,8 +102,8 @@ public final class GraveInfo {
 
         Map<String, Text> values = new HashMap<>();
         values.put("player", new LiteralText(this.gameProfile != null ? this.gameProfile.getName() : "<No player!>"));
-        values.put("protection_time", new LiteralText("" + (config.configData.protectionTime > -1 ? config.getFormattedTime(protectionTime) : "∞")));
-        values.put("break_time", new LiteralText("" + (config.configData.breakingTime > -1 ? config.getFormattedTime(breakTime) : "∞")));
+        values.put("protection_time", new LiteralText("" + (config.configData.protectionTime > -1 ? config.getFormattedTime(protectionTime) : config.configData.infinityText)));
+        values.put("break_time", new LiteralText("" + (config.configData.breakingTime > -1 ? config.getFormattedTime(breakTime) : config.configData.infinityText)));
         values.put("xp", new LiteralText("" + this.xp));
         values.put("item_count", new LiteralText("" + this.itemCount));
         values.put("position", new LiteralText("" + this.position.toShortString()));
@@ -120,7 +139,7 @@ public final class GraveInfo {
     }
 
     public boolean canTakeFrom(PlayerEntity entity) {
-        return !this.isProtected() || this.gameProfile.getId().equals(entity.getUuid()) || Permissions.check(entity, "graves.can_open_others", 3);
+        return !this.isProtected() || this.gameProfile.getId().equals(entity.getUuid()) || this.allowedUUIDs.contains(entity.getUuid()) || Permissions.check(entity, "graves.can_open_others", 3);
     }
 
     public GameProfile getProfile() {

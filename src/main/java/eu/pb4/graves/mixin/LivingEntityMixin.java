@@ -11,6 +11,7 @@ import eu.pb4.graves.grave.GraveBlockEntity;
 import eu.pb4.graves.grave.GravesXPCalculation;
 import eu.pb4.graves.other.GraveUtils;
 import eu.pb4.placeholders.PlaceholderAPI;
+import net.fabricmc.fabric.api.tag.TagFactory;
 import net.fabricmc.fabric.api.tag.TagRegistry;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -22,7 +23,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.MessageType;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.property.Properties;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
@@ -34,21 +34,28 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameRules;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin {
+
+    @Unique
+    private boolean graves_commandKill = false;
+
+    @Inject(method = "kill", at = @At("HEAD"))
+    private void graves_onKill(CallbackInfo ci) {
+        this.graves_commandKill = true;
+    }
+
     @Inject(method = "drop", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;dropInventory()V", shift = At.Shift.BEFORE), cancellable = true)
     private void replaceWithGrave(DamageSource source, CallbackInfo ci) {
         if (((Object) this) instanceof ServerPlayerEntity player) {
-            if (player.getServerWorld().getGameRules().getBoolean(GameRules.KEEP_INVENTORY)) {
+            if (player.getWorld().getGameRules().getBoolean(GameRules.KEEP_INVENTORY)) {
                 return;
             }
 
@@ -57,17 +64,21 @@ public abstract class LivingEntityMixin {
                 Text text = null;
                 Map<String, Text> placeholders = Map.of(
                         "position", new LiteralText("" + player.getBlockPos().toShortString()),
-                        "world", new LiteralText(GraveUtils.toWorldName(player.getServerWorld().getRegistryKey().getValue()))
+                        "world", new LiteralText(GraveUtils.toWorldName(player.getWorld().getRegistryKey().getValue()))
                 );
 
 
                 if (!config.configData.createFromPvP && source.getAttacker() instanceof PlayerEntity) {
-                    text = config.creationFailedPvPGraveMessage;
+                    text = config.creationFailedPvPMessage;
+                } else if (!config.configData.createFromCommandDeaths && this.graves_commandKill) {
+
+                } else if (!config.configData.createFromVoid && source == DamageSource.OUT_OF_WORLD && !this.graves_commandKill) {
+                    text = config.creationFailedPvPMessage;
                 } else {
                     var eventResult = PlayerGraveCreationEvent.EVENT.invoker().shouldCreate(player);
 
                     if (eventResult.canCreate()) {
-                        var result = GraveUtils.findGravePosition(player, player.getServerWorld(), player.getBlockPos(), TagRegistry.block(GraveUtils.REPLACEABLE_TAG));
+                        var result = GraveUtils.findGravePosition(player, player.getWorld(), player.getBlockPos(), config.configData.replaceAnyBlock);
 
                         if (result.result().canCreate()) {
                             BlockPos gravePos = result.pos();
@@ -77,7 +88,7 @@ public abstract class LivingEntityMixin {
                                 ItemStack itemStack = player.getInventory().getStack(i);
                                 if (!itemStack.isEmpty()
                                         && PlayerGraveItemAddedEvent.EVENT.invoker().canAddItem(player, itemStack) != ActionResult.FAIL
-                                        && !GraveUtils.hasSoulboundEnchantment(itemStack)
+                                        && !GraveUtils.hasSkippedEnchantment(itemStack)
                                         && !EnchantmentHelper.hasVanishingCurse(itemStack)
                                 ) {
                                     items.add(player.getInventory().removeStack(i));
@@ -99,8 +110,19 @@ public abstract class LivingEntityMixin {
                             }
 
                             int finalI = i;
-                            var world = player.getServerWorld();
+                            var world = player.getWorld();
                             var gameProfile = player.getGameProfile();
+
+                            var allowedUUID = new HashSet<UUID>();
+
+                            if (config.configData.allowAttackersToTakeItems) {
+                                if (source.getAttacker() instanceof ServerPlayerEntity playerEntity) {
+                                    allowedUUID.add(playerEntity.getUuid());
+                                }
+                                if (player.getAttacker() instanceof ServerPlayerEntity playerEntity) {
+                                    allowedUUID.add(playerEntity.getUuid());
+                                }
+                            }
 
                             GravesMod.DO_ON_NEXT_TICK.add(() -> {
                                 Text text2 = null;
@@ -110,9 +132,9 @@ public abstract class LivingEntityMixin {
                                 BlockEntity entity = world.getBlockEntity(gravePos);
     
                                 if (entity instanceof GraveBlockEntity grave) {
-                                    grave.setGrave(gameProfile, items, finalI, source.getDeathMessage(player), oldBlockState);
+                                    grave.setGrave(gameProfile, items, finalI, source.getDeathMessage(player), oldBlockState, allowedUUID);
                                     text2 = config.createdGraveMessage;
-                                    placeholders2 = grave.info.getPlaceholders();
+                                    placeholders2 = grave.info.getPlaceholders(player.getServer());
                                 } else {
                                     if (config.xpCalc != GravesXPCalculation.DROP) {
                                         ExperienceOrbEntity.spawn(world, Vec3d.ofCenter(gravePos), finalI);
@@ -128,15 +150,16 @@ public abstract class LivingEntityMixin {
                         } else {
                             text = switch (result.result()) {
                                 case BLOCK -> config.creationFailedGraveMessage;
-                                case BLOCK_CLAIM -> config.creationFailedClaimGraveMessage;
+                                case BLOCK_CLAIM -> config.creationFailedClaimMessage;
                                 case ALLOW -> null;
                             };
                         }
                     } else {
                         text = switch (eventResult) {
                             case BLOCK -> config.creationFailedGraveMessage;
-                            case BLOCK_CLAIM -> config.creationFailedClaimGraveMessage;
-                            case BLOCK_PVP -> config.creationFailedPvPGraveMessage;
+                            case BLOCK_CLAIM -> config.creationFailedClaimMessage;
+                            case BLOCK_PVP -> config.creationFailedPvPMessage;
+                            case BLOCK_VOID -> config.creationFailedVoidMessage;
                             default -> null;
                         };
                     }

@@ -144,7 +144,6 @@ public class ConfigDataV1 extends VersionedConfigData {
         config.messageCreationFailed = this.displayCreationFailedGraveMessage ? this.creationFailedGraveMessage : "";
         config.messageCreationFailedPvP = this.displayCreationFailedPvPGraveMessage ? this.creationFailedPvPGraveMessage : "";
         config.messageCreationFailedClaim = this.displayCreationFailedClaimGraveMessage ? this.creationFailedClaimMessage : "";
-        config.neverExpires = this.neverExpires;
         config.yearsText = this.yearsText;
         config.daysText = this.daysText;
         config.hoursText = this.hoursText;

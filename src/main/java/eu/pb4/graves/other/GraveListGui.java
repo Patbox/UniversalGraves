@@ -54,7 +54,7 @@ public class GraveListGui extends SimpleGui {
                 return;
             }
 
-            Map<String, Text> placeholders = graveInfo.getPlaceholders();
+            Map<String, Text> placeholders = graveInfo.getPlaceholders(this.player.getServer());
 
             List<Text> parsed = new ArrayList<>();
             for (Text text : graveInfo.isProtected() ? ConfigManager.getConfig().guiProtectedText : ConfigManager.getConfig().guiText) {

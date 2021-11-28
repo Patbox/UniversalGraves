@@ -2,11 +2,14 @@ package eu.pb4.graves.grave;
 
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.placeholders.PlaceholderAPI;
+import eu.pb4.polymer.mixin.block.BlockEntityUpdateS2CPacketAccessor;
+import fr.catcore.server.translations.api.LocalizationTarget;
+import fr.catcore.server.translations.api.text.LocalizableText;
 import net.minecraft.block.*;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
@@ -32,7 +35,7 @@ public final class GravesLookType {
         }
 
         @Override
-        public BlockState getBlockState(int direction, boolean isLocked) {
+        public BlockState getBlockState(int direction, boolean isLocked, boolean waterlogged) {
             return getBlock(isLocked).getDefaultState().with(PlayerSkullBlock.ROTATION, direction);
         }
 
@@ -55,7 +58,7 @@ public final class GravesLookType {
         }
 
         @Override
-        public BlockState getBlockState(int direction, boolean isLocked) {
+        public BlockState getBlockState(int direction, boolean isLocked, boolean waterlogged) {
             return getBlock(isLocked).getDefaultState().with(PlayerSkullBlock.ROTATION, direction);
         }
 
@@ -89,10 +92,11 @@ public final class GravesLookType {
         }
 
         @Override
-        public BlockState getBlockState(int direction, boolean isLocked) {
+        public BlockState getBlockState(int direction, boolean isLocked, boolean waterlogged) {
             var config = ConfigManager.getConfig();
             var list = (isLocked ? config.customBlockStateStylesLocked : config.customBlockStateStylesUnlocked);
-            return list[direction % list.length].state();
+            var state = list[direction % list.length].state();
+            return state.getBlock() instanceof Waterloggable ? state.with(Properties.WATERLOGGED, waterlogged) : state;
         }
 
         @Override
@@ -101,27 +105,28 @@ public final class GravesLookType {
             var list = (isLocked ? config.customBlockStateStylesLocked : config.customBlockStateStylesUnlocked);
             var entry = list[direction % list.length];
 
-            if (entry.blockEntityId() != -1 && entry.blockEntityNbt() != null) {
+            if (entry.blockEntityType() != null && entry.blockEntityNbt() != null) {
                 var compound = entry.blockEntityNbt().copy();
 
-                if (entry.blockEntityId() == BlockEntityUpdateS2CPacket.SIGN) {
-                    var texts = isLocked ? config.signProtectedText : config.signText;
-                    var placeholders = graveInfo.getPlaceholders();
-                    var size = Math.min(4, texts.length);
-                    for (int i = 0; i < size; i++) {
-                        compound.putString("Text" + (i + 1),
-                                Text.Serializer.toJson(
-                                        PlaceholderAPI.parsePredefinedText(texts[i], PlaceholderAPI.PREDEFINED_PLACEHOLDER_PATTERN, placeholders)
-                                )
-                        );
-                    }
+                var texts = isLocked ? config.signProtectedText : config.signText;
+                var placeholders = graveInfo.getPlaceholders(player.getServer());
+                var size = Math.min(4, texts.length);
+
+                var target = (LocalizationTarget) player;
+
+                for (int i = 0; i < size; i++) {
+                    compound.putString("Text" + (i + 1),
+                            Text.Serializer.toJson(
+                                    LocalizableText.asLocalizedFor(PlaceholderAPI.parsePredefinedText(texts[i], PlaceholderAPI.PREDEFINED_PLACEHOLDER_PATTERN, placeholders), target)
+                            )
+                    );
                 }
 
                 compound.putInt("x", pos.getX());
                 compound.putInt("y", pos.getY());
                 compound.putInt("z", pos.getZ());
 
-                player.networkHandler.sendPacket(new BlockEntityUpdateS2CPacket(pos, entry.blockEntityId(), compound));
+                player.networkHandler.sendPacket(BlockEntityUpdateS2CPacketAccessor.createBlockEntityUpdateS2CPacket(pos, entry.blockEntityType(), compound));
             }
         }
 
@@ -161,12 +166,13 @@ public final class GravesLookType {
             }
 
             @Override
-            public BlockState getBlockState(int rotation, boolean isLocked) {
+            public BlockState getBlockState(int rotation, boolean isLocked, boolean waterlogged) {
                 boolean chest = this.getBlock(isLocked) instanceof ChestBlock;
 
                 Direction direction = chest ? Direction.fromHorizontal(rotation / 4).getOpposite() : Direction.byId(rotation / 6);
 
-                return (isLocked ? locked : unlocked).with(chest ? ChestBlock.FACING : Properties.FACING, direction);
+                var state = (isLocked ? locked : unlocked).with(chest ? ChestBlock.FACING : Properties.FACING, direction);
+                return state.getBlock() instanceof Waterloggable ? state.with(Properties.WATERLOGGED, waterlogged) : state;
             }
 
             @Override
@@ -181,14 +187,14 @@ public final class GravesLookType {
             compound.putInt("x", pos.getX());
             compound.putInt("y", pos.getY());
             compound.putInt("z", pos.getZ());
-            player.networkHandler.sendPacket(new BlockEntityUpdateS2CPacket(pos, 4, compound));
+            player.networkHandler.sendPacket(BlockEntityUpdateS2CPacketAccessor.createBlockEntityUpdateS2CPacket(pos, BlockEntityType.SKULL, compound));
         }
     }
 
     public interface Converter {
         Block getBlock(boolean isLocked);
 
-        BlockState getBlockState(int direction, boolean isLocked);
+        BlockState getBlockState(int direction, boolean isLocked, boolean waterlogged);
 
         void sendNbt(ServerPlayerEntity player, BlockState state, BlockPos pos, int direction, boolean isLocked, GraveInfo graveInfo);
 

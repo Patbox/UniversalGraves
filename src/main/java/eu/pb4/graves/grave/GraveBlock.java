@@ -2,7 +2,7 @@ package eu.pb4.graves.grave;
 
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.mixin.PlayerInventoryAccessor;
-import eu.pb4.polymer.block.VirtualBlock;
+import eu.pb4.polymer.api.block.PolymerBlock;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
@@ -12,6 +12,8 @@ import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ShieldItem;
@@ -28,13 +30,14 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings({"deprecation"})
-public class GraveBlock extends Block implements VirtualBlock, BlockEntityProvider {
+public class GraveBlock extends Block implements PolymerBlock, BlockEntityProvider, Waterloggable {
     public static BooleanProperty IS_LOCKED = BooleanProperty.of("is_locked");
 
     public static GraveBlock INSTANCE = new GraveBlock();
 
     private GraveBlock() {
         super(AbstractBlock.Settings.of(Material.METAL).dropsNothing().strength(2, 999));
+        this.setDefaultState(this.getStateManager().getDefaultState().with(Properties.WATERLOGGED, false));
     }
 
     public static void insertStack(PlayerInventory inventory, ItemStack stack) {
@@ -47,7 +50,6 @@ public class GraveBlock extends Block implements VirtualBlock, BlockEntityProvid
 
                     if (slot >= 0) {
                         inventory.main.set(slot, stack.copy());
-                        inventory.main.get(slot).setCooldown(5);
                         stack.setCount(0);
                     }
                 } else {
@@ -65,7 +67,7 @@ public class GraveBlock extends Block implements VirtualBlock, BlockEntityProvid
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(Properties.ROTATION).add(IS_LOCKED);
+        builder.add(Properties.ROTATION, IS_LOCKED, Properties.WATERLOGGED);
     }
 
     @Override
@@ -134,29 +136,25 @@ public class GraveBlock extends Block implements VirtualBlock, BlockEntityProvid
     }
 
     @Override
-    public Block getVirtualBlock() {
-        return ConfigManager.getConfig().style.converter.getBlock(false);
+    public Block getPolymerBlock(BlockState state) {
+        return ConfigManager.getConfig().style.converter.getBlock(state.get(IS_LOCKED));
     }
 
     @Override
-    public Block getVirtualBlock(BlockPos pos, World world) {
-        return ConfigManager.getConfig().style.converter.getBlock(world.getBlockState(pos).get(IS_LOCKED));
+    public BlockState getPolymerBlockState(BlockState state) {
+        return ConfigManager.getConfig().style.converter.getBlockState(state.get(Properties.ROTATION), state.get(IS_LOCKED), state.get(Properties.WATERLOGGED));
     }
-
-    public BlockState getDefaultVirtualBlockState() {
-        return ConfigManager.getConfig().style.converter.getBlockState(0, true);
-    }
-
-    public BlockState getVirtualBlockState(BlockState state) {
-        return ConfigManager.getConfig().style.converter.getBlockState(state.get(Properties.ROTATION), state.get(IS_LOCKED));
-    }
-
-    public void sendPacketsAfterCreation(ServerPlayerEntity player, BlockPos pos, BlockState state) {
+    @Override
+    public void onPolymerBlockSend(ServerPlayerEntity player, BlockPos.Mutable pos, BlockState state) {
         BlockEntity blockEntity = player.world.getBlockEntity(pos);
 
         if (blockEntity instanceof GraveBlockEntity grave) {
-            ConfigManager.getConfig().style.converter.sendNbt(player, state, pos, state.get(Properties.ROTATION), state.get(IS_LOCKED), grave.info);
+            ConfigManager.getConfig().style.converter.sendNbt(player, state, pos.toImmutable(), state.get(Properties.ROTATION), state.get(IS_LOCKED), grave.info);
         }
+    }
+
+    public FluidState getFluidState(BlockState state) {
+        return state.get(Properties.WATERLOGGED) ? Fluids.WATER.getStill(false) : super.getFluidState(state);
     }
 
     @Nullable
