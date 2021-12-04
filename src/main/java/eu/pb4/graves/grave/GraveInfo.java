@@ -107,7 +107,7 @@ public final class GraveInfo {
         values.put("xp", new LiteralText("" + this.xp));
         values.put("item_count", new LiteralText("" + this.itemCount));
         values.put("position", new LiteralText("" + this.position.toShortString()));
-        values.put("world", new LiteralText(GraveUtils.toWorldName(this.world)));
+        values.put("world", GraveUtils.toWorldName(this.world));
         values.put("death_cause", this.deathCause);
         return values;
     }

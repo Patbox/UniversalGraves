@@ -55,16 +55,17 @@ public abstract class LivingEntityMixin {
     @Inject(method = "drop", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;dropInventory()V", shift = At.Shift.BEFORE), cancellable = true)
     private void replaceWithGrave(DamageSource source, CallbackInfo ci) {
         if (((Object) this) instanceof ServerPlayerEntity player) {
-            if (player.getWorld().getGameRules().getBoolean(GameRules.KEEP_INVENTORY)) {
-                return;
-            }
-
             try {
                 Config config = ConfigManager.getConfig();
+
+                if (player.getWorld().getGameRules().getBoolean(GameRules.KEEP_INVENTORY) || config.blacklistedWorlds.contains(player.getWorld().getRegistryKey().getValue())) {
+                    return;
+                }
+
                 Text text = null;
                 Map<String, Text> placeholders = Map.of(
                         "position", new LiteralText("" + player.getBlockPos().toShortString()),
-                        "world", new LiteralText(GraveUtils.toWorldName(player.getWorld().getRegistryKey().getValue()))
+                        "world", GraveUtils.toWorldName(player.getWorld().getRegistryKey().getValue())
                 );
 
 
@@ -78,7 +79,7 @@ public abstract class LivingEntityMixin {
                     var eventResult = PlayerGraveCreationEvent.EVENT.invoker().shouldCreate(player);
 
                     if (eventResult.canCreate()) {
-                        var result = GraveUtils.findGravePosition(player, player.getWorld(), player.getBlockPos(), config.configData.replaceAnyBlock);
+                        var result = GraveUtils.findGravePosition(player, player.getWorld(), player.getBlockPos(), config.configData.maxPlacementDistance, config.configData.replaceAnyBlock);
 
                         if (result.result().canCreate()) {
                             BlockPos gravePos = result.pos();

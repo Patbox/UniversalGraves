@@ -15,26 +15,5 @@
   "text.graves.creation_failed": "Couldn't create grave! Your items were dropped at %s (%s)",
   "text.graves.creation_failed_void": "Grave wasn't created, because you died in void!",
   "text.graves.creation_failed_pvp": "Grave wasn't created, because player killed you! Your items were dropped at %s (%s)",
-  "text.graves.creation_failed_claim": "Grave wasn't created, because you were in a claim! Your items were dropped at %s (%s)",
-
-  "options.universal_graves._comment": "v These are unused as for now, you can ignore them for now v",
-
-  "options.universal_graves.title": "Universal Graves Config",
-  "options.universal_grave.grave_type": "Grave style: ",
-  "options.universal_grave.grave_type.type.chest": "Chest",
-  "options.universal_grave.grave_type.type.barrel": "Barrel",
-  "options.universal_grave.grave_type.type.player_head": "Player Head",
-  "options.universal_grave.grave_type.type.preset_head": "Preset Head",
-
-
-  "options.universal_grave.xp_storage_type": "XP Storage: ",
-  "options.universal_grave.xp_storage_type.type.vanilla": "Vanilla",
-  "options.universal_grave.xp_storage_type.type.drop": "Drop (Ignore)",
-  "options.universal_grave.xp_storage_type.type.percent_points": "Percent (Points)",
-  "options.universal_grave.xp_storage_type.type.percent_levels": "Percent (Levels)",
-  "options.universal_grave.xp_storage_type.type.none": "None (Destroy)",
-
-  "options.universal_grave.breaking_time": "Break grave after (seconds)",
-  "options.universal_grave.protection_time": "Protect for (seconds)",
-  "options.universal_grave.is_protected": "Protect against players"
+  "text.graves.creation_failed_claim": "Grave wasn't created, because you were in a claim! Your items were dropped at %s (%s)"
 }

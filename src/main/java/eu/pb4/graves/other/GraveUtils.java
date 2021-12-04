@@ -14,6 +14,8 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.property.Property;
 import net.minecraft.tag.Tag;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -46,44 +48,56 @@ public class GraveUtils {
         }
     };
 
-    public static BlockCheckResult findGravePosition(ServerPlayerEntity player, ServerWorld world, BlockPos blockPos, boolean anyBlock) {
-        int maxDistance = 8;
-        int line = 1;
-
+    public static BlockCheckResult findGravePosition(ServerPlayerEntity player, ServerWorld world, BlockPos blockPos, int maxDistance, boolean anyBlock) {
         var border = world.getWorldBorder();
         blockPos = new BlockPos(MathHelper.clamp(blockPos.getX(), border.getBoundWest() + 1, border.getBoundEast() - 1), MathHelper.clamp(blockPos.getY(), world.getBottomY(), world.getTopY() - 1), MathHelper.clamp(blockPos.getZ(), border.getBoundNorth() + 1, border.getBoundSouth() - 1));
-        BlockResult result = isValidPos(player, world, border, blockPos, anyBlock);
-        BlockResult tempResult;
+        var result = isValidPos(player, world, border, blockPos, false);
         if (result.allow) {
             return new BlockCheckResult(blockPos, result);
         } else {
-            BlockPos.Mutable pos = new BlockPos.Mutable(blockPos.getX(), blockPos.getY(), blockPos.getZ());
+            var checkResult = findPos(player, world, blockPos, maxDistance, false);
 
-            while (line <= maxDistance) {
-                int side = line * 2 + 1;
-                for (int oY = 0; oY < side; oY++) {
-                    for (int oX = 0; oX < side; oX++) {
-                        for (int oZ = 0; oZ < side; oZ++) {
-                            pos.set(blockPos.getX() - line + oX, blockPos.getY() - line + oY, blockPos.getZ() - line + oZ);
+            if (!checkResult.result.allow && anyBlock) {
+                checkResult = findPos(player, world, blockPos, maxDistance, true);
+            }
 
-                            if ((oX > 0 && oX < side - 1) && (oY > 0 && oY < side - 1) && (oZ > 0 && oZ < side - 1)) {
-                                continue;
-                            }
+            return checkResult;
+        }
+    }
 
-                            tempResult = isValidPos(player, world, border, pos, anyBlock);
-                            if (tempResult.priority >= result.priority) {
-                                result = tempResult;
-                            }
-                            if (result.canCreate()) {
-                                return new BlockCheckResult(pos.toImmutable(), result);
-                            }
+    private static BlockCheckResult findPos(ServerPlayerEntity player, ServerWorld world, BlockPos blockPos, int maxDistance, boolean allowAnyBlock) {
+        int line = 1;
+        var border = world.getWorldBorder();
+        BlockResult result = isValidPos(player, world, border, blockPos, allowAnyBlock);
+
+        BlockResult tempResult;
+        BlockPos.Mutable pos = new BlockPos.Mutable(blockPos.getX(), blockPos.getY(), blockPos.getZ());
+
+        while (line <= maxDistance) {
+            int side = line * 2 + 1;
+            for (int oY = 0; oY < side; oY++) {
+                for (int oX = 0; oX < side; oX++) {
+                    for (int oZ = 0; oZ < side; oZ++) {
+                        pos.set(blockPos.getX() - line + oX, blockPos.getY() - line + oY, blockPos.getZ() - line + oZ);
+
+                        if ((oX > 0 && oX < side - 1) && (oY > 0 && oY < side - 1) && (oZ > 0 && oZ < side - 1)) {
+                            continue;
+                        }
+
+                        tempResult = isValidPos(player, world, border, pos, allowAnyBlock);
+                        if (tempResult.priority >= result.priority) {
+                            result = tempResult;
+                        }
+                        if (result.canCreate()) {
+                            return new BlockCheckResult(pos.toImmutable(), result);
                         }
                     }
                 }
-                line++;
             }
-            return new BlockCheckResult(null, result);
+            line++;
         }
+
+        return new BlockCheckResult(null, result);
     }
 
 
@@ -108,8 +122,8 @@ public class GraveUtils {
         return stringBuilder.toString();
     }
 
-    public static String toWorldName(Identifier identifier) {
-        var override = ConfigManager.getConfig().configData.worldNameOverrides.get(identifier.toString());
+    public static Text toWorldName(Identifier identifier) {
+        var override = ConfigManager.getConfig().worldNameOverrides.get(identifier);
         if (override != null) {
             return override;
         }
@@ -123,15 +137,15 @@ public class GraveUtils {
                 parts.add(String.join("", s));
             }
         }
-        return String.join(" ", parts);
+        return new LiteralText(String.join(" ", parts));
     }
 
     public static boolean hasSkippedEnchantment(ItemStack stack) {
-        var config = ConfigManager.getConfig().configData;
+        var config = ConfigManager.getConfig();
         for (var enchant : stack.getEnchantments()) {
             if (enchant instanceof NbtCompound compound) {
                 var key = EnchantmentHelper.getIdFromNbt(compound);
-                if (key != null && config.skippedEnchantments.contains(key.toString()) || (config.tryDetectionSoulbound && (key.getPath().contains("soulbound") || key.getPath().contains("soul_bound")))) {
+                if (key != null && config.skippedEnchantments.contains(key) || (config.configData.tryDetectionSoulbound && (key.getPath().contains("soulbound") || key.getPath().contains("soul_bound")))) {
                     return true;
                 }
             }

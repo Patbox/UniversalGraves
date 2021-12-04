@@ -20,11 +20,11 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public final class Config {
     public final ConfigData configData;
@@ -66,6 +66,10 @@ public final class Config {
     public final BlockStyleEntry[] customBlockStateStylesLocked;
     public final BlockStyleEntry[] customBlockStateStylesUnlocked;
 
+    public final Set<Identifier> skippedEnchantments;
+    public final Map<Identifier, Text> worldNameOverrides;
+    public final Set<Identifier> blacklistedWorlds;
+
 
     public Config(ConfigData data) {
         this.configData = data;
@@ -96,6 +100,34 @@ public final class Config {
 
         this.guiProtectedItem = parseItems(this.configData.guiProtectedItem);
         this.guiItem = parseItems(this.configData.guiItem);
+
+        this.skippedEnchantments = parseIds(data.skippedEnchantments);
+        this.blacklistedWorlds = parseIds(data.blacklistedWorlds);
+
+        this.worldNameOverrides = new HashMap<>();
+
+        for (var entry : data.worldNameOverrides.entrySet()) {
+            var id = Identifier.tryParse(entry.getKey());
+
+            if (id != null) {
+                this.worldNameOverrides.put(id, parse(entry.getValue()));
+            }
+        }
+    }
+
+    private static Set<Identifier> parseIds(List<String> ids) {
+        var set = new HashSet<Identifier>();
+        for (var id : ids) {
+            if (id != null) {
+                var identifier = Identifier.tryParse(id);
+
+                if (identifier != null) {
+                    set.add(identifier);
+                }
+            }
+        }
+
+        return set;
     }
 
     @Nullable
@@ -198,7 +230,9 @@ public final class Config {
         List<Text> texts = new ArrayList<>();
 
         for (String line : strings) {
-            if (line.isEmpty()) {
+            if (line == null) {
+                continue;
+            } else if (line.isEmpty()) {
                 texts.add(LiteralText.EMPTY);
             } else {
                 texts.add(TextParser.parse(line));

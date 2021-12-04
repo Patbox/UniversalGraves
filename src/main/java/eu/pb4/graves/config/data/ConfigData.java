@@ -42,6 +42,7 @@ public class ConfigData extends VersionedConfigData implements Cloneable {
     public double xpPercentTypeValue = 100;
 
     public boolean replaceAnyBlock = false;
+    public int maxPlacementDistance = 8;
     //public boolean useRealTime = true;
 
     public boolean createFromPvP = true;
@@ -85,9 +86,11 @@ public class ConfigData extends VersionedConfigData implements Cloneable {
     public String infinityText = "∞";
 
     public Map<String, String> worldNameOverrides = new HashMap<>();
+    public List<String> blacklistedWorlds = new ArrayList<>();
 
     public boolean tryDetectionSoulbound = true;
     public List<String> skippedEnchantments = new ArrayList<>();
+
 
 
     private static List<String> getDefaultProtectedHologram() {

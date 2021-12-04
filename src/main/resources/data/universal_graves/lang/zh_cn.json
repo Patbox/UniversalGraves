@@ -13,5 +13,4 @@
   "text.graves.creation_failed": "坟墓生成失败！你的物品洒在了%s（%s）",
   "text.graves.creation_failed_pvp": "玩家击杀不生成坟墓！你的物品洒在了%s（%s）",
   "text.graves.creation_failed_claim": "领地内不生成坟墓！你的物品洒在了%s（%s）"
-  
 }
