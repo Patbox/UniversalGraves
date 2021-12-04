@@ -35,11 +35,19 @@ Additionally, every message type has few own local variables.
   "isProtected": true,                       // Changes if graves should be protected by default
   "protectionTime": 300,                     // Time for which graves should be protected (is seconds), -1 for infinite
   "breakingTime": 900,                       // Time after which grave will break, -1 to disable breaking
+  "breakEmptyGraves": true,                  // If true, empty graves will break automatically
   "xpStorageType": "vanilla",                // Allows to change how much of xp is stored, "none" for nothing/destroying, "vanilla" for vanilla amount, "percent_levels" for percent of levels, "percent_points" for percent of points and "drop" for dropping outside of grave
   "xpPercentTypeValue": 100.0,               // Changes how much percent of xp will be stored, works only with xpStorageType of `percent_...`
+  "replaceAnyBlock": true,                   // Allows to replace solid blocks if there is no other spot to place a grave
+  "maxPlacementDistance": 8,                 // Maximal distance grave can be created from player's death location. Too big values can cause lag
   "createFromPvP": true,                     // If false, after dying from another players attack grave won't be created
+  "createFromVoid": true,                    // If false, graves won't be created if player dies in void
+  "createFromCommandDeaths": true,           // If false, graves won't be created if player dies because of kill command
   "createInClaims": true,                    // if false, graves won't be created in claims
   "dropItemsAfterExpiring": true,            // If items should drop breaking from expiration
+  "shiftClickTakesItems": true,              // Enables quick pickup of graves if clicked while sneaking
+  "allowAttackersToTakeItems": false,        // Allows attackers to take items from victim's grave
+  "graveTitle": "...",                        // Changes grave title
   "hologram": true,                          // Enables hologram
   "hologramOffset": 1.2,                     // Changes vertical offset of hologram
   "hologramProtectedText": [/*...*/],        // Hologram lines while protected
@@ -48,6 +56,19 @@ Additionally, every message type has few own local variables.
   "guiProtectedText": [/*...*/],             // Gui text while protected
   "guiText": [/*...*/],                      // Gui text while protected
   "message[Type]": "...",                    // Allows to change message, leave empty ("") to disable it
-  "graveTitle": "..."                        // Changes grave title
+  "guiProtectedItem": [/*...*/],             // Items used in guis to represent protected graves, they use same syntax as /give
+  "guiItem": [/*...*/],                      // Items used in guis to represent graves, they use same syntax as /give
+  "[time-type]Text": "...",                  // Text used to represent time symbol
+  "worldNameOverrides": {                    // Allows to override name of the world in messages
+    "world:id": "WorldName"
+    /* and others */
+  },
+  "blacklistedWorlds": [                     // Allows to block creation of graves with worlds with matching id
+    /*...*/
+  ],
+  "tryDetectionSoulbound": true,             // Toggles automatic detection of soulbound enchantment (it's hit or miss)
+  "skippedEnchantments": [                   // Allows to add own enchantments that end up being skipped from adding to grave
+    /*...*/
+  ]          
 }
 ```
