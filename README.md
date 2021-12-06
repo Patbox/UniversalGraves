@@ -20,7 +20,7 @@ If you have any questions, you can ask them on my [Discord](https://pb4.eu/disco
 Additionally, by having `universal_graves.teleport` permission, you can teleport to any grave.
 
 ## Configuration:
-You can find config file in `./config/unicversal-graves.json`.
+You can find config file in `./config/universal-graves.json`.
 [Formatting uses Simplified Text for which docs you can find here]().
 Additionally, every message type has few own local variables.
 
