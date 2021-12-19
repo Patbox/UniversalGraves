@@ -14,7 +14,7 @@ If you have any questions, you can ask them on my [Discord](https://pb4.eu/disco
 [Also check out my other mods and project, as you might find them useful!](https://pb4.eu)
 
 ## Grave styles
-
+To change grave style you need to modify config, see more info below
 * Default, `player_head`, recommended for servers
   - Style for vanilla clients: 
     ![Example image](https://i.imgur.com/hfyd10Q.png)
@@ -22,8 +22,7 @@ If you have any questions, you can ask them on my [Discord](https://pb4.eu/disco
     ![Example image](https://i.imgur.com/045tdtV.png)
 * `client_model` style with client mod and `hologramDisplayIfOnClient` set to false, recommended for modpacks
   ![Example image](https://i.imgur.com/lH0DwVK.png)
-* `preset_head`:
-  ![Example image](https://i.imgur.com/lH0DwVK.png)
+* and few other ones, which you need to configure manually to use
 
 
 ## Commands (and permissions):
@@ -34,14 +33,16 @@ If you have any questions, you can ask them on my [Discord](https://pb4.eu/disco
 Additionally, by having `universal_graves.teleport` permission, you can teleport to any grave.
 
 ## Configuration:
-You can find config file in `./config/unicversal-graves.json`.
-[Formatting uses Simplified Text for which docs you can find here]().
+You can find config file in `./config/universal-graves.json`.
+[Formatting uses Simplified Text for which docs you can find here](https://placeholders.pb4.eu/user/text-format/).
 Additionally, every message type has few own local variables.
 
 ```json5
 {
   "CONFIG_VERSION_DONT_TOUCH_THIS": 2,
-  "graveStyle": "player_head",               // Changes how block appears, "player_head" for owner's head, "preset_head" for head using values below, "chest" for chest, "barrel" for barrel and "custom" for custom
+  "graveStyle": "player_head",               // Changes how block appears, "player_head" for owner's head, "client_model" for client side model (for modpacks), "preset_head" for head using values below, "chest" for chest, "barrel" for barrel and "custom" for custom
+  "allowClientSideStyle": true,              // Enables client side models
+  "playerHeadTurnIntoSkulls": true,          // Makes unlocked graves look like skull while using "player_head" style
   "presetHeadLockedTexture": "...",          // Points to locked grave texture ("preset_head"), requires a value field (most sites have it described)
   "presetHeadUnlockedTexture": "...",        // Points to unlocked grave texture ("preset_head"), requires a value field
   "customBlockStateLockedStyles": ["..."],   // Custom visual blockstate for locked graves for style "custom". Limited to 16, uses same formatting as /setblock
@@ -54,15 +55,18 @@ Additionally, every message type has few own local variables.
   "xpPercentTypeValue": 100.0,               // Changes how much percent of xp will be stored, works only with xpStorageType of `percent_...`
   "replaceAnyBlock": true,                   // Allows to replace solid blocks if there is no other spot to place a grave
   "maxPlacementDistance": 8,                 // Maximal distance grave can be created from player's death location. Too big values can cause lag
+  "useRealTime": false,                      // Switches to using real time for measuring time instead of ingame one
   "createFromPvP": true,                     // If false, after dying from another players attack grave won't be created
   "createFromVoid": true,                    // If false, graves won't be created if player dies in void
   "createFromCommandDeaths": true,           // If false, graves won't be created if player dies because of kill command
   "createInClaims": true,                    // if false, graves won't be created in claims
   "dropItemsAfterExpiring": true,            // If items should drop breaking from expiration
-  "shiftClickTakesItems": true,              // Enables quick pickup of graves if clicked while sneaking
   "allowAttackersToTakeItems": false,        // Allows attackers to take items from victim's grave
-  "graveTitle": "...",                        // Changes grave title
+  "shiftClickTakesItems": true,              // Enables quick pickup of graves if clicked while sneaking
+  "giveGraveCompass": true,                  // When enabled, player will get a compass pointing to their grave after dying
+  "graveTitle": "...",                       // Changes grave title
   "hologram": true,                          // Enables hologram
+  "hologramDisplayIfOnClient": true,         // Allows to toggle visibility of hologram for players having client side mod
   "hologramOffset": 1.2,                     // Changes vertical offset of hologram
   "hologramProtectedText": [/*...*/],        // Hologram lines while protected
   "hologramText": [/*...*/],                 // Hologram lines while not protected
