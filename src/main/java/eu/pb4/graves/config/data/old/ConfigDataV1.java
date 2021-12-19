@@ -2,8 +2,8 @@ package eu.pb4.graves.config.data.old;
 
 import eu.pb4.graves.config.data.ConfigData;
 import eu.pb4.graves.config.data.VersionedConfigData;
-import eu.pb4.graves.grave.GravesLookType;
-import eu.pb4.graves.grave.GravesXPCalculation;
+import eu.pb4.graves.other.GravesLookType;
+import eu.pb4.graves.other.GravesXPCalculation;
 
 import java.util.ArrayList;
 import java.util.List;

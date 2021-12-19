@@ -1,8 +1,8 @@
-package eu.pb4.graves.other;
+package eu.pb4.graves.ui;
 
 import com.mojang.authlib.GameProfile;
 import eu.pb4.graves.config.ConfigManager;
-import eu.pb4.graves.grave.GraveInfo;
+import eu.pb4.graves.grave.Grave;
 import eu.pb4.graves.grave.GraveManager;
 import eu.pb4.placeholders.PlaceholderAPI;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
@@ -49,7 +49,7 @@ public class GraveListGui extends SimpleGui {
             this.clearSlot(x);
         }
 
-        for (GraveInfo graveInfo : GraveManager.INSTANCE.getByUuid(this.targetUUID)) {
+        for (Grave graveInfo : GraveManager.INSTANCE.getByUuid(this.targetUUID)) {
             if (this.getFirstEmptySlot() == -1) {
                 return;
             }
@@ -70,15 +70,20 @@ public class GraveListGui extends SimpleGui {
                     .setName((MutableText) parsed.remove(0))
                     .setLore(parsed)
                     .setCallback((index, type, action) -> {
-                        if (Permissions.check(this.player, "universal_graves.teleport", 3)) {
-                            this.close();
+                        if (type.isRight) {
+                            if (Permissions.check(this.player, "universal_graves.teleport", 3)) {
+                                this.close();
 
-                            ServerWorld world = this.player.getServer().getWorld(RegistryKey.of(Registry.WORLD_KEY, graveInfo.getWorld()));
+                                var pos = graveInfo.getLocation();
 
-                            if (world != null) {
-                                var pos = graveInfo.getPosition();
-                                this.player.teleport(world, pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, this.player.getYaw(), this.player.getPitch());
+                                ServerWorld world = this.player.getServer().getWorld(RegistryKey.of(Registry.WORLD_KEY, pos.world()));
+                                if (world != null) {
+                                    this.player.teleport(world, pos.x() + 0.5, pos.y() + 1, pos.z() + 0.5, this.player.getYaw(), this.player.getPitch());
+                                }
                             }
+                        } else {
+                            this.close();
+                            graveInfo.openUi(player, false);
                         }
                     })
             );

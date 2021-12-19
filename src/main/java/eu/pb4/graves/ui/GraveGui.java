@@ -1,13 +1,12 @@
-package eu.pb4.graves.grave;
+package eu.pb4.graves.ui;
 
 import eu.pb4.graves.config.ConfigManager;
+import eu.pb4.graves.grave.Grave;
+import eu.pb4.graves.other.OutputSlot;
 import eu.pb4.placeholders.PlaceholderAPI;
 import eu.pb4.sgui.api.ClickType;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.SimpleGui;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.SlotActionType;
@@ -15,28 +14,24 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 
 public class GraveGui extends SimpleGui {
+    private final Grave grave;
 
-    private final GraveBlockEntity grave;
-
-    public GraveGui(ServerPlayerEntity player, GraveBlockEntity grave) {
-        super(getScreenHandlerType(grave.info.itemCount), player, false);
+    public GraveGui(ServerPlayerEntity player, Grave grave, boolean canTake) {
+        super(getScreenHandlerType(grave.getItems().size()), player, false);
         this.grave = grave;
         GuiElementBuilder emptyPane = new GuiElementBuilder(Items.GRAY_STAINED_GLASS_PANE).hideFlags().setName(new LiteralText(""));
-        this.setTitle(PlaceholderAPI.parsePredefinedText(ConfigManager.getConfig().graveTitle, PlaceholderAPI.PREDEFINED_PLACEHOLDER_PATTERN, grave.info.getPlaceholders(grave.getWorld().getServer())));
+        this.setTitle(PlaceholderAPI.parsePredefinedText(ConfigManager.getConfig().graveTitle, PlaceholderAPI.PREDEFINED_PLACEHOLDER_PATTERN, grave.getPlaceholders(player.getWorld().getServer())));
         int x = 0;
-        int skipped = 0;
-        for (; x < this.grave.size(); x++) {
+
+        var inventory = this.grave.asInventory();
+
+        for (; x < this.grave.getItems().size(); x++) {
             if (this.getFirstEmptySlot() == -1) {
                 return;
             }
 
-            if (!grave.getStack(x).isEmpty()) {
-                this.addSlotRedirect(new OutputSlot(grave, x, 0, 0));
-            } else {
-                skipped++;
-            }
+            this.addSlotRedirect(new OutputSlot(inventory, x, 0, 0, canTake));
         }
-        x -= skipped;
 
         for (; x < this.getSize(); x++) {
             this.addSlot(emptyPane);
@@ -70,7 +65,8 @@ public class GraveGui extends SimpleGui {
 
     @Override
     public void onClose() {
-        this.grave.updateState();
+        this.grave.updateDisplay();
+        this.grave.updateSelf(this.player.getServer());
         super.onClose();
     }
 }

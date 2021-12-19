@@ -1,13 +1,11 @@
 package eu.pb4.graves.config.data;
 
-import eu.pb4.graves.grave.GravesLookType;
-import eu.pb4.graves.grave.GravesXPCalculation;
+import eu.pb4.graves.other.GravesLookType;
+import eu.pb4.graves.other.GravesXPCalculation;
 import eu.pb4.graves.other.GraveUtils;
-import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.WallBlock;
 import net.minecraft.block.enums.WallShape;
-import net.minecraft.tag.Tag;
 
 import java.util.*;
 
@@ -15,6 +13,8 @@ public class ConfigData extends VersionedConfigData implements Cloneable {
     public String _comment = "Before changing anything, see https://github.com/Patbox/UniversalGraves#configuration";
 
     public String graveStyle = GravesLookType.PLAYER_HEAD.name;
+    public boolean allowClientSideStyle = true;
+    public boolean playerHeadTurnIntoSkulls = true;
     public String presetHeadLockedTexture = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjdjYWI1NmM4MmNiODFiZGI5OTc5YTQ2NGJjOWQzYmEzZTY3MjJiYTEyMmNmNmM1Mjg3MzAxMGEyYjU5YWVmZSJ9fX0=";
     public String presetHeadUnlockedTexture = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjdjYWI1NmM4MmNiODFiZGI5OTc5YTQ2NGJjOWQzYmEzZTY3MjJiYTEyMmNmNmM1Mjg3MzAxMGEyYjU5YWVmZSJ9fX0=";
     public List<String> customBlockStateLockedStyles = List.of(
@@ -36,14 +36,14 @@ public class ConfigData extends VersionedConfigData implements Cloneable {
     public boolean isProtected = true;
     public int protectionTime = 900;
     public int breakingTime = 1800;
-    public boolean breakEmptyGraves = true;
+    public boolean keepBlockAfterBreaking = true;
 
     public String xpStorageType = GravesXPCalculation.PERCENT_POINTS.name;
     public double xpPercentTypeValue = 100;
 
     public boolean replaceAnyBlock = false;
     public int maxPlacementDistance = 8;
-    //public boolean useRealTime = true;
+    public boolean useRealTime = false;
 
     public boolean createFromPvP = true;
     public boolean createFromVoid = true;
@@ -51,12 +51,14 @@ public class ConfigData extends VersionedConfigData implements Cloneable {
     public boolean createInClaims = true;
     public boolean dropItemsAfterExpiring = true;
 
-    public boolean shiftClickTakesItems = true;
     public boolean allowAttackersToTakeItems = false;
+    public boolean shiftClickTakesItems = true;
+    public boolean giveGraveCompass = true;
 
     public String graveTitle = "<lang:'text.graves.players_grave':'${player}'>";
 
     public boolean hologram = true;
+    public boolean hologramDisplayIfOnClient = true;
     public double hologramOffset = 1.2;
     public List<String> hologramProtectedText = getDefaultProtectedHologram();
     public List<String> hologramText = getDefaultHologram();
@@ -148,7 +150,7 @@ public class ConfigData extends VersionedConfigData implements Cloneable {
 
         list.add("<white>${player}");
         list.add("<gray><lang:'text.graves.items_xp':'<white>${item_count}':'<white>${xp}'>");
-        list.add("<blue><lang:'text.graves.protected_time':''>");
+        list.add("<blue><lang:'text.graves.protected_time_sign'>");
         list.add("<white>${protection_time}");
 
         return list;
@@ -159,7 +161,7 @@ public class ConfigData extends VersionedConfigData implements Cloneable {
 
         list.add("<white>${player}");
         list.add("<gray><lang:'text.graves.items_xp':'<white>${item_count}':'<white>${xp}'>");
-        list.add("<red><lang:'text.graves.break_time':''>");
+        list.add("<red><lang:'text.graves.break_time_sign'>");
         list.add("<white>${break_time}");
 
         return list;

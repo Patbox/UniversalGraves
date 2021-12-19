@@ -3,7 +3,9 @@
   "text.graves.items_xp": "Items: %s XP: %s",
   "text.graves.items": "Items: %s",
   "text.graves.protected_time": "Protected for %s",
+  "text.graves.protected_time_sign": "Protected for",
   "text.graves.break_time": "Breaks in %s",
+  "text.graves.break_time_sign": "Breaks in",
   "text.graves.not_protected": "Not protected!",
   "text.graves.players_grave": "%s's grave",
   "text.graves.gui_title": "Your graves",
@@ -15,5 +17,12 @@
   "text.graves.creation_failed": "Couldn't create grave! Your items were dropped at %s (%s)",
   "text.graves.creation_failed_void": "Grave wasn't created, because you died in void!",
   "text.graves.creation_failed_pvp": "Grave wasn't created, because player killed you! Your items were dropped at %s (%s)",
-  "text.graves.creation_failed_claim": "Grave wasn't created, because you were in a claim! Your items were dropped at %s (%s)"
+  "text.graves.creation_failed_claim": "Grave wasn't created, because you were in a claim! Your items were dropped at %s (%s)",
+
+  "text.graves.about.version": "Version: %s",
+  "text.graves.about.contributors": "Contributors",
+
+  "item.universal_graves.grave_compass": "Grave Compass",
+  "block.universal_graves.grave": "Grave",
+  "block.universal_graves.visual_grave": "Gravestone"
 }

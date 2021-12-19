@@ -1,21 +1,20 @@
 package eu.pb4.graves.mixin;
 
+import eu.pb4.graves.GravesApi;
 import eu.pb4.graves.GravesMod;
+import eu.pb4.graves.registry.GraveBlock;
+import eu.pb4.graves.registry.GraveBlockEntity;
 import eu.pb4.graves.event.PlayerGraveCreationEvent;
-import eu.pb4.graves.event.PlayerGraveItemAddedEvent;
-import eu.pb4.graves.event.PlayerGraveItemsEvent;
 import eu.pb4.graves.config.Config;
 import eu.pb4.graves.config.ConfigManager;
-import eu.pb4.graves.grave.GraveBlock;
-import eu.pb4.graves.grave.GraveBlockEntity;
-import eu.pb4.graves.grave.GravesXPCalculation;
+import eu.pb4.graves.grave.*;
 import eu.pb4.graves.other.GraveUtils;
+import eu.pb4.graves.other.GravesXPCalculation;
+import eu.pb4.graves.other.Location;
+import eu.pb4.graves.other.PlayerAdditions;
 import eu.pb4.placeholders.PlaceholderAPI;
-import net.fabricmc.fabric.api.tag.TagFactory;
-import net.fabricmc.fabric.api.tag.TagRegistry;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.ExperienceOrbEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
@@ -26,7 +25,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.property.Properties;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.Util;
 import net.minecraft.util.collection.DefaultedList;
@@ -83,26 +81,18 @@ public abstract class LivingEntityMixin {
 
                         if (result.result().canCreate()) {
                             BlockPos gravePos = result.pos();
-                            List<ItemStack> items = new ArrayList<>();
+                            List<PositionedItemStack> items = new ArrayList<>();
 
-                            for (int i = 0; i < player.getInventory().size(); ++i) {
-                                ItemStack itemStack = player.getInventory().getStack(i);
-                                if (!itemStack.isEmpty()
-                                        && PlayerGraveItemAddedEvent.EVENT.invoker().canAddItem(player, itemStack) != ActionResult.FAIL
-                                        && !GraveUtils.hasSkippedEnchantment(itemStack)
-                                        && !EnchantmentHelper.hasVanishingCurse(itemStack)
-                                ) {
-                                    items.add(player.getInventory().removeStack(i));
-                                }
+                            for (var mask : GravesApi.getAllInventoryMasks()) {
+                                mask.addToGrave(player, (stack, slot, nbt) -> items.add(new PositionedItemStack(stack, slot, mask, nbt)));
                             }
 
-                            PlayerGraveItemsEvent.EVENT.invoker().modifyItems(player, items);
-                            int i = 0;
+                            int experience = 0;
                             if (config.xpCalc != GravesXPCalculation.DROP) {
-                                i = config.xpCalc.converter.calc(player);
+                                experience = config.xpCalc.converter.calc(player);
                             }
 
-                            if (items.size() == 0 && i == 0) {
+                            if (items.size() == 0 && experience == 0) {
                                 return;
                             }
 
@@ -110,7 +100,7 @@ public abstract class LivingEntityMixin {
                                 player.experienceLevel = 0;
                             }
 
-                            int finalI = i;
+                            int finalExperience = experience;
                             var world = player.getWorld();
                             var gameProfile = player.getGameProfile();
 
@@ -125,6 +115,7 @@ public abstract class LivingEntityMixin {
                                 }
                             }
 
+                            ((PlayerAdditions) player).graves_setLastGrave(new Location(world.getRegistryKey().getValue(), gravePos.toImmutable()));
                             GravesMod.DO_ON_NEXT_TICK.add(() -> {
                                 Text text2 = null;
                                 Map<String, Text> placeholders2 = placeholders;
@@ -132,13 +123,15 @@ public abstract class LivingEntityMixin {
                                 world.setBlockState(gravePos, GraveBlock.INSTANCE.getDefaultState().with(Properties.ROTATION, player.getRandom().nextInt(15)));
                                 BlockEntity entity = world.getBlockEntity(gravePos);
     
-                                if (entity instanceof GraveBlockEntity grave) {
-                                    grave.setGrave(gameProfile, items, finalI, source.getDeathMessage(player), oldBlockState, allowedUUID);
+                                if (entity instanceof GraveBlockEntity graveBlockEntity) {
+                                    var grave = Grave.createBlock(gameProfile, world.getRegistryKey().getValue(), gravePos,finalExperience, source.getDeathMessage(player), allowedUUID, items);
+
+                                    graveBlockEntity.setGrave(grave, oldBlockState);
                                     text2 = config.createdGraveMessage;
-                                    placeholders2 = grave.info.getPlaceholders(player.getServer());
+                                    placeholders2 = grave.getPlaceholders(player.getServer());
                                 } else {
                                     if (config.xpCalc != GravesXPCalculation.DROP) {
-                                        ExperienceOrbEntity.spawn(world, Vec3d.ofCenter(gravePos), finalI);
+                                        ExperienceOrbEntity.spawn(world, Vec3d.ofCenter(gravePos), finalExperience);
                                     }
                                     text2 = config.creationFailedGraveMessage;
                                     ItemScatterer.spawn(world, gravePos, DefaultedList.copyOf(ItemStack.EMPTY, items.toArray(new ItemStack[0])));

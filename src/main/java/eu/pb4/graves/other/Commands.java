@@ -4,8 +4,10 @@ package eu.pb4.graves.other;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import eu.pb4.graves.GravesMod;
+import eu.pb4.graves.GenericModInfo;
+import eu.pb4.graves.GraveNetworking;
 import eu.pb4.graves.config.ConfigManager;
+import eu.pb4.graves.ui.GraveListGui;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.minecraft.command.argument.GameProfileArgumentType;
@@ -78,6 +80,10 @@ public class Commands {
     private static int reloadConfig(CommandContext<ServerCommandSource> context) {
         if (ConfigManager.loadConfig()) {
             context.getSource().sendFeedback(new LiteralText("Reloaded config!"), false);
+            for (var player : context.getSource().getServer().getPlayerManager().getPlayerList()) {
+                GraveNetworking.sendConfig(player.networkHandler);
+            }
+
         } else {
             context.getSource().sendError(new LiteralText("Error accrued while reloading config!").formatted(Formatting.RED));
 
@@ -86,11 +92,15 @@ public class Commands {
     }
 
     private static int about(CommandContext<ServerCommandSource> context) {
-        context.getSource().sendFeedback(new LiteralText("Universal Graves")
+        /*context.getSource().sendFeedback(new LiteralText("Universal Graves")
                 .formatted(Formatting.AQUA)
                 .append(new LiteralText(" - " + GravesMod.VERSION)
                         .formatted(Formatting.WHITE)
-                ), false);
+                ), false);*/
+
+        for (var text : context.getSource().getEntity() instanceof ServerPlayerEntity ? GenericModInfo.getAboutFull() : GenericModInfo.getAboutConsole()) {
+            context.getSource().sendFeedback(text, false);
+        }
 
         return 1;
     }

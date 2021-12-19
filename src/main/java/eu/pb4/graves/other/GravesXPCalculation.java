@@ -1,4 +1,4 @@
-package eu.pb4.graves.grave;
+package eu.pb4.graves.other;
 
 import eu.pb4.graves.config.ConfigManager;
 import net.minecraft.server.network.ServerPlayerEntity;

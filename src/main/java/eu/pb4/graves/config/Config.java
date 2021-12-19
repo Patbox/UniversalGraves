@@ -3,9 +3,9 @@ package eu.pb4.graves.config;
 
 import com.mojang.brigadier.StringReader;
 import eu.pb4.graves.config.data.ConfigData;
-import eu.pb4.graves.grave.GraveBlock;
-import eu.pb4.graves.grave.GravesLookType;
-import eu.pb4.graves.grave.GravesXPCalculation;
+import eu.pb4.graves.registry.GraveBlock;
+import eu.pb4.graves.other.GravesLookType;
+import eu.pb4.graves.other.GravesXPCalculation;
 import eu.pb4.placeholders.TextParser;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
@@ -69,6 +69,7 @@ public final class Config {
     public final Set<Identifier> skippedEnchantments;
     public final Map<Identifier, Text> worldNameOverrides;
     public final Set<Identifier> blacklistedWorlds;
+    public final boolean canClientSide;
 
 
     public Config(ConfigData data) {
@@ -81,6 +82,7 @@ public final class Config {
         this.signText = parse(data.customStyleSignText);
 
         this.graveTitle = TextParser.parse(data.graveTitle);
+        this.canClientSide = data.allowClientSideStyle && this.style.allowClient;
 
         this.guiTitle = TextParser.parse(data.guiTitle);
         this.guiProtectedText = parse(data.guiProtectedText);
@@ -198,8 +200,11 @@ public final class Config {
         return blockStates.toArray(new BlockStyleEntry[0]);
     }
 
-
     public String getFormattedTime(long time) {
+        if (time < 0) {
+            return "0" + configData.secondsText;
+        }
+
         long seconds = time % 60;
         long minutes = (time / 60) % 60;
         long hours = (time / (60 * 60)) % 24;

@@ -33,12 +33,14 @@ repositories {
 	flatDir {
 		dirs './modsWithCompat'
 	}
-	maven { url "https://maven.jamieswhiteshirt.com/libs-release/" }
 
 	maven {
 		name 'Gegy'
 		url 'https://maven.gegy.dev'
 	}
+
+	mavenCentral()
+	//mavenLocal()
 }
 
 dependencies {
@@ -54,15 +56,15 @@ dependencies {
 	modImplementation include("eu.pb4:sgui:1.0.0-rc6+1.18-pre5")
 	modImplementation include("eu.pb4:hologram-api:0.2.1+1.18-pre5")
 	modImplementation include("eu.pb4:placeholder-api:1.1.3+1.17.1")
-	modImplementation include("eu.pb4:polymer:0.2.0-beta.8+1.18")
+	modImplementation include("eu.pb4:polymer:0.2.0-beta.12+1.18.1")
 	modImplementation include("fr.catcore:server-translations-api:1.4.8+1.18-pre1")
 	modImplementation include("me.lucko:fabric-permissions-api:0.1-SNAPSHOT")
 
 	modCompileOnly "dev.emi:trinkets:3.0.4"
-	modCompileOnly ('com.github.Lizard-Of-Oz.Inventorio:inventorio-1.17-fabric:1.17-SNAPSHOT') { transitive = false }
+	modCompileOnly files("modsWithCompat/inventorio-1.17-fabric-1.6.2.jar")
 
 	modCompileOnly "draylar:get-off-my-lawn:1.17-1.4.0-beta"
-	modCompileOnly "com.jamieswhiteshirt:rtree-3i-lite-fabric:0.3.0"
+	modCompileOnly 'com.jamieswhiteshirt:rtree-3i-lite:0.3.0'
 	modCompileOnly "io.github.onyxstudios.Cardinal-Components-API:cardinal-components-base:3.0.0-nightly.21w19a"
 
 

@@ -1,0 +1,6 @@
+{
+	"parent": "universal_graves:grave/generic",
+	"textures": {
+		"main": "block/mossy_stone_bricks"
+	}
+}

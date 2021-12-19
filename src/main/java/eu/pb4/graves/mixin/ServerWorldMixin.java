@@ -1,6 +1,6 @@
 package eu.pb4.graves.mixin;
 
-import eu.pb4.graves.grave.GraveBlockEntity;
+import eu.pb4.graves.registry.GraveBlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -21,7 +21,7 @@ public abstract class ServerWorldMixin extends World {
     @Inject(method = "canPlayerModifyAt", at = @At("HEAD"), cancellable = true)
     private void disallowGraveBreaking(PlayerEntity player, BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
         if (this.getBlockEntity(pos) instanceof GraveBlockEntity grave) {
-            cir.setReturnValue(grave.info.canTakeFrom(player));
+            cir.setReturnValue(grave.getGrave() != null && grave.getGrave().canTakeFrom(player));
         }
     }
 

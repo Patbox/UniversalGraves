@@ -1,8 +1,11 @@
-![Logo](https://i.imgur.com/otnGmMi.png)
+<img src="https://i.imgur.com/bzeKsL1.png" width="256px"/>
+
 # Universal Graves
 It's a simple, but really customisable grave/death chest mod! 
 You can change how every message, block and hologram looks, how long it will be protected,
 if should drop items after expiring and alike.
+
+This mod isn't require on client, but adding it allows for usage of more models.
 
 *This mod works only on Fabric Mod Loader and compatible!*
 
@@ -10,7 +13,18 @@ If you have any questions, you can ask them on my [Discord](https://pb4.eu/disco
 
 [Also check out my other mods and project, as you might find them useful!](https://pb4.eu)
 
-![Example image](https://i.imgur.com/hfyd10Q.png)
+## Grave styles
+
+* Default, `player_head`, recommended for servers
+  - Style for vanilla clients: 
+    ![Example image](https://i.imgur.com/hfyd10Q.png)
+  - Style for clients with mod:
+    ![Example image](https://i.imgur.com/045tdtV.png)
+* `client_model` style with client mod and `hologramDisplayIfOnClient` set to false, recommended for modpacks
+  ![Example image](https://i.imgur.com/lH0DwVK.png)
+* `preset_head`:
+  ![Example image](https://i.imgur.com/lH0DwVK.png)
+
 
 ## Commands (and permissions):
 - `/graves` - Main command, shows list of users graves (`universal_graves.list`, available by default)
