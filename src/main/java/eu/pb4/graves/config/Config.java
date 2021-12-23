@@ -32,9 +32,11 @@ public final class Config {
 
     public final Text[] hologramProtectedText;
     public final Text[] hologramText;
+    public final Text[] hologramVisualText;
 
     public final Text[] signProtectedText;
     public final Text[] signText;
+    public final Text[] signVisualText;
 
     public final Text graveTitle;
 
@@ -78,8 +80,10 @@ public final class Config {
         this.xpCalc = GravesXPCalculation.byName(configData.xpStorageType);
         this.hologramProtectedText = parse(data.hologramProtectedText);
         this.hologramText = parse(data.hologramText);
+        this.hologramVisualText = parse(data.hologramVisualText);
         this.signProtectedText = parse(data.customStyleSignProtectedText);
         this.signText = parse(data.customStyleSignText);
+        this.signVisualText = parse(data.customStyleSignVisualText);
 
         this.graveTitle = TextParser.parse(data.graveTitle);
         this.canClientSide = data.allowClientSideStyle && this.style.allowClient;

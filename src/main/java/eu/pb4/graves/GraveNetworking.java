@@ -98,10 +98,8 @@ public final class GraveNetworking {
     }
 
     public static void initialize() {
-
-        // A bug in polymer networking api... I will fix that later but for now it will do
-        ServerPackets.register("custom/" + CLIENT_HELLO.getNamespace() + "/" + CLIENT_HELLO.getPath(), 0);
-        ServerPackets.register("custom/" + CLIENT_GRAVE.getNamespace() + "/" + CLIENT_GRAVE.getPath(), 0);
+        PolymerPacketUtils.registerServerPacket(CLIENT_HELLO, 0);
+        PolymerPacketUtils.registerServerPacket(CLIENT_GRAVE, 0);
 
         PolymerSyncUtils.ON_SYNC_CUSTOM.register(((handler, full) -> {
             sendConfig(handler);

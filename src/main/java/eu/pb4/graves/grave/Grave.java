@@ -47,6 +47,7 @@ public final class Grave {
     protected Location location;
     protected GraveType type;
     protected boolean isRemoved;
+    protected long id = -1;
 
     protected boolean utilProtectionChangeMessage;
     protected boolean isProtectionEnabled;
@@ -67,7 +68,7 @@ public final class Grave {
         this.visualData = VisualGraveData.DEFAULT;
     }
 
-    public Grave(GameProfile profile, BlockPos position, Identifier world, GraveType type, long creationTime, long gameCreationTime, int xp, Text deathCause, Collection<UUID> allowedUUIDs, Collection<PositionedItemStack> itemStacks, boolean isProtectionEnabled) {
+    public Grave(long id, GameProfile profile, BlockPos position, Identifier world, GraveType type, long creationTime, long gameCreationTime, int xp, Text deathCause, Collection<UUID> allowedUUIDs, Collection<PositionedItemStack> itemStacks, boolean isProtectionEnabled) {
         this.gameProfile = profile;
         this.creationTime = creationTime;
         this.gameCreationTime = gameCreationTime;
@@ -79,17 +80,19 @@ public final class Grave {
         this.items = DefaultedList.copyOf(PositionedItemStack.EMPTY, itemStacks.toArray(new PositionedItemStack[0]));
         this.utilProtectionChangeMessage = !this.isProtected();
         this.isProtectionEnabled = isProtectionEnabled;
+        this.id = id;
         this.updateDisplay();
     }
 
     public static final Grave createBlock(GameProfile profile, Identifier world, BlockPos position, int xp, Text deathCause, Collection<UUID> allowedUUIDs, Collection<PositionedItemStack> itemStacks) {
-        return new Grave(profile, position, world, GraveType.BLOCK, System.currentTimeMillis() / 1000, GraveManager.INSTANCE.getCurrentGameTime(), xp, deathCause, allowedUUIDs, itemStacks, true);
+        return new Grave(GraveManager.INSTANCE.requestId(),profile, position, world, GraveType.BLOCK, System.currentTimeMillis() / 1000, GraveManager.INSTANCE.getCurrentGameTime(), xp, deathCause, allowedUUIDs, itemStacks, true);
     }
 
     public NbtCompound writeNbt(NbtCompound nbt) {
         if (this.gameProfile != null) {
             nbt.put("GameProfile", NbtHelper.writeGameProfile(new NbtCompound(), this.gameProfile));
         }
+        nbt.putLong("Id", this.id);
         nbt.putInt("XP", this.xp);
         nbt.putLong("CreationTime", this.creationTime);
         nbt.putInt("ItemCount", this.itemCount);
@@ -116,6 +119,12 @@ public final class Grave {
 
     public void readNbt(NbtCompound nbt) {
         try {
+            if (nbt.contains("Id", NbtElement.LONG_TYPE)) {
+                this.id = nbt.getLong("Id");
+            } else {
+                this.id = GraveManager.INSTANCE.requestId();
+            }
+
             this.gameProfile = NbtHelper.toGameProfile(nbt.getCompound("GameProfile"));
             this.xp = nbt.getInt("XP");
             this.creationTime = nbt.getLong("CreationTime");
@@ -161,13 +170,13 @@ public final class Grave {
     public Map<String, Text> getPlaceholders(MinecraftServer server) {
         Config config = ConfigManager.getConfig();
 
-        long protectionTime = config.configData.protectionTime > -1 ? getTimeLeft(config.configData.protectionTime, config.configData.useRealTime) : Long.MAX_VALUE;
-        long breakTime = config.configData.breakingTime > -1 ? getTimeLeft(config.configData.breakingTime, config.configData.useRealTime) : Long.MAX_VALUE;
+        long protectionTime = GraveManager.INSTANCE.getProtectionTime() > -1 ? getTimeLeft(GraveManager.INSTANCE.getProtectionTime(), config.configData.useRealTime) : Long.MAX_VALUE;
+        long breakTime = GraveManager.INSTANCE.getBreakingTime() > -1 ? getTimeLeft(GraveManager.INSTANCE.getBreakingTime(), config.configData.useRealTime) : Long.MAX_VALUE;
 
         Map<String, Text> values = new HashMap<>();
         values.put("player", new LiteralText(this.gameProfile != null ? this.gameProfile.getName() : "<No player!>"));
-        values.put("protection_time", new LiteralText("" + (config.configData.protectionTime > -1 ? config.getFormattedTime(protectionTime) : config.configData.infinityText)));
-        values.put("break_time", new LiteralText("" + (config.configData.breakingTime > -1 ? config.getFormattedTime(breakTime) : config.configData.infinityText)));
+        values.put("protection_time", new LiteralText("" + (GraveManager.INSTANCE.getProtectionTime() > -1 ? config.getFormattedTime(protectionTime) : config.configData.infinityText)));
+        values.put("break_time", new LiteralText("" + (GraveManager.INSTANCE.getBreakingTime() > -1 ? config.getFormattedTime(breakTime) : config.configData.infinityText)));
         values.put("xp", new LiteralText("" + this.xp));
         values.put("item_count", new LiteralText("" + this.itemCount));
         values.put("position", new LiteralText("" + this.location.blockPos().toShortString()));
@@ -177,10 +186,10 @@ public final class Grave {
     }
 
     public boolean shouldNaturallyBreak() {
-        Config config = ConfigManager.getConfig();
+        var time = GraveManager.INSTANCE.getBreakingTime();
 
-        if (config.configData.breakingTime > -1) {
-            long breakTime = getTimeLeft(config.configData.breakingTime, config.configData.useRealTime);
+        if (time > -1) {
+            long breakTime = getTimeLeft(time, ConfigManager.getConfig().configData.useRealTime);
 
             return breakTime <= 0;
         } else {
@@ -193,14 +202,14 @@ public final class Grave {
     }
 
     public boolean isTimeProtected() {
-        Config config = ConfigManager.getConfig();
+        var time = GraveManager.INSTANCE.getProtectionTime();
 
-        if (config.configData.protectionTime > -1 && config.configData.isProtected) {
-            long protectionTime = getTimeLeft(config.configData.protectionTime, config.configData.useRealTime);
+        if (time > -1 && GraveManager.INSTANCE.isProtectionEnabled()) {
+            long protectionTime = getTimeLeft(time, ConfigManager.getConfig().configData.useRealTime);
 
             return protectionTime > 0;
         } else {
-            return config.configData.isProtected;
+            return GraveManager.INSTANCE.isProtectionEnabled();
         }
     }
 
@@ -240,6 +249,14 @@ public final class Grave {
 
     public Location getLocation() {
         return this.location;
+    }
+
+    public void setLocation(Identifier identifier, BlockPos pos) {
+        setLocation(new Location(identifier, pos));
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
     }
 
     public List<PositionedItemStack> getItems() {
@@ -374,22 +391,27 @@ public final class Grave {
     }
 
     public void quickEquip(ServerPlayerEntity player) {
-        if (this.canTakeFrom(player)) {
-            for (var item : this.items) {
-                if (!item.isEmpty() && item.inventoryMask() != null) {
-                    item.inventoryMask().moveToPlayerExactly(player, item.stack(), item.slot(), item.optionalData());
-                }
-            }
-            for (var item : this.items) {
-                if (!item.isEmpty()) {
-                    if (item.inventoryMask() != null) {
-                        item.inventoryMask().moveToPlayerClosest(player, item.stack(), item.slot(), item.optionalData());
-                    } else {
-                        VanillaInventoryMask.INSTANCE.moveToPlayerClosest(player, item.stack(), -1, null);
+        try {
+
+            if (this.canTakeFrom(player)) {
+                for (var item : this.items) {
+                    if (!item.isEmpty() && item.inventoryMask() != null) {
+                        item.inventoryMask().moveToPlayerExactly(player, item.stack(), item.slot(), item.optionalData());
                     }
                 }
+                for (var item : this.items) {
+                    if (!item.isEmpty()) {
+                        if (item.inventoryMask() != null) {
+                            item.inventoryMask().moveToPlayerClosest(player, item.stack(), item.slot(), item.optionalData());
+                        } else {
+                            VanillaInventoryMask.INSTANCE.moveToPlayerClosest(player, item.stack(), -1, null);
+                        }
+                    }
+                }
+                this.updateSelf(player.getServer());
             }
-            this.updateSelf(player.getServer());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -406,11 +428,15 @@ public final class Grave {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Grave graveInfo = (Grave) o;
-        return Objects.equals(this.location, graveInfo.location);
+        return Objects.equals(this.id, graveInfo.id);
     }
 
     @Override
     public int hashCode() {
-        return this.location.hashCode();
+        return Objects.hashCode(this.id);
+    }
+
+    public long getId() {
+        return this.id;
     }
 }

@@ -48,6 +48,7 @@ public class GravesMod implements ModInitializer {
         PolymerBlockUtils.registerBlockEntity(VisualGraveBlockEntity.BLOCK_ENTITY_TYPE);
 
         GraveNetworking.initialize();
+        new GraveGameRules();
 
         GravesApi.registerInventoryMask(new Identifier("vanilla"), VanillaInventoryMask.INSTANCE);
 
@@ -69,7 +70,7 @@ public class GravesMod implements ModInitializer {
         ServerWorldEvents.LOAD.register(((server, world) -> {
             if (world == server.getOverworld()) {
                 GraveManager.INSTANCE = (GraveManager) world.getPersistentStateManager()
-                        .getOrCreate(GraveManager::fromNbt, GraveManager::new, "universal-graves");
+                        .getOrCreate((nbt) -> GraveManager.fromNbt(nbt, server), GraveManager::new, "universal-graves");
             }
         }));
 

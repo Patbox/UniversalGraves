@@ -7,16 +7,21 @@ import eu.pb4.graves.registry.VisualGraveBlockEntity;
 import eu.pb4.graves.registry.GraveBlockEntity;
 import eu.pb4.graves.other.GravesLookType;
 import eu.pb4.polymer.api.client.PolymerClientUtils;
+import fr.catcore.server.translations.api.ServerTranslations;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.model.*;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.resource.ReloadableResourceManager;
 import net.minecraft.resource.ResourceManager;
+import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
 
 import java.util.function.Consumer;
@@ -34,8 +39,8 @@ public class GravesModClient implements ClientModInitializer {
                 (ctx) -> (BlockEntityRenderer<GraveBlockEntity>) (Object) new GraveRenderer(ctx));
 
 
-        PolymerClientUtils.registerPacket(GraveNetworking.CLIENT_HELLO, this::handleHelloPacket, 0);
-        PolymerClientUtils.registerPacket(GraveNetworking.CLIENT_GRAVE, this::handleGravePacket, 0);
+        PolymerClientUtils.registerPacketHandler(GraveNetworking.CLIENT_HELLO, this::handleHelloPacket, 0);
+        PolymerClientUtils.registerPacketHandler(GraveNetworking.CLIENT_GRAVE, this::handleGravePacket, 0);
 
         ClientPlayConnectionEvents.JOIN.register(this::onConnect);
 

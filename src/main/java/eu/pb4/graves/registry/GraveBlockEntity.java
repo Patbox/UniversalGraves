@@ -41,6 +41,7 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity {
     private Grave data = null;
     private int dataRetrieveTries = 0;
     private VisualGraveData visualData = VisualGraveData.DEFAULT;
+    private long graveId = -1;
 
     public GraveBlockEntity(BlockPos pos, BlockState state) {
         super(BLOCK_ENTITY_TYPE, pos, state);
@@ -51,6 +52,7 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity {
         this.replacedBlockState = oldBlockState;
         this.visualData = grave.toVisualGraveData();
         GraveManager.INSTANCE.add(grave);
+        this.graveId = grave.getId();
         this.markDirty();
     }
 
@@ -59,6 +61,9 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity {
         super.writeNbt(nbt);
         nbt.put("BlockState", NbtHelper.fromBlockState(this.replacedBlockState));
         nbt.put("VisualData", this.getClientData().toNbt());
+        if (this.data != null) {
+            nbt.putLong("GraveId", this.graveId);
+        }
     }
 
 
@@ -66,8 +71,8 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity {
     public void readNbt(NbtCompound nbt) {
         super.readNbt(nbt);
         try {
-            // Legacy grave handling
             if (nbt.contains("GraveInfo", NbtElement.COMPOUND_TYPE)) {
+                // Legacy grave handling
                 this.data = new Grave();
                 this.data.readNbt(nbt.getCompound("GraveInfo"));
 
@@ -77,19 +82,35 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity {
                     this.data.getItems().add(new PositionedItemStack(ItemStack.fromNbt((NbtCompound) compound), -1, VanillaInventoryMask.INSTANCE, null));
                 }
                 GraveManager.INSTANCE.add(this.data);
-            } else {
-                this.data = GraveManager.INSTANCE.getByLocation(new Location(this.world.getRegistryKey().getValue(), this.pos));
+            } else if (nbt.contains("GraveId", NbtElement.LONG_TYPE)) {
+                this.graveId = nbt.getLong("GraveId");
             }
 
-            if (this.data != null) {
-                this.visualData = data.toVisualGraveData();
-            } else {
+            if (this.data == null) {
+                this.fetchGraveData();
+            }
+
+            if (this.visualData == null) {
                 this.visualData = VisualGraveData.fromNbt(nbt.getCompound("VisualData"));
             }
 
             this.replacedBlockState = NbtHelper.toBlockState((NbtCompound) Objects.requireNonNull(nbt.get("BlockState")));
         } catch (Exception e) {
             this.visualData = VisualGraveData.DEFAULT;
+        }
+    }
+
+    protected void fetchGraveData() {
+        this.data = GraveManager.INSTANCE.getId(this.graveId);
+
+        if (this.data == null) {
+            // Beta.1 grave handling
+            this.data = GraveManager.INSTANCE.getByLocation(new Location(this.world.getRegistryKey().getValue(), this.pos));
+        }
+
+        if (this.data != null) {
+            this.visualData = this.data.toVisualGraveData();
+            this.updateForAllPlayers();
         }
     }
 
@@ -132,17 +153,14 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity {
         }
 
         if (self.data == null) {
-            self.data = GraveManager.INSTANCE.getByLocation(world, pos);
+            self.fetchGraveData();
+            self.dataRetrieveTries++;
 
-            if (self.data == null) {
-                self.dataRetrieveTries++;
-
-                if (self.dataRetrieveTries > 10) {
-                    self.breakBlock();
-                }
-
-                return;
+            if (self.dataRetrieveTries > 10) {
+                self.breakBlock();
             }
+
+            return;
         }
 
         if (self.data.isRemoved()) {
@@ -183,7 +201,7 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity {
                 self.hologram = new WorldHologram((ServerWorld) world, new Vec3d(pos.getX(), pos.getY(), pos.getZ()).add(0.5, config.configData.hologramOffset, 0.5)) {
                     @Override
                     public boolean canAddPlayer(ServerPlayerEntity player) {
-                        return !config.configData.hologramDisplayIfOnClient ? !GraveNetworking.canReceive(player.networkHandler) : true;
+                        return config.configData.hologramDisplayIfOnClient || !GraveNetworking.canReceive(player.networkHandler);
                     }
                 };
                 self.hologram.show();

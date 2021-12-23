@@ -30,10 +30,12 @@ public class GraveGui extends SimpleGui {
                 return;
             }
 
-            this.addSlotRedirect(new OutputSlot(inventory, x, 0, 0, canTake));
+            if (!inventory.getStack(x).isEmpty()) {
+                this.addSlotRedirect(new OutputSlot(inventory, x, 0, 0, canTake));
+            }
         }
 
-        for (; x < this.getSize(); x++) {
+        while (this.getFirstEmptySlot() != -1) {
             this.addSlot(emptyPane);
         }
     }

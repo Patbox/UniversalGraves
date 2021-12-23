@@ -122,7 +122,6 @@ public class ConfigDataV1 extends VersionedConfigData {
         config.graveStyle = this.graveType;
         config.presetHeadUnlockedTexture = this.unlockedTexture;
         config.presetHeadLockedTexture = this.lockedTexture;
-        config.isProtected = this.isProtected;
         config.protectionTime = this.shouldProtectionExpire ? this.protectionTime : -1;
         config.breakingTime = this.shouldBreak ? this.breakAfter : -1;
         config.xpStorageType = this.storeExperience ? this.xpStorageType : GravesXPCalculation.DROP.name;

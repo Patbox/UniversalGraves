@@ -143,7 +143,7 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
                     }
                 }
             } else {
-                for (Text text : config.hologramText) {
+                for (Text text : config.hologramVisualText) {
                     if (!text.equals(LiteralText.EMPTY)) {
                         texts.add(PlaceholderAPI.parsePredefinedText(text, PlaceholderAPI.PREDEFINED_PLACEHOLDER_PATTERN, placeholders));
                     } else {
@@ -186,6 +186,10 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
     @Override
     public VisualGraveData getClientData() {
         return this.visualData;
+    }
+
+    public Text[] getSignText() {
+        return this.textOverrides != null ? this.textOverrides : ConfigManager.getConfig().signVisualText;
     }
 
     public Text[] getTextOverrides() {

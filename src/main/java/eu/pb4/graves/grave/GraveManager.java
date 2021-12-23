@@ -1,6 +1,10 @@
 package eu.pb4.graves.grave;
 
 import eu.pb4.graves.other.Location;
+import eu.pb4.graves.registry.GraveGameRules;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
@@ -17,13 +21,22 @@ public class GraveManager extends PersistentState {
 
     private HashMap<UUID, Set<Grave>> byUuid = new HashMap<>();
     private HashMap<Location, Grave> byLocation = new HashMap<>();
+    private Long2ObjectMap<Grave> byId = new Long2ObjectOpenHashMap<>();
     private HashSet<Grave> graves = new HashSet<>();
     private long ticker;
     private long currentGameTime;
+    private long currentGraveId = 0;
+    private int protectionTime;
+    private int breakingTime;
 
     public void add(Grave grave) {
+        if (grave.id == -1) {
+            grave.id = this.requestId();
+        }
+
         this.byUuid.computeIfAbsent(grave.gameProfile.getId(), (v) -> new HashSet<>()).add(grave);
         this.byLocation.put(grave.location, grave);
+        this.byId.put(grave.id, grave);
         this.graves.add(grave);
         this.markDirty();
     }
@@ -32,6 +45,7 @@ public class GraveManager extends PersistentState {
         if (this.graves.remove(info)) {
             var graveInfoList = this.byUuid.get(info.gameProfile.getId());
             this.byLocation.remove(info.location);
+            this.byId.remove(info.id);
             if (graveInfoList != null) {
                 graveInfoList.remove(info);
                 if (graveInfoList.isEmpty()) {
@@ -54,24 +68,25 @@ public class GraveManager extends PersistentState {
         nbt.put("Graves", list);
         nbt.putInt("Version", 2);
         nbt.putLong("CurrentGameTime", this.currentGameTime);
+        nbt.putLong("CurrentGrave", this.currentGraveId);
 
         return nbt;
     }
 
-    public static PersistentState fromNbt(NbtCompound nbt) {
+    public static PersistentState fromNbt(NbtCompound nbt, MinecraftServer server) {
         GraveManager manager = new GraveManager();
+        manager.protectionTime = GraveGameRules.getProtectionTime(server);
+        manager.breakingTime = GraveGameRules.getBreakingTime(server);
         GraveManager.INSTANCE = manager;
 
         manager.currentGameTime = nbt.getLong("CurrentGameTime");
+        manager.currentGraveId = nbt.getLong("CurrentGrave");
 
         NbtList graves = nbt.getList("Graves", NbtElement.COMPOUND_TYPE);
         for (NbtElement graveNbt : graves) {
             Grave graveInfo = new Grave();
             graveInfo.readNbt((NbtCompound) graveNbt);
-
-            if (!graveInfo.shouldNaturallyBreak()) {
-                manager.add(graveInfo);
-            }
+            manager.add(graveInfo);
         }
         return manager;
     }
@@ -84,6 +99,10 @@ public class GraveManager extends PersistentState {
         }
 
         return Collections.emptyList();
+    }
+
+    public Grave getId(long id) {
+        return this.byId.get(id);
     }
 
     public Grave getByLocation(Location location) {
@@ -104,17 +123,40 @@ public class GraveManager extends PersistentState {
 
     public void tick(MinecraftServer server) {
         this.ticker++;
-
         if (this.ticker >= 20) {
             this.ticker = 0;
             this.currentGameTime++;
-            for (var grave : this.graves) {
-                grave.tick(server);
+
+            this.protectionTime = GraveGameRules.getProtectionTime(server);
+            this.breakingTime = GraveGameRules.getBreakingTime(server);
+
+            try {
+                for (var grave : this.graves.toArray(new Grave[0])) {
+                    grave.tick(server);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }
 
     public long getCurrentGameTime() {
         return this.currentGameTime;
+    }
+
+    public long requestId() {
+        return this.currentGraveId++;
+    }
+
+    public int getProtectionTime() {
+        return this.protectionTime;
+    }
+
+    public boolean isProtectionEnabled() {
+        return this.protectionTime != 0;
+    }
+
+    public int getBreakingTime() {
+        return this.breakingTime;
     }
 }

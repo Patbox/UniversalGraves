@@ -91,8 +91,8 @@ public class VisualGraveBlock extends Block implements PlayerAwarePolymerBlock, 
         var blockEntity = player.world.getBlockEntity(pos);
 
         boolean locked = state.get(IS_LOCKED);
-        if (blockEntity instanceof VisualGraveBlockEntity grave && !GraveNetworking.sendGrave(player.networkHandler, pos, locked, grave.getGrave(), grave.getGrave().getPlaceholders(player.server), grave.getTextOverrides())) {
-            ConfigManager.getConfig().style.converter.sendNbt(player, state, pos.toImmutable(), state.get(Properties.ROTATION), state.get(IS_LOCKED), grave.getGrave(), null, grave.getTextOverrides());
+        if (blockEntity instanceof VisualGraveBlockEntity grave && !GraveNetworking.sendGrave(player.networkHandler, pos, locked, grave.getGrave(), grave.getGrave().getPlaceholders(player.server), grave.getSignText())) {
+            ConfigManager.getConfig().style.converter.sendNbt(player, state, pos.toImmutable(), state.get(Properties.ROTATION), state.get(IS_LOCKED), grave.getGrave(), null,  grave.getSignText());
         }
     }
 

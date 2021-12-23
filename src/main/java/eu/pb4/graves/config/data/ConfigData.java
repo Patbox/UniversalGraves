@@ -31,9 +31,10 @@ public class ConfigData extends VersionedConfigData implements Cloneable {
 
     public List<String> customStyleSignProtectedText = getDefaultProtectedSign();
 
+    public List<String> customStyleSignVisualText = getDefaultVisualSign();
+
     public int customStyleUpdateRate = 20;
 
-    public boolean isProtected = true;
     public int protectionTime = 900;
     public int breakingTime = 1800;
     public boolean keepBlockAfterBreaking = true;
@@ -62,6 +63,7 @@ public class ConfigData extends VersionedConfigData implements Cloneable {
     public double hologramOffset = 1.2;
     public List<String> hologramProtectedText = getDefaultProtectedHologram();
     public List<String> hologramText = getDefaultHologram();
+    public List<String> hologramVisualText = getDefaultVisualHologram();
 
     public String guiTitle = "<lang:'text.graves.gui_title':'${player}'>";
     public List<String> guiProtectedText = getDefaultProtectedGui();
@@ -104,6 +106,15 @@ public class ConfigData extends VersionedConfigData implements Cloneable {
         list.add("<gray><lang:'text.graves.items_xp':'<white>${item_count}':'<white>${xp}'>");
         list.add("<blue><lang:'text.graves.protected_time':'<white>${protection_time}'>");
         list.add("<red><lang:'text.graves.break_time':'<white>${break_time}'>");
+
+        return list;
+    }
+
+    private static List<String> getDefaultVisualHologram() {
+        List<String> list = new ArrayList<>();
+
+        list.add("<gold><lang:'text.graves.grave_of':'<white>${player}'>");
+        list.add("<yellow>${death_cause}");
 
         return list;
     }
@@ -152,6 +163,14 @@ public class ConfigData extends VersionedConfigData implements Cloneable {
         list.add("<gray><lang:'text.graves.items_xp':'<white>${item_count}':'<white>${xp}'>");
         list.add("<blue><lang:'text.graves.protected_time_sign'>");
         list.add("<white>${protection_time}");
+
+        return list;
+    }
+
+    private List<String> getDefaultVisualSign() {
+        List<String> list = new ArrayList<>();
+
+        list.add("<white>${player}");
 
         return list;
     }
