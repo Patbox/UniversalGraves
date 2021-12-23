@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public record VisualGraveData(GameProfile gameProfile, Text deathCause, long creationTime, Location location) {
-    public static final VisualGraveData DEFAULT = new VisualGraveData(new GameProfile(Util.NIL_UUID, "Herobrine"), new LiteralText("Run"), 0, new Location(new Identifier("the_void"), BlockPos.ORIGIN));
+    public static final VisualGraveData DEFAULT = new VisualGraveData(Grave.DEFAULT_GAME_PROFILE, Grave.DEFAULT_DEATH_CAUSE, 0, new Location(new Identifier("the_void"), BlockPos.ORIGIN));
 
     public NbtCompound toNbt() {
         var nbt = new NbtCompound();
