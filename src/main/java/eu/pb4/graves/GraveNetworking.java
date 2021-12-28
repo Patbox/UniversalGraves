@@ -3,9 +3,9 @@ package eu.pb4.graves;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.other.VisualGraveData;
 import eu.pb4.placeholders.PlaceholderAPI;
+import eu.pb4.polymer.api.item.PolymerItemUtils;
 import eu.pb4.polymer.api.networking.PolymerPacketUtils;
 import eu.pb4.polymer.api.networking.PolymerSyncUtils;
-import eu.pb4.polymer.impl.networking.ServerPackets;
 import fr.catcore.server.translations.api.LocalizationTarget;
 import fr.catcore.server.translations.api.text.LocalizableText;
 import net.minecraft.network.PacketByteBuf;
@@ -20,15 +20,20 @@ import java.util.List;
 import java.util.Map;
 
 public final class GraveNetworking {
-    public static final Identifier CLIENT_HELLO = new Identifier("universal_graves", "hello");
-    public static final Identifier CLIENT_GRAVE = new Identifier("universal_graves", "grave");
+    public static final Identifier SERVER_HELLO = new Identifier("universal_graves", "hello");
+    public static final Identifier SERVER_GRAVE = new Identifier("universal_graves", "grave");
+    public static final Identifier SERVER_UI = new Identifier("universal_graves", "set_ui");
 
     public static boolean canReceive(ServerPlayNetworkHandler handler) {
-        return PolymerPacketUtils.getSupportedVersion(handler, CLIENT_GRAVE) == 0 && ConfigManager.getConfig().canClientSide;
+        return PolymerPacketUtils.getSupportedVersion(handler, SERVER_GRAVE) != -1 && ConfigManager.getConfig().canClientSide;
+    }
+
+    public static boolean canReceiveGui(ServerPlayNetworkHandler handler) {
+        return PolymerPacketUtils.getSupportedVersion(handler, SERVER_UI) == 0;
     }
 
     public static void sendConfig(ServerPlayNetworkHandler handler) {
-        var version = PolymerPacketUtils.getSupportedVersion(handler, CLIENT_HELLO);
+        var version = PolymerPacketUtils.getSupportedVersion(handler, SERVER_HELLO);
 
         if (version == 0) {
             var buf = PolymerPacketUtils.buf(0);
@@ -36,7 +41,7 @@ public final class GraveNetworking {
             buf.writeBoolean(config.canClientSide);
             buf.writeString(config.style.name);
             buf.writeBoolean(config.configData.playerHeadTurnIntoSkulls);
-            PolymerPacketUtils.sendPacket(handler, CLIENT_HELLO, buf);
+            PolymerPacketUtils.sendPacket(handler, SERVER_HELLO, buf);
         }
     }
 
@@ -53,7 +58,7 @@ public final class GraveNetworking {
     }
 
     public static boolean sendGrave(ServerPlayNetworkHandler handler, BlockPos blockPos, boolean locked, VisualGraveData data, Map<String, Text> placeholders, @Nullable Text[] textOverrides) {
-        var version = PolymerPacketUtils.getSupportedVersion(handler, CLIENT_HELLO);
+        var version = PolymerPacketUtils.getSupportedVersion(handler, SERVER_HELLO);
         var config = ConfigManager.getConfig();
 
         if (version == 0 && config.canClientSide) {
@@ -72,15 +77,22 @@ public final class GraveNetworking {
                 ));
             }
 
-            PolymerPacketUtils.sendPacket(handler, CLIENT_GRAVE, buf);
+            PolymerPacketUtils.sendPacket(handler, SERVER_GRAVE, buf);
             return true;
         }
 
         return false;
     }
 
+    public static void sendGraveUi(ServerPlayNetworkHandler handler) {
+        var version = PolymerPacketUtils.getSupportedVersion(handler, SERVER_HELLO);
+        if (version != -1) {
+            PolymerPacketUtils.sendPacket(handler, SERVER_UI, PolymerPacketUtils.buf(version));
+        }
+    }
+
     public static NetworkingGrave readGrave(int version, PacketByteBuf buf) {
-        if (version == 0) {
+        if (version >= 0) {
             var pos = buf.readBlockPos();
             var data = VisualGraveData.fromNbt(buf.readNbt());
             var size = buf.readVarInt();
@@ -98,8 +110,9 @@ public final class GraveNetworking {
     }
 
     public static void initialize() {
-        PolymerPacketUtils.registerServerPacket(CLIENT_HELLO, 0);
-        PolymerPacketUtils.registerServerPacket(CLIENT_GRAVE, 0);
+        PolymerPacketUtils.registerServerPacket(SERVER_HELLO, 0);
+        PolymerPacketUtils.registerServerPacket(SERVER_GRAVE, 0);
+        PolymerPacketUtils.registerServerPacket(SERVER_UI, 0);
 
         PolymerSyncUtils.ON_SYNC_CUSTOM.register(((handler, full) -> {
             sendConfig(handler);

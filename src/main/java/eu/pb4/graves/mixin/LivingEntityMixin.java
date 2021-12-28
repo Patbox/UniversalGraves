@@ -114,8 +114,9 @@ public abstract class LivingEntityMixin {
                                     allowedUUID.add(playerEntity.getUuid());
                                 }
                             }
+                            var grave = Grave.createBlock(gameProfile, world.getRegistryKey().getValue(), gravePos,finalExperience, source.getDeathMessage(player), allowedUUID, items);
 
-                            ((PlayerAdditions) player).graves_setLastGrave(new Location(world.getRegistryKey().getValue(), gravePos.toImmutable()));
+                            ((PlayerAdditions) player).graves_setLastGrave(grave.getId());
                             GravesMod.DO_ON_NEXT_TICK.add(() -> {
                                 Text text2 = null;
                                 Map<String, Text> placeholders2 = placeholders;
@@ -124,8 +125,6 @@ public abstract class LivingEntityMixin {
                                 BlockEntity entity = world.getBlockEntity(gravePos);
     
                                 if (entity instanceof GraveBlockEntity graveBlockEntity) {
-                                    var grave = Grave.createBlock(gameProfile, world.getRegistryKey().getValue(), gravePos,finalExperience, source.getDeathMessage(player), allowedUUID, items);
-
                                     graveBlockEntity.setGrave(grave, oldBlockState);
                                     text2 = config.createdGraveMessage;
                                     placeholders2 = grave.getPlaceholders(player.getServer());
@@ -135,6 +134,7 @@ public abstract class LivingEntityMixin {
                                     }
                                     text2 = config.creationFailedGraveMessage;
                                     ItemScatterer.spawn(world, gravePos, DefaultedList.copyOf(ItemStack.EMPTY, items.toArray(new ItemStack[0])));
+                                    ((PlayerAdditions) player).graves_setLastGrave(-1);
                                 }
                                 if (text2 != null) {
                                     player.sendMessage(PlaceholderAPI.parsePredefinedText(text2, PlaceholderAPI.PREDEFINED_PLACEHOLDER_PATTERN, placeholders2), MessageType.SYSTEM, Util.NIL_UUID);

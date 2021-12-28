@@ -22,6 +22,15 @@
   "text.graves.about.version": "Version: %s",
   "text.graves.about.contributors": "Contributors",
 
+  "text.graves.gui.next_page": "Next Page",
+  "text.graves.gui.previous_page": "Previous Page",
+  "text.graves.gui.remove_protection": "Remove Protection",
+  "text.graves.gui.break_grave": "Break Grave",
+  "text.graves.gui.quick_pickup": "Take All Items",
+
+  "text.graves.gui.cant_reverse": "You can't reverse this action!",
+  "text.graves.gui.click_to_confirm": "Click again to confirm",
+
   "item.universal_graves.grave_compass": "Grave Compass",
   "block.universal_graves.grave": "Grave",
   "block.universal_graves.visual_grave": "Gravestone",

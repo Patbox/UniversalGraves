@@ -3,6 +3,8 @@ package eu.pb4.graves.config.data;
 import eu.pb4.graves.other.GravesLookType;
 import eu.pb4.graves.other.GravesXPCalculation;
 import eu.pb4.graves.other.GraveUtils;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.WallBlock;
 import net.minecraft.block.enums.WallShape;
@@ -10,9 +12,10 @@ import net.minecraft.block.enums.WallShape;
 import java.util.*;
 
 public class ConfigData extends VersionedConfigData implements Cloneable {
+    private static final boolean ON_SERVER = FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER;
     public String _comment = "Before changing anything, see https://github.com/Patbox/UniversalGraves#configuration";
 
-    public String graveStyle = GravesLookType.PLAYER_HEAD.name;
+    public String graveStyle = ON_SERVER ? GravesLookType.PLAYER_HEAD.name : GravesLookType.CLIENT_MODEL.name;
     public boolean allowClientSideStyle = true;
     public boolean playerHeadTurnIntoSkulls = true;
     public String presetHeadLockedTexture = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjdjYWI1NmM4MmNiODFiZGI5OTc5YTQ2NGJjOWQzYmEzZTY3MjJiYTEyMmNmNmM1Mjg3MzAxMGEyYjU5YWVmZSJ9fX0=";
@@ -37,7 +40,7 @@ public class ConfigData extends VersionedConfigData implements Cloneable {
 
     public int protectionTime = 900;
     public int breakingTime = 1800;
-    public boolean keepBlockAfterBreaking = true;
+    public boolean keepBlockAfterBreaking = false;
 
     public String xpStorageType = GravesXPCalculation.PERCENT_POINTS.name;
     public double xpPercentTypeValue = 100;
@@ -59,7 +62,7 @@ public class ConfigData extends VersionedConfigData implements Cloneable {
     public String graveTitle = "<lang:'text.graves.players_grave':'${player}'>";
 
     public boolean hologram = true;
-    public boolean hologramDisplayIfOnClient = true;
+    public boolean hologramDisplayIfOnClient = ON_SERVER;
     public double hologramOffset = 1.2;
     public List<String> hologramProtectedText = getDefaultProtectedHologram();
     public List<String> hologramText = getDefaultHologram();

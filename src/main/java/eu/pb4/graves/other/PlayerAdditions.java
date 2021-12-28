@@ -8,7 +8,7 @@ public interface PlayerAdditions {
     Text graves_lastDeathCause();
 
     @Nullable
-    Location graves_lastGrave();
+    long graves_lastGrave();
 
-    void graves_setLastGrave(@Nullable Location location);
+    void graves_setLastGrave(long graveId);
 }

@@ -1,7 +1,10 @@
 plugins {
 	id 'fabric-loom' version '0.10-SNAPSHOT'
 	id 'maven-publish'
+	id "com.modrinth.minotaur" version "1.2.1"
+	id 'com.matthewprenger.cursegradle' version '1.4.0'
 }
+import com.modrinth.minotaur.TaskModrinthUpload
 
 sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
@@ -56,7 +59,7 @@ dependencies {
 	modImplementation include("eu.pb4:sgui:1.0.0-rc6+1.18-pre5")
 	modImplementation include("eu.pb4:hologram-api:0.2.1+1.18-pre5")
 	modImplementation include("eu.pb4:placeholder-api:1.1.3+1.17.1")
-	modImplementation include("eu.pb4:polymer:0.2.0-beta.13+1.18.1")
+	modImplementation include("eu.pb4:polymer:0.2.0-beta.15+1.18.1")
 	modImplementation include("fr.catcore:server-translations-api:1.4.8+1.18-pre1")
 	modImplementation include("me.lucko:fabric-permissions-api:0.1-SNAPSHOT")
 
@@ -125,4 +128,48 @@ publishing {
 		// The repositories here will be used for publishing your artifact, not for
 		// retrieving dependencies.
 	}
+}
+
+curseforge {
+	if (System.getenv("CURSEFORGE")) {
+		apiKey = System.getenv("CURSEFORGE")
+
+		project {
+			id = "551890"
+			releaseType = "release"
+			changelog = System.getenv("CHANGELOG")
+			changelogType = "markdown"
+			addGameVersion ((String) project.minecraft_version)
+			addGameVersion "Fabric"
+			mainArtifact(remapJar)
+
+			afterEvaluate {
+				uploadTask.dependsOn("remapJar")
+			}
+		}
+	}
+
+	options {
+		forgeGradleIntegration = false
+	}
+}
+
+task publishModrinth (type: TaskModrinthUpload){
+	onlyIf {
+		System.getenv("MODRINTH")
+	}
+
+	token = System.getenv("MODRINTH")
+	projectId = 'hsRVgp6Q'
+	versionNumber = version
+	changelog = System.getenv("CHANGELOG")
+	// On fabric, use 'remapJar' instead of 'jar'
+	uploadFile = remapJar
+	addGameVersion((String) project.minecraft_version)
+	addLoader('fabric')
+}
+
+remapJar {
+	finalizedBy publishModrinth
+	finalizedBy project.tasks.curseforge
 }

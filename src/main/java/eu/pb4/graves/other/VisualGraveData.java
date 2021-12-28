@@ -41,6 +41,7 @@ public record VisualGraveData(GameProfile gameProfile, Text deathCause, long cre
         values.put("position", new LiteralText("" + this.location.blockPos().toShortString()));
         values.put("world", GraveUtils.toWorldName(this.location.world()));
         values.put("death_cause", this.deathCause);
+        values.put("id", new LiteralText("<no id>"));
         return values;
     }
 

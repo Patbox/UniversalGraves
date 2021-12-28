@@ -34,7 +34,7 @@ public class GraveManager extends PersistentState {
             grave.id = this.requestId();
         }
 
-        this.byUuid.computeIfAbsent(grave.gameProfile.getId(), (v) -> new HashSet<>()).add(grave);
+        this.byUuid.computeIfAbsent(grave.getProfile().getId(), (v) -> new HashSet<>()).add(grave);
         this.byLocation.put(grave.location, grave);
         this.byId.put(grave.id, grave);
         this.graves.add(grave);
@@ -49,7 +49,7 @@ public class GraveManager extends PersistentState {
             if (graveInfoList != null) {
                 graveInfoList.remove(info);
                 if (graveInfoList.isEmpty()) {
-                    this.byUuid.remove(info.gameProfile.getId());
+                    this.byUuid.remove(info.getProfile().getId());
                 }
             }
             this.markDirty();

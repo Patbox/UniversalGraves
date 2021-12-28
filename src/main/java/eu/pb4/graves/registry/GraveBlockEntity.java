@@ -61,9 +61,7 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity {
         super.writeNbt(nbt);
         nbt.put("BlockState", NbtHelper.fromBlockState(this.replacedBlockState));
         nbt.put("VisualData", this.getClientData().toNbt());
-        if (this.data != null) {
-            nbt.putLong("GraveId", this.graveId);
-        }
+        nbt.putLong("GraveId", this.graveId);
     }
 
 
@@ -82,6 +80,7 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity {
                     this.data.getItems().add(new PositionedItemStack(ItemStack.fromNbt((NbtCompound) compound), -1, VanillaInventoryMask.INSTANCE, null));
                 }
                 GraveManager.INSTANCE.add(this.data);
+                this.visualData = this.data.toVisualGraveData();
             } else if (nbt.contains("GraveId", NbtElement.LONG_TYPE)) {
                 this.graveId = nbt.getLong("GraveId");
             }

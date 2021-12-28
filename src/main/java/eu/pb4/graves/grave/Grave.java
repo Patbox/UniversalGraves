@@ -164,6 +164,8 @@ public final class Grave {
             for (var item : nbt.getList("Items", NbtElement.COMPOUND_TYPE)) {
                 this.items.add(PositionedItemStack.fromNbt((NbtCompound) item));
             }
+
+            this.updateDisplay();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -188,6 +190,7 @@ public final class Grave {
         values.put("position", new LiteralText("" + this.location.blockPos().toShortString()));
         values.put("world", GraveUtils.toWorldName(this.location.world()));
         values.put("death_cause", this.deathCause);
+        values.put("id", new LiteralText("" + this.id));
         return values;
     }
 
@@ -399,8 +402,7 @@ public final class Grave {
 
     public void quickEquip(ServerPlayerEntity player) {
         try {
-
-            if (this.canTakeFrom(player)) {
+            if (player.isAlive() && this.canTakeFrom(player)) {
                 for (var item : this.items) {
                     if (!item.isEmpty() && item.inventoryMask() != null) {
                         item.inventoryMask().moveToPlayerExactly(player, item.stack(), item.slot(), item.optionalData());
@@ -415,6 +417,7 @@ public final class Grave {
                         }
                     }
                 }
+                this.tryBreak(player.getServer(), player);
                 this.updateSelf(player.getServer());
             }
         } catch (Exception e) {

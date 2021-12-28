@@ -32,15 +32,15 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Pl
     @Shadow protected abstract void fall(double heightDifference, boolean onGround, BlockState landedState, BlockPos landedPosition);
 
     @Unique
-    private Location graves_location = null;
+    private long graves_location = -1;
 
     @Unique
     private boolean graves_hasCompass = false;
 
     @Inject(method = "readCustomDataFromNbt", at = @At("TAIL"))
     private void graves_loadNbt(NbtCompound nbt, CallbackInfo ci) {
-        if (nbt.contains("GraveLocation", NbtElement.COMPOUND_TYPE)) {
-            this.graves_location = Location.fromNbt(nbt.getCompound("GraveLocation"));
+        if (nbt.contains("LastGraveId", NbtElement.LONG_TYPE)) {
+            this.graves_location = nbt.getLong("LastGraveId");
         }
 
         this.graves_hasCompass = nbt.getBoolean("HasGraveCompass");
@@ -48,8 +48,8 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Pl
 
     @Inject(method = "writeCustomDataToNbt", at = @At("TAIL"))
     private void graves_writeNbt(NbtCompound nbt, CallbackInfo ci) {
-        if (this.graves_location != null) {
-            nbt.put("GraveLocation", this.graves_location.writeNbt(new NbtCompound()));
+        if (this.graves_location != -1) {
+            nbt.putLong("LastGraveId", this.graves_location);
         }
 
          nbt.putBoolean("HasGraveCompass", this.graves_hasCompass);
@@ -57,20 +57,22 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Pl
 
     @Inject(method = "copyFrom", at = @At("TAIL"))
     private void graves_copyDate(ServerPlayerEntity oldPlayer, boolean alive, CallbackInfo ci) {
-        this.graves_hasCompass =((ServerPlayerEntityMixin) (Object) oldPlayer).graves_hasCompass;
+        this.graves_hasCompass = ((ServerPlayerEntityMixin) (Object) oldPlayer).graves_hasCompass;
         this.graves_location = ((PlayerAdditions) oldPlayer).graves_lastGrave();
-
-        if (this.graves_location != null && !this.graves_hasCompass && ConfigManager.getConfig().configData.giveGraveCompass) {
-            var compass = new ItemStack(GraveCompassItem.INSTANCE);
-            compass.getOrCreateNbt().put("Location", this.graves_location.writeNbt(new NbtCompound()));
-            this.getInventory().insertStack(compass);
-        }
     }
 
     @Inject(method = "onDeath", at = @At("HEAD"))
     private void grave_setupThings(DamageSource source, CallbackInfo ci) {
-        this.graves_location = null;
+        this.graves_location = -1;
         this.graves_hasCompass = false;
+    }
+
+    @Inject(method = "onSpawn", at = @At("TAIL"))
+    private void grave_onSpawn(CallbackInfo ci) {
+        if (this.graves_location != -1 && !this.graves_hasCompass && ConfigManager.getConfig().configData.giveGraveCompass) {
+            this.getInventory().offerOrDrop(GraveCompassItem.create(this.graves_location, false));
+            this.graves_hasCompass = true;
+        }
     }
 
     @Override
@@ -79,12 +81,12 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Pl
     }
 
     @Override
-    public Location graves_lastGrave() {
+    public long graves_lastGrave() {
         return this.graves_location;
     }
 
     @Override
-    public void graves_setLastGrave(Location location) {
-        this.graves_location = location;
+    public void graves_setLastGrave(long id) {
+        this.graves_location = id;
     }
 }

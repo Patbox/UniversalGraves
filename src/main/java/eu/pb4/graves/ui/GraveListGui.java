@@ -1,6 +1,7 @@
 package eu.pb4.graves.ui;
 
 import com.mojang.authlib.GameProfile;
+import eu.pb4.graves.GraveNetworking;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.grave.Grave;
 import eu.pb4.graves.grave.GraveManager;
@@ -18,17 +19,15 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
-public class GraveListGui extends SimpleGui {
+public class GraveListGui extends PagedGui {
     private final UUID targetUUID;
     private int ticker = 0;
+    private List<Grave> graves;
 
     public GraveListGui(ServerPlayerEntity player, GameProfile profile) {
-        super(ScreenHandlerType.GENERIC_9X3, player, false);
+        super(player);
         this.targetUUID = profile.getId();
 
         if (player.getUuid().equals(this.targetUUID)) {
@@ -40,24 +39,26 @@ public class GraveListGui extends SimpleGui {
                     Map.of("player", new LiteralText(profile.getName()))
             ));
         }
-        this.updateIcons();
+        this.graves = new ArrayList<>(GraveManager.INSTANCE.getByUuid(this.targetUUID));
+        this.updateDisplay();
     }
 
-    private void updateIcons() {
-        var config = ConfigManager.getConfig();
-        for (int x = 0; x < this.size; x++) {
-            this.clearSlot(x);
-        }
+    @Override
+    protected int getPageAmount() {
+        return this.graves.size() / PAGE_SIZE + 1;
+    }
 
-        for (Grave graveInfo : GraveManager.INSTANCE.getByUuid(this.targetUUID)) {
-            if (this.getFirstEmptySlot() == -1) {
-                return;
-            }
+    @Override
+    protected DisplayElement getElement(int id) {
+        if (id < this.graves.size()) {
+            var config = ConfigManager.getConfig();
 
-            Map<String, Text> placeholders = graveInfo.getPlaceholders(this.player.getServer());
+            var grave = this.graves.get(id);
+
+            var placeholders = grave.getPlaceholders(this.player.getServer());
 
             List<Text> parsed = new ArrayList<>();
-            for (Text text : graveInfo.isProtected() ? ConfigManager.getConfig().guiProtectedText : ConfigManager.getConfig().guiText) {
+            for (Text text : grave.isProtected() ? ConfigManager.getConfig().guiProtectedText : ConfigManager.getConfig().guiText) {
                 MutableText out = (MutableText) PlaceholderAPI.parsePredefinedText(text, PlaceholderAPI.PREDEFINED_PLACEHOLDER_PATTERN, placeholders);
                 if (out.getStyle().getColor() == null) {
                     out.setStyle(out.getStyle().withColor(Formatting.WHITE));
@@ -65,8 +66,8 @@ public class GraveListGui extends SimpleGui {
                 parsed.add(out);
             }
 
-            var list = graveInfo.isProtected() ? config.guiProtectedItem : config.guiItem;
-            this.addSlot(GuiElementBuilder.from(list[Math.abs(graveInfo.hashCode() % list.length)])
+            var list = grave.isProtected() ? config.guiProtectedItem : config.guiItem;
+            var element = GuiElementBuilder.from(list[Math.abs(grave.hashCode() % list.length)])
                     .setName((MutableText) parsed.remove(0))
                     .setLore(parsed)
                     .setCallback((index, type, action) -> {
@@ -74,7 +75,7 @@ public class GraveListGui extends SimpleGui {
                             if (Permissions.check(this.player, "universal_graves.teleport", 3)) {
                                 this.close();
 
-                                var pos = graveInfo.getLocation();
+                                var pos = grave.getLocation();
 
                                 ServerWorld world = this.player.getServer().getWorld(RegistryKey.of(Registry.WORLD_KEY, pos.world()));
                                 if (world != null) {
@@ -83,18 +84,31 @@ public class GraveListGui extends SimpleGui {
                             }
                         } else {
                             this.close();
-                            graveInfo.openUi(player, false);
+                            grave.openUi(player, false);
                         }
-                    })
-            );
+                    });
+
+            return DisplayElement.of(element);
         }
+
+        return DisplayElement.empty();
+    }
+
+    @Override
+    protected DisplayElement getNavElement(int id) {
+        return switch (id) {
+            case 2 -> DisplayElement.previousPage(this);
+            case 6 -> DisplayElement.nextPage(this);
+            default -> GraveNetworking.canReceiveGui(this.player.networkHandler) ? DisplayElement.empty() : DisplayElement.filler();
+        };
     }
 
     @Override
     public void onTick() {
         this.ticker++;
         if (this.ticker % 20 == 0) {
-            this.updateIcons();
+            this.graves = new ArrayList<>(GraveManager.INSTANCE.getByUuid(this.targetUUID));
+            this.updateDisplay();
         }
         super.onTick();
     }

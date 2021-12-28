@@ -12,7 +12,7 @@ public class VisualGraveBlockItem extends BlockItem implements PolymerItem, Poly
     public static final Item INSTANCE = new VisualGraveBlockItem();
 
     public VisualGraveBlockItem() {
-        super(VisualGraveBlock.INSTANCE, new Settings());
+        super(VisualGraveBlock.INSTANCE, new Settings().group(ItemGroup.DECORATIONS));
     }
 
     @Override
@@ -22,9 +22,9 @@ public class VisualGraveBlockItem extends BlockItem implements PolymerItem, Poly
 
     @Override
     public ItemStack getPolymerItemStack(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
-        /*if (player != null && GraveNetworking.canReceive(player.networkHandler)) {
+        if (player != null && GraveNetworking.canReceive(player.networkHandler)) {
             return itemStack;
-        }*/
+        }
 
         return PolymerItem.super.getPolymerItemStack(itemStack, player);
     }

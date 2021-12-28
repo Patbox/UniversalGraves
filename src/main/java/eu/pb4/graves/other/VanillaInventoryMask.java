@@ -7,8 +7,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.server.network.ServerPlayerEntity;
 
-import java.util.function.BiConsumer;
-
 public class VanillaInventoryMask implements GraveInventoryMask {
     public static final VanillaInventoryMask INSTANCE = new VanillaInventoryMask();
 

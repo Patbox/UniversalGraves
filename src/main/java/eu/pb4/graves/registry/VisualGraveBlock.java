@@ -15,12 +15,12 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.piston.PistonBehavior;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.pathing.NavigationType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
-import net.minecraft.item.Items;
-import net.minecraft.item.SkullItem;
+import net.minecraft.item.*;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -34,6 +34,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.Util;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -96,6 +97,16 @@ public class VisualGraveBlock extends Block implements PlayerAwarePolymerBlock, 
         }
     }
 
+    @Override
+    public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
+        if (placer != null) {
+            var optional = world.getBlockEntity(pos, VisualGraveBlockEntity.BLOCK_ENTITY_TYPE);
+            if (optional.isPresent()) {
+                optional.get().textOverrides = new Text[] { LiteralText.EMPTY, LiteralText.EMPTY, LiteralText.EMPTY, LiteralText.EMPTY };
+            }
+        }
+    }
+
     public FluidState getFluidState(BlockState state) {
         return state.get(Properties.WATERLOGGED) ? Fluids.WATER.getStill(false) : super.getFluidState(state);
     }
@@ -114,6 +125,12 @@ public class VisualGraveBlock extends Block implements PlayerAwarePolymerBlock, 
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
         return VisualGraveBlockEntity::tick;
+    }
+
+    @Nullable
+    @Override
+    public BlockState getPlacementState(ItemPlacementContext ctx) {
+        return super.getPlacementState(ctx).with(Properties.ROTATION, (int) (Math.random() * 16));
     }
 
     @Override
@@ -144,7 +161,7 @@ public class VisualGraveBlock extends Block implements PlayerAwarePolymerBlock, 
                         int i = 0;
 
                         for (var text : grave.textOverrides) {
-                            sign.setLine(i, text);
+                            sign.setLine(i, text.shallowCopy());
                             i++;
 
                             if (i == 4) {
@@ -182,6 +199,15 @@ public class VisualGraveBlock extends Block implements PlayerAwarePolymerBlock, 
                     world.setBlockState(pos, state.with(GraveBlock.IS_LOCKED, false));
                 } else if (itemStack.getItem() == Items.SPONGE || itemStack.getItem() == Items.WET_SPONGE) {
                     world.setBlockState(pos, state.with(GraveBlock.IS_LOCKED, true));
+                } else if (itemStack.getItem() instanceof ShovelItem) {
+                    int val = state.get(Properties.ROTATION) + (player.isSneaking() ? -1 : 1);
+                    if (val < 0) {
+                        val = Properties.ROTATION_MAX;
+                    } else if (val > 15) {
+                        val = 0;
+                    }
+
+                    world.setBlockState(pos, state.with(Properties.ROTATION, val));
                 }
 
                 return ActionResult.SUCCESS;
