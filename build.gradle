@@ -5,6 +5,7 @@ plugins {
 	id 'com.matthewprenger.cursegradle' version '1.4.0'
 }
 import com.modrinth.minotaur.TaskModrinthUpload
+import com.modrinth.minotaur.request.VersionType
 
 sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
@@ -135,8 +136,8 @@ curseforge {
 		apiKey = System.getenv("CURSEFORGE")
 
 		project {
-			id = "551890"
-			releaseType = "release"
+			id = "497175"
+			releaseType = "beta"
 			changelog = System.getenv("CHANGELOG")
 			changelogType = "markdown"
 			addGameVersion ((String) project.minecraft_version)
@@ -160,8 +161,9 @@ task publishModrinth (type: TaskModrinthUpload){
 	}
 
 	token = System.getenv("MODRINTH")
-	projectId = 'hsRVgp6Q'
+	projectId = 'yn9u3ypm'
 	versionNumber = version
+	versionType = VersionType.BETA
 	changelog = System.getenv("CHANGELOG")
 	// On fabric, use 'remapJar' instead of 'jar'
 	uploadFile = remapJar
