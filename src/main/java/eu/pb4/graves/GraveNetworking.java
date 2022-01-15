@@ -24,12 +24,12 @@ public final class GraveNetworking {
     public static final Identifier SERVER_GRAVE = new Identifier("universal_graves", "grave");
     public static final Identifier SERVER_UI = new Identifier("universal_graves", "set_ui");
 
-    public static boolean canReceive(ServerPlayNetworkHandler handler) {
-        return PolymerPacketUtils.getSupportedVersion(handler, SERVER_GRAVE) != -1 && ConfigManager.getConfig().canClientSide;
+    public static boolean canReceive(@Nullable ServerPlayNetworkHandler handler) {
+        return handler != null && PolymerPacketUtils.getSupportedVersion(handler, SERVER_GRAVE) != -1 && ConfigManager.getConfig().canClientSide;
     }
 
-    public static boolean canReceiveGui(ServerPlayNetworkHandler handler) {
-        return PolymerPacketUtils.getSupportedVersion(handler, SERVER_UI) == 0;
+    public static boolean canReceiveGui(@Nullable ServerPlayNetworkHandler handler) {
+        return handler != null &&  PolymerPacketUtils.getSupportedVersion(handler, SERVER_UI) == 0;
     }
 
     public static void sendConfig(ServerPlayNetworkHandler handler) {
@@ -39,7 +39,7 @@ public final class GraveNetworking {
             var buf = PolymerPacketUtils.buf(0);
             var config = ConfigManager.getConfig();
             buf.writeBoolean(config.canClientSide);
-            buf.writeString(config.style.name);
+            buf.writeString(config.style.networkName);
             buf.writeBoolean(config.configData.playerHeadTurnIntoSkulls);
             PolymerPacketUtils.sendPacket(handler, SERVER_HELLO, buf);
         }

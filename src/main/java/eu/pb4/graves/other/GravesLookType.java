@@ -1,5 +1,6 @@
 package eu.pb4.graves.other;
 
+import eu.pb4.graves.GraveNetworking;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.grave.Grave;
 import eu.pb4.placeholders.PlaceholderAPI;
@@ -38,7 +39,7 @@ public final class GravesLookType {
         }
 
         @Override
-        public BlockState getBlockState(int direction, boolean isLocked, boolean waterlogged) {
+        public BlockState getBlockState(int direction, boolean isLocked, boolean waterlogged, @Nullable ServerPlayerEntity player) {
             return getBlock(isLocked).getDefaultState().with(PlayerSkullBlock.ROTATION, direction);
         }
 
@@ -60,7 +61,7 @@ public final class GravesLookType {
         }
 
         @Override
-        public BlockState getBlockState(int direction, boolean isLocked, boolean waterlogged) {
+        public BlockState getBlockState(int direction, boolean isLocked, boolean waterlogged, @Nullable ServerPlayerEntity player) {
             return getBlock(isLocked).getDefaultState().with(SkullBlock.ROTATION, direction);
         }
 
@@ -95,7 +96,7 @@ public final class GravesLookType {
         }
 
         @Override
-        public BlockState getBlockState(int direction, boolean isLocked, boolean waterlogged) {
+        public BlockState getBlockState(int direction, boolean isLocked, boolean waterlogged, @Nullable ServerPlayerEntity player) {
             var config = ConfigManager.getConfig();
             var list = (isLocked ? config.customBlockStateStylesLocked : config.customBlockStateStylesUnlocked);
             var state = list[direction % list.length].state();
@@ -146,7 +147,7 @@ public final class GravesLookType {
         }
 
         @Override
-        public BlockState getBlockState(int direction, boolean isLocked, boolean waterlogged) {
+        public BlockState getBlockState(int direction, boolean isLocked, boolean waterlogged, @Nullable ServerPlayerEntity player) {
             boolean northSouth = direction > 7;
 
             return getBlock(isLocked).getDefaultState().with(Properties.WATERLOGGED, waterlogged)
@@ -156,12 +157,43 @@ public final class GravesLookType {
         }
     });
 
+    public static final GravesLookType CLIENT_MODEL_OR_HEAD = new GravesLookType("client_model_or_head", "client_model", true, new Converter() {
+        @Override
+        public Block getBlock(boolean isLocked) {
+            return isLocked ? Blocks.STONE_BRICK_WALL : Blocks.MOSSY_STONE_BRICK_WALL;
+        }
+
+        @Override
+        public BlockState getBlockState(int direction, boolean isLocked, boolean waterlogged, @Nullable ServerPlayerEntity player) {
+            if (player == null || GraveNetworking.canReceive(player.networkHandler)) {
+                return GravesLookType.CLIENT_MODEL.converter.getBlockState(direction, isLocked, waterlogged, player);
+            } else {
+                return GravesLookType.PLAYER_HEAD.converter.getBlockState(direction, isLocked, waterlogged, player);
+            }
+        }
+
+        @Override
+        public void sendNbt(ServerPlayerEntity player, BlockState state, BlockPos pos, int direction, boolean isLocked, VisualGraveData visualData, @Nullable Grave grave, @Nullable Text[] textOverride) {
+            if (GraveNetworking.canReceive(player.networkHandler)) {
+                GravesLookType.CLIENT_MODEL.converter.sendNbt(player, state, pos, direction, isLocked, visualData, grave, textOverride);
+            } else {
+                GravesLookType.PLAYER_HEAD.converter.sendNbt(player, state, pos, direction, isLocked, visualData, grave, textOverride);
+            }
+        }
+    });
+
     public final String name;
     public final Converter converter;
     public final boolean allowClient;
+    public final String networkName;
 
     private GravesLookType(String name, boolean allowClient, Converter converter) {
+        this(name, name, allowClient, converter);
+    }
+
+    private GravesLookType(String name, String networkName, boolean allowClient, Converter converter) {
         this.name = name;
+        this.networkName = networkName;
         this.allowClient = allowClient;
         this.converter = converter;
         VALUES.add(this);
@@ -188,7 +220,7 @@ public final class GravesLookType {
             }
 
             @Override
-            public BlockState getBlockState(int rotation, boolean isLocked, boolean waterlogged) {
+            public BlockState getBlockState(int rotation, boolean isLocked, boolean waterlogged, @Nullable ServerPlayerEntity player) {
                 boolean chest = this.getBlock(isLocked) instanceof ChestBlock;
 
                 Direction direction = chest ? Direction.fromHorizontal(rotation / 4).getOpposite() : Direction.byId(rotation / 6);
@@ -212,7 +244,7 @@ public final class GravesLookType {
     public interface Converter {
         Block getBlock(boolean isLocked);
 
-        BlockState getBlockState(int direction, boolean isLocked, boolean waterlogged);
+        BlockState getBlockState(int direction, boolean isLocked, boolean waterlogged, @Nullable ServerPlayerEntity player);
 
         default void sendNbt(ServerPlayerEntity player, BlockState state, BlockPos pos, int direction, boolean isLocked, VisualGraveData visualData, @Nullable Grave grave, @Nullable Text[] textOverride) {
         }

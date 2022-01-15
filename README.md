@@ -2,10 +2,10 @@
 
 # Universal Graves
 It's a simple, but really customisable grave/death chest mod! 
-You can change how every message, block and hologram looks, how long it will be protected,
+You can customise as you like, by modifying message, blocks and hologram texts, how long it will be protected,
 if should drop items after expiring and alike.
 
-This mod isn't require on client, but adding it allows for usage of more models.
+This mod can work purely on servers, through for model support mod is required on clients!
 
 *This mod works only on Fabric Mod Loader and compatible!*
 

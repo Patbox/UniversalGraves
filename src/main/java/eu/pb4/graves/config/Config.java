@@ -6,6 +6,7 @@ import eu.pb4.graves.config.data.ConfigData;
 import eu.pb4.graves.registry.GraveBlock;
 import eu.pb4.graves.other.GravesLookType;
 import eu.pb4.graves.other.GravesXPCalculation;
+import eu.pb4.graves.registry.IconItem;
 import eu.pb4.placeholders.TextParser;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
@@ -73,6 +74,32 @@ public final class Config {
     public final Set<Identifier> blacklistedWorlds;
     public final boolean canClientSide;
 
+    public final Text guiPreviousPageText;
+    public final Text guiPreviousPageBlockedText;
+
+    public final Text guiNextPageText;
+    public final Text guiNextPageBlockedText;
+
+    public final Text guiRemoveProtectionText;
+    public final Text guiBreakGraveText;
+
+    public final Text guiQuickPickupText;
+    public final Text guiCantReverseAction;
+    public final Text guiClickToConfirm;
+
+    public final ItemStack guiInfoIcon;
+
+    public final ItemStack guiPreviousPageIcon;
+    public final ItemStack guiPreviousPageBlockedIcon;
+
+    public final ItemStack guiNextPageIcon;
+    public final ItemStack guiNextPageBlockedIcon;
+
+    public final ItemStack guiRemoveProtectionIcon;
+    public final ItemStack guiBreakGraveIcon;
+
+    public final ItemStack guiQuickPickupIcon;
+    public final ItemStack guiBarItem;
 
     public Config(ConfigData data) {
         this.configData = data;
@@ -92,14 +119,34 @@ public final class Config {
         this.guiProtectedText = parse(data.guiProtectedText);
         this.guiText = parse(data.guiText);
 
-        this.noLongerProtectedMessage = parse(data.messageProtectionEnded);
-        this.graveExpiredMessage = parse(data.messageGraveExpired);
-        this.graveBrokenMessage = parse(data.messageGraveBroken);
-        this.createdGraveMessage = parse(data.messageGraveCreated);
-        this.creationFailedGraveMessage = parse(data.messageCreationFailed);
-        this.creationFailedVoidMessage = parse(data.messageCreationFailedVoid);
-        this.creationFailedPvPMessage = parse(data.messageCreationFailedPvP);
-        this.creationFailedClaimMessage = parse(data.messageCreationFailedClaim);
+        this.noLongerProtectedMessage = parse(data.messageProtectionEnded, null);
+        this.graveExpiredMessage = parse(data.messageGraveExpired, null);
+        this.graveBrokenMessage = parse(data.messageGraveBroken, null);
+        this.createdGraveMessage = parse(data.messageGraveCreated, null);
+        this.creationFailedGraveMessage = parse(data.messageCreationFailed, null);
+        this.creationFailedVoidMessage = parse(data.messageCreationFailedVoid, null);
+        this.creationFailedPvPMessage = parse(data.messageCreationFailedPvP, null);
+        this.creationFailedClaimMessage = parse(data.messageCreationFailedClaim, null);
+
+        this.guiPreviousPageText = parse(data.guiPreviousPageText, LiteralText.EMPTY);
+        this.guiPreviousPageBlockedText = parse(data.guiPreviousPageBlockedText, LiteralText.EMPTY);
+        this.guiNextPageText = parse(data.guiNextPageText, LiteralText.EMPTY);
+        this.guiNextPageBlockedText = parse(data.guiNextPageBlockedText, LiteralText.EMPTY);
+        this.guiRemoveProtectionText = parse(data.guiRemoveProtectionText, LiteralText.EMPTY);
+        this.guiBreakGraveText = parse(data.guiBreakGraveText, LiteralText.EMPTY);
+        this.guiQuickPickupText = parse(data.guiQuickPickupText, LiteralText.EMPTY);
+        this.guiCantReverseAction = parse(data.guiCantReverseAction, LiteralText.EMPTY);
+        this.guiClickToConfirm = parse(data.guiClickToConfirm, LiteralText.EMPTY);
+
+        this.guiInfoIcon = parseItem(data.guiInfoIcon);
+        this.guiBarItem = parseItem(data.guiBarItem);
+        this.guiPreviousPageIcon = parseItem(data.guiPreviousPageIcon);
+        this.guiPreviousPageBlockedIcon = parseItem(data.guiPreviousPageBlockedIcon);
+        this.guiNextPageIcon = parseItem(data.guiNextPageIcon);
+        this.guiNextPageBlockedIcon = parseItem(data.guiNextPageBlockedIcon);
+        this.guiRemoveProtectionIcon = parseItem(data.guiRemoveProtectionIcon);
+        this.guiBreakGraveIcon = parseItem(data.guiBreakGraveIcon);
+        this.guiQuickPickupIcon = parseItem(data.guiQuickPickupIcon);
 
         this.customBlockStateStylesLocked = parseBlockStyles(this.configData.customBlockStateLockedStyles);
         this.customBlockStateStylesUnlocked = parseBlockStyles(this.configData.customBlockStateUnlockedStyles);
@@ -116,7 +163,7 @@ public final class Config {
             var id = Identifier.tryParse(entry.getKey());
 
             if (id != null) {
-                this.worldNameOverrides.put(id, parse(entry.getValue()));
+                this.worldNameOverrides.put(id, parse(entry.getValue(), null));
             }
         }
     }
@@ -136,29 +183,32 @@ public final class Config {
         return set;
     }
 
-    @Nullable
-    private static Text parse(String string) {
-        return !string.isEmpty() ? TextParser.parse(string) : null;
+    private static Text parse(String string, Text defaultText) {
+        return !string.isEmpty() ? TextParser.parse(string) : defaultText;
+    }
+
+    private static ItemStack parseItem(String itemDef) {
+        try {
+            var item = new ItemStringReader(new StringReader(itemDef), true).consume();
+            var itemStack = item.getItem().getDefaultStack();
+
+            if (item.getNbt() != null) {
+                itemStack.setNbt(item.getNbt());
+            }
+            return itemStack;
+        } catch (Exception e) {
+            return IconItem.of(IconItem.Texture.INVALID);
+        }
     }
 
     private static ItemStack[] parseItems(List<String> stringList) {
         var items = new ArrayList<ItemStack>();
 
         for (var itemDef : stringList) {
-            try {
-                var item = new ItemStringReader(new StringReader(itemDef), true).consume();
-                var itemStack = item.getItem().getDefaultStack();
-
-                if (item.getNbt() != null) {
-                    itemStack.setNbt(item.getNbt());
-                }
-                items.add(itemStack);
-            } catch (Exception e) {
-                // noop
-            }
+            items.add(parseItem(itemDef));
         }
         if (items.isEmpty()) {
-            items.add(Items.CHEST.getDefaultStack());
+            items.add(IconItem.of(IconItem.Texture.INVALID));
         }
 
         return items.toArray(new ItemStack[0]);

@@ -12,10 +12,9 @@ import net.minecraft.block.enums.WallShape;
 import java.util.*;
 
 public class ConfigData extends VersionedConfigData implements Cloneable {
-    private static final boolean ON_SERVER = FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER;
     public String _comment = "Before changing anything, see https://github.com/Patbox/UniversalGraves#configuration";
 
-    public String graveStyle = ON_SERVER ? GravesLookType.PLAYER_HEAD.name : GravesLookType.CLIENT_MODEL.name;
+    public String graveStyle = GravesLookType.CLIENT_MODEL_OR_HEAD.name;
     public boolean allowClientSideStyle = true;
     public boolean playerHeadTurnIntoSkulls = true;
     public String presetHeadLockedTexture = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjdjYWI1NmM4MmNiODFiZGI5OTc5YTQ2NGJjOWQzYmEzZTY3MjJiYTEyMmNmNmM1Mjg3MzAxMGEyYjU5YWVmZSJ9fX0=";
@@ -41,6 +40,7 @@ public class ConfigData extends VersionedConfigData implements Cloneable {
     public int protectionTime = 900;
     public int breakingTime = 1800;
     public boolean keepBlockAfterBreaking = false;
+    public boolean restoreBlockAfterPlayerBreaking = true;
 
     public String xpStorageType = GravesXPCalculation.PERCENT_POINTS.name;
     public double xpPercentTypeValue = 100;
@@ -58,11 +58,13 @@ public class ConfigData extends VersionedConfigData implements Cloneable {
     public boolean allowAttackersToTakeItems = false;
     public boolean shiftClickTakesItems = true;
     public boolean giveGraveCompass = true;
+    public boolean allowRemoteProtectionRemoval = true;
+    public boolean allowRemoteGraveBreaking = true;
 
     public String graveTitle = "<lang:'text.graves.players_grave':'${player}'>";
 
     public boolean hologram = true;
-    public boolean hologramDisplayIfOnClient = ON_SERVER;
+    public boolean hologramDisplayIfOnClient = false;
     public double hologramOffset = 1.2;
     public List<String> hologramProtectedText = getDefaultProtectedHologram();
     public List<String> hologramText = getDefaultHologram();
@@ -95,10 +97,39 @@ public class ConfigData extends VersionedConfigData implements Cloneable {
     public Map<String, String> worldNameOverrides = new HashMap<>();
     public List<String> blacklistedWorlds = new ArrayList<>();
 
-    public boolean tryDetectionSoulbound = true;
+    @Deprecated
+    public boolean tryDetectionSoulbound = false;
+
     public List<String> skippedEnchantments = new ArrayList<>();
 
 
+    public String guiPreviousPageText = "<lang:'text.graves.gui.previous_page'>";
+    public String guiPreviousPageBlockedText = "<dark_gray><lang:'text.graves.gui.previous_page'>";
+
+    public String guiNextPageText = "<lang:'text.graves.gui.next_page'>";
+    public String guiNextPageBlockedText = "<dark_gray><lang:'text.graves.gui.next_page'>";
+
+    public String guiRemoveProtectionText = "<red><lang:'text.graves.gui.remove_protection'>";
+    public String guiBreakGraveText = "<red><lang:'text.graves.gui.break_grave'>";
+
+    public String guiQuickPickupText = "<yellow><lang:'text.graves.gui.quick_pickup'>";
+    public String guiCantReverseAction = "<dark_red><bold><lang:'text.graves.gui.cant_reverse'>";
+    public String guiClickToConfirm = "<white><lang:'text.graves.gui.click_to_confirm'>";
+
+
+    public String guiInfoIcon = "minecraft:oak_sign";
+    public String guiBarItem = "minecraft:white_stained_glass_pane";
+
+    public String guiPreviousPageIcon = "universal_graves:icon{Texture:\"previous_page\"}";
+    public String guiPreviousPageBlockedIcon = "universal_graves:icon{Texture:\"previous_page_blocked\"}";
+
+    public String guiNextPageIcon = "universal_graves:icon{Texture:\"next_page\"}";
+    public String guiNextPageBlockedIcon = "universal_graves:icon{Texture:\"next_page_blocked\"}";
+
+    public String guiRemoveProtectionIcon = "universal_graves:icon{Texture:\"remove_protection\"}";
+    public String guiBreakGraveIcon = "universal_graves:icon{Texture:\"break_grave\"}";
+
+    public String guiQuickPickupIcon = "universal_graves:icon{Texture:\"quick_pickup\"}";
 
     private static List<String> getDefaultProtectedHologram() {
         List<String> list = new ArrayList<>();

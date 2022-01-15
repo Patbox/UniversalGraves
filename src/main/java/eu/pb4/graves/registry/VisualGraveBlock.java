@@ -1,29 +1,30 @@
 package eu.pb4.graves.registry;
 
 import com.mojang.authlib.GameProfile;
-import eu.pb4.graves.GraveNetworking;
-import eu.pb4.graves.client.GravesModClient;
-import eu.pb4.graves.config.ConfigManager;
+import eu.pb4.graves.grave.Grave;
 import eu.pb4.graves.other.VisualGraveData;
-import eu.pb4.polymer.api.block.PlayerAwarePolymerBlock;
-import eu.pb4.polymer.api.client.PolymerClientDecoded;
-import eu.pb4.polymer.api.client.PolymerKeepModel;
-import eu.pb4.polymer.api.utils.PolymerUtils;
 import eu.pb4.sgui.api.gui.SignGui;
-import net.minecraft.block.*;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockEntityProvider;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.piston.PistonBehavior;
+import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.pathing.NavigationType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.*;
+import net.minecraft.loot.context.LootContext;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.Properties;
@@ -34,19 +35,22 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.Util;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldAccess;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+import java.util.Map;
+
 @SuppressWarnings({"deprecation"})
-public class VisualGraveBlock extends Block implements PlayerAwarePolymerBlock, BlockEntityProvider, Waterloggable, PolymerClientDecoded, PolymerKeepModel {
+public class VisualGraveBlock extends AbstractGraveBlock implements BlockEntityProvider {
     public static BooleanProperty IS_LOCKED = GraveBlock.IS_LOCKED;
 
     public static VisualGraveBlock INSTANCE = new VisualGraveBlock();
 
     private VisualGraveBlock() {
-        super(Settings.copy(GraveBlock.INSTANCE));
+        super(Settings.copy(GraveBlock.INSTANCE).hardness(4));
         this.setDefaultState(this.getStateManager().getDefaultState().with(Properties.WATERLOGGED, false));
     }
 
@@ -60,55 +64,48 @@ public class VisualGraveBlock extends Block implements PlayerAwarePolymerBlock, 
     }
 
     @Override
-    public Block getPolymerBlock(BlockState state) {
-        return (PolymerUtils.isOnClientSide() ? GravesModClient.serverSideModel : ConfigManager.getConfig().style)
-                .converter.getBlock(state.get(IS_LOCKED));
-    }
-
-    @Override
-    public Block getPolymerBlock(ServerPlayerEntity player, BlockState state) {
-        if (GraveNetworking.canReceive(player.networkHandler)) {
-            return this;
-        }
-        return getPolymerBlock(state);
-    }
-
-    @Override
-    public BlockState getPolymerBlockState(BlockState state) {
-        return (PolymerUtils.isOnClientSide() ? GravesModClient.serverSideModel : ConfigManager.getConfig().style)
-                .converter.getBlockState(state.get(Properties.ROTATION), state.get(IS_LOCKED), state.get(Properties.WATERLOGGED));
-    }
-
-    @Override
-    public BlockState getPolymerBlockState(ServerPlayerEntity player, BlockState state) {
-        if (GraveNetworking.canReceive(player.networkHandler)) {
-            return state;
-        }
-        return getPolymerBlockState(state);
-    }
-
-    @Override
-    public void onPolymerBlockSend(ServerPlayerEntity player, BlockPos.Mutable pos, BlockState state) {
-        var blockEntity = player.world.getBlockEntity(pos);
-
-        boolean locked = state.get(IS_LOCKED);
-        if (blockEntity instanceof VisualGraveBlockEntity grave && !GraveNetworking.sendGrave(player.networkHandler, pos, locked, grave.getGrave(), grave.getGrave().getPlaceholders(player.server), grave.getSignText())) {
-            ConfigManager.getConfig().style.converter.sendNbt(player, state, pos.toImmutable(), state.get(Properties.ROTATION), state.get(IS_LOCKED), grave.getGrave(), null,  grave.getSignText());
-        }
-    }
-
-    @Override
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
         if (placer != null) {
             var optional = world.getBlockEntity(pos, VisualGraveBlockEntity.BLOCK_ENTITY_TYPE);
             if (optional.isPresent()) {
-                optional.get().textOverrides = new Text[] { LiteralText.EMPTY, LiteralText.EMPTY, LiteralText.EMPTY, LiteralText.EMPTY };
+                optional.get().textOverrides = new Text[]{LiteralText.EMPTY, LiteralText.EMPTY, LiteralText.EMPTY, LiteralText.EMPTY};
             }
         }
     }
 
+    @Override
+    public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+        var optional = world.getBlockEntity(pos, VisualGraveBlockEntity.BLOCK_ENTITY_TYPE);
+        if (world instanceof ServerWorld && optional.isPresent() && optional.get().allowModification) {
+            world.spawnEntity(new ItemEntity(world, pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, VisualGraveBlockItem.INSTANCE.getDefaultStack()));
+        }
+        super.onBreak(world, pos, state, player);
+    }
+
     public FluidState getFluidState(BlockState state) {
         return state.get(Properties.WATERLOGGED) ? Fluids.WATER.getStill(false) : super.getFluidState(state);
+    }
+
+    @Override
+    protected @Nullable Grave getGraveData(World world, BlockPos pos) {
+        return null;
+    }
+
+    @Override
+    protected @Nullable Text[] getTextOverrides(World world, BlockPos pos) {
+        var entity = world.getBlockEntity(pos, VisualGraveBlockEntity.BLOCK_ENTITY_TYPE);
+        return entity.isPresent() ? entity.get().textOverrides : null;
+    }
+
+    @Override
+    protected VisualGraveData getVisualData(World world, BlockPos pos, @Nullable Grave grave) {
+        var entity = world.getBlockEntity(pos, VisualGraveBlockEntity.BLOCK_ENTITY_TYPE);
+        return entity.isPresent() ? entity.get().getGrave() : VisualGraveData.DEFAULT;
+    }
+
+    @Override
+    protected Map<String, Text> getPlaceholders(MinecraftServer server, VisualGraveData visualGrave, @Nullable Grave grave) {
+        return visualGrave.getPlaceholders(server);
     }
 
     public boolean canPathfindThrough(BlockState state, BlockView world, BlockPos pos, NavigationType type) {
@@ -217,8 +214,4 @@ public class VisualGraveBlock extends Block implements PlayerAwarePolymerBlock, 
         return entity.isSneaking() ? ActionResult.PASS : ActionResult.SUCCESS;
     }
 
-    @Override
-    public boolean shouldDecodePolymer() {
-        return PolymerUtils.isOnClientSide() ? GravesModClient.config.enabled() : true;
-    }
 }

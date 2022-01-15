@@ -10,15 +10,11 @@ import eu.pb4.sgui.api.ClickType;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -115,61 +111,32 @@ public class GraveGui extends PagedGui {
             case 2 -> getRemoveProtection();
             case 3 -> {
                 if (this.canTake) {
-                    yield DisplayElement.of(new GuiElementBuilder(Items.PLAYER_HEAD)
-                            .setName(new TranslatableText("text.graves.gui.quick_pickup").formatted(Formatting.YELLOW))
-                            .setSkullOwner("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDVjNmRjMmJiZjUxYzM2Y2ZjNzcxNDU4NWE2YTU2ODNlZjJiMTRkNDdkOGZmNzE0NjU0YTg5M2Y1ZGE2MjIifX19")
+                    yield DisplayElement.of(GuiElementBuilder.from(ConfigManager.getConfig().guiQuickPickupIcon)
+                            .setName(ConfigManager.getConfig().guiQuickPickupText)
                             .setCallback((x, y, z) -> {
                                 playClickSound(this.player);
                                 this.grave.quickEquip(this.player);
                             })
                     );
                 } else {
-                    yield DisplayElement.filler();
+                    yield DisplayElement.lowerBar(player);
                 }
             }
             case 5 -> DisplayElement.previousPage(this);
             case 7 -> DisplayElement.nextPage(this);
-            default -> GraveNetworking.canReceiveGui(this.player.networkHandler) ? DisplayElement.empty() : DisplayElement.filler();
+            default -> DisplayElement.lowerBar(player);
         };
     }
 
     private DisplayElement getRemoveProtection() {
-        if (!this.grave.isProtected()) {
+        var config = ConfigManager.getConfig();
+        if (this.grave.isProtected() && (this.canTake || config.configData.allowRemoteProtectionRemoval || Permissions.check(player, "graves.can_remove_protection_remotely", 3))) {
             if (this.actionTime != -1) {
-                return DisplayElement.of(new GuiElementBuilder(Items.PLAYER_HEAD)
-                        .setName(new TranslatableText("text.graves.gui.break_grave").formatted(Formatting.RED))
-                        .addLoreLine(new TranslatableText("text.graves.gui.cant_reverse").setStyle(Style.EMPTY.withColor(Formatting.DARK_RED).withBold(true).withItalic(false)))
+                return DisplayElement.of(GuiElementBuilder.from(config.guiRemoveProtectionIcon)
+                        .setName(config.guiRemoveProtectionText)
+                        .addLoreLine(config.guiCantReverseAction)
                         .addLoreLine(LiteralText.EMPTY)
-                        .addLoreLine(new TranslatableText("text.graves.gui.click_to_confirm").setStyle(Style.EMPTY.withColor(Formatting.WHITE).withItalic(false)))
-                        .setSkullOwner("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZGQ3NGQyOGQwOTdlNTNkYjExMTJlMzkwYTdkNGZmODJkZjcxODg2NmFlYThmMTY1MGQ5NDY2NTdhOTM2OTY5OSJ9fX0=")
-                        .hideFlags()
-                        .setCallback((x, y, z) -> {
-                            playClickSound(player);
-                            this.grave.destroyGrave(this.player.getServer(), this.player);
-                            this.actionTime = -1;
-                            this.close();
-                        })
-                );
-            } else {
-                return DisplayElement.of(new GuiElementBuilder(Items.PLAYER_HEAD)
-                        .setName(new TranslatableText("text.graves.gui.break_grave").formatted(Formatting.RED))
-                        .setSkullOwner("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZGQ3NGQyOGQwOTdlNTNkYjExMTJlMzkwYTdkNGZmODJkZjcxODg2NmFlYThmMTY1MGQ5NDY2NTdhOTM2OTY5OSJ9fX0=")
-                        .hideFlags()
-                        .setCallback((x, y, z) -> {
-                            playClickSound(player);
-                            this.actionTime = this.ticker + 20 * 5;
-                            this.updateDisplay();
-                        })
-                );
-            }
-        } else {
-            if (this.actionTime != -1) {
-                return DisplayElement.of(new GuiElementBuilder(Items.PLAYER_HEAD)
-                        .setName(new TranslatableText("text.graves.gui.remove_protection").formatted(Formatting.RED))
-                        .addLoreLine(new TranslatableText("text.graves.gui.cant_reverse").setStyle(Style.EMPTY.withColor(Formatting.DARK_RED).withBold(true).withItalic(false)))
-                        .addLoreLine(LiteralText.EMPTY)
-                        .addLoreLine(new TranslatableText("text.graves.gui.click_to_confirm").setStyle(Style.EMPTY.withColor(Formatting.WHITE).withItalic(false)))
-                        .setSkullOwner("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODE5OWI1ZWUzMjBlNzk5N2Q5MWJiNWY4NjY1ZjNkMzJhZTQ5MjBlMDNjNmIzZDliN2VlY2E2OTcxMTk5OTcifX19")
+                        .addLoreLine(config.guiClickToConfirm)
                         .hideFlags()
                         .setCallback((x, y, z) -> {
                             playClickSound(player);
@@ -179,9 +146,8 @@ public class GraveGui extends PagedGui {
                         })
                 );
             } else {
-                return DisplayElement.of(new GuiElementBuilder(Items.PLAYER_HEAD)
-                        .setName(new TranslatableText("text.graves.gui.remove_protection").formatted(Formatting.RED))
-                        .setSkullOwner("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODE5OWI1ZWUzMjBlNzk5N2Q5MWJiNWY4NjY1ZjNkMzJhZTQ5MjBlMDNjNmIzZDliN2VlY2E2OTcxMTk5OTcifX19")
+                return DisplayElement.of(GuiElementBuilder.from(config.guiRemoveProtectionIcon)
+                        .setName(config.guiRemoveProtectionText)
                         .hideFlags()
                         .setCallback((x, y, z) -> {
                             playClickSound(player);
@@ -191,5 +157,35 @@ public class GraveGui extends PagedGui {
                 );
             }
         }
+
+        if (this.canTake || config.configData.allowRemoteGraveBreaking || Permissions.check(player, "graves.can_break_remotely", 3)) {
+            if (this.actionTime != -1) {
+                return DisplayElement.of(GuiElementBuilder.from(config.guiBreakGraveIcon)
+                        .setName(config.guiBreakGraveText)
+                        .addLoreLine(config.guiCantReverseAction)
+                        .addLoreLine(LiteralText.EMPTY)
+                        .addLoreLine(config.guiClickToConfirm)
+                        .setSkullOwner("")
+                        .hideFlags()
+                        .setCallback((x, y, z) -> {
+                            playClickSound(player);
+                            this.grave.destroyGrave(this.player.getServer(), this.player);
+                            this.actionTime = -1;
+                            this.close();
+                        })
+                );
+            } else {
+                return DisplayElement.of(GuiElementBuilder.from(config.guiBreakGraveIcon)
+                        .setName(config.guiBreakGraveText)
+                        .hideFlags()
+                        .setCallback((x, y, z) -> {
+                            playClickSound(player);
+                            this.actionTime = this.ticker + 20 * 5;
+                            this.updateDisplay();
+                        })
+                );
+            }
+        }
+        return DisplayElement.lowerBar(player);
     }
 }

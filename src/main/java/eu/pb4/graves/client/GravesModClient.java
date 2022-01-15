@@ -94,8 +94,8 @@ public class GravesModClient implements ClientModInitializer {
     }
     public enum ClientModel {
         NONE(""),
-        HEAD(GravesLookType.PLAYER_HEAD.name),
-        GENERIC_GRAVE(GravesLookType.CLIENT_MODEL.name);
+        HEAD(GravesLookType.PLAYER_HEAD.networkName),
+        GENERIC_GRAVE(GravesLookType.CLIENT_MODEL.networkName);
 
         private final String networkName;
 

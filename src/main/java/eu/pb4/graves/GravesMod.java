@@ -39,6 +39,7 @@ public class GravesMod implements ModInitializer {
 
         Registry.register(Registry.ITEM, new Identifier("universal_graves", "grave_compass"), GraveCompassItem.INSTANCE);
         Registry.register(Registry.ITEM, new Identifier("universal_graves", "visual_grave"), VisualGraveBlockItem.INSTANCE);
+        Registry.register(Registry.ITEM, new Identifier("universal_graves", "icon"), IconItem.INSTANCE);
         Registry.register(Registry.BLOCK, new Identifier("universal_graves", "grave"), GraveBlock.INSTANCE);
         Registry.register(Registry.BLOCK, new Identifier("universal_graves", "visual_grave"), VisualGraveBlock.INSTANCE);
         GraveBlockEntity.BLOCK_ENTITY_TYPE = Registry.register(Registry.BLOCK_ENTITY_TYPE, "universal_graves:grave", FabricBlockEntityTypeBuilder.create(GraveBlockEntity::new, GraveBlock.INSTANCE).build(null));

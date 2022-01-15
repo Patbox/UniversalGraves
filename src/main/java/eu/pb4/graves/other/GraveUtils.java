@@ -55,20 +55,24 @@ public class GraveUtils {
         if (result.allow) {
             return new BlockCheckResult(blockPos, result);
         } else {
-            var checkResult = findPos(player, world, blockPos, maxDistance, false);
+            var checkResult = findPos(player, world, blockPos, maxDistance, false, 0);
 
             if (!checkResult.result.allow && anyBlock) {
-                checkResult = findPos(player, world, blockPos, maxDistance, true);
+                checkResult = findPos(player, world, blockPos, maxDistance, true, 0);
             }
 
             return checkResult;
         }
     }
 
-    private static BlockCheckResult findPos(ServerPlayerEntity player, ServerWorld world, BlockPos blockPos, int maxDistance, boolean allowAnyBlock) {
+    private static BlockCheckResult findPos(ServerPlayerEntity player, ServerWorld world, BlockPos blockPos, int maxDistance, boolean allowAnyBlock, int iteration) {
         int line = 1;
         var border = world.getWorldBorder();
         BlockResult result = isValidPos(player, world, border, blockPos, allowAnyBlock);
+
+        if (result.allow) {
+            return new BlockCheckResult(blockPos, result);
+        }
 
         BlockResult tempResult;
         BlockPos.Mutable pos = new BlockPos.Mutable(blockPos.getX(), blockPos.getY(), blockPos.getZ());
@@ -155,7 +159,7 @@ public class GraveUtils {
 
 
     public enum BlockResult {
-        ALLOW(true, 2),
+        ALLOW(true, 3),
         BLOCK(false, 0),
         BLOCK_CLAIM(false, 1);
 

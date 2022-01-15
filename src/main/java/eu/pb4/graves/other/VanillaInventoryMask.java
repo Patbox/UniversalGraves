@@ -24,7 +24,7 @@ public class VanillaInventoryMask implements GraveInventoryMask {
     public boolean moveToPlayerExactly(ServerPlayerEntity player, ItemStack stack, int slot, NbtElement _unused) {
         var inventory = player.getInventory();
 
-        if (inventory.getStack(slot).isEmpty()) {
+        if (slot > -1 && slot < inventory.size() && inventory.getStack(slot).isEmpty()) {
             inventory.setStack(slot, stack.copy());
             stack.setCount(0);
             return true;
