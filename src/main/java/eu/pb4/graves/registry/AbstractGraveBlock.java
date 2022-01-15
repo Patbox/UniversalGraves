@@ -7,7 +7,6 @@ import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.grave.Grave;
 import eu.pb4.graves.other.VisualGraveData;
 import eu.pb4.polymer.api.block.PlayerAwarePolymerBlock;
-import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.api.client.PolymerClientDecoded;
 import eu.pb4.polymer.api.client.PolymerKeepModel;
 import eu.pb4.polymer.api.utils.PolymerUtils;
@@ -55,7 +54,7 @@ public abstract class AbstractGraveBlock extends Block implements PlayerAwarePol
         if (!PolymerUtils.isOnClientSide() && context instanceof EntityShapeContext entityShapeContext && entityShapeContext.getEntity() instanceof ServerPlayerEntity player) {
             return ConfigManager.getConfig().style.converter.getBlockState(
                     state.get(Properties.ROTATION),
-                    state.get(AbstractGraveBlock.IS_LOCKED),
+                    state.get(IS_LOCKED),
                     state.get(Properties.WATERLOGGED),
                     player
             ).getCollisionShape(world, pos, context);

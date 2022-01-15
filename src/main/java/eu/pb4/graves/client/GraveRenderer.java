@@ -3,7 +3,6 @@ package eu.pb4.graves.client;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import eu.pb4.graves.registry.AbstractGraveBlockEntity;
-import eu.pb4.graves.registry.GraveBlock;
 import net.fabricmc.fabric.api.client.model.BakedModelManagerHelper;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
@@ -16,7 +15,6 @@ import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.render.entity.model.EntityModelLayers;
 import net.minecraft.client.render.entity.model.SkullEntityModel;
 import net.minecraft.client.render.model.BakedModel;
-import net.minecraft.client.render.model.BasicBakedModel;
 import net.minecraft.client.util.DefaultSkinHelper;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
@@ -27,6 +25,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Random;
+
+import static eu.pb4.graves.registry.AbstractGraveBlock.IS_LOCKED;
 
 public class GraveRenderer implements BlockEntityRenderer<AbstractGraveBlockEntity> {
     public static final Identifier GENERIC_GRAVE = new Identifier("universal_graves", "grave/generic");
@@ -74,7 +74,7 @@ public class GraveRenderer implements BlockEntityRenderer<AbstractGraveBlockEnti
         matrixStack.translate(0.5D, blockModelEnabled ? 0.1D : 0, 0.5D);
         matrixStack.scale(-1.0F, -1.0F, 1.0F);
         var rotation = 22.5F * entity.getCachedState().get(Properties.ROTATION);
-        var useSkull =  GravesModClient.config.playerHeadsTurnSkull() && !entity.getCachedState().get(GraveBlock.IS_LOCKED);
+        var useSkull =  GravesModClient.config.playerHeadsTurnSkull() && !entity.getCachedState().get(IS_LOCKED);
 
         var model = useSkull ? this.skullModel : this.playerHeadModel;
 
@@ -122,7 +122,7 @@ public class GraveRenderer implements BlockEntityRenderer<AbstractGraveBlockEnti
             }
         }
 
-        var model = entity.getCachedState().get(GraveBlock.IS_LOCKED) ? this.graveStoneModel : this.graveStoneUnlockedModel;
+        var model = entity.getCachedState().get(IS_LOCKED) ? this.graveStoneModel : this.graveStoneUnlockedModel;
 
         if (MinecraftClient.isAmbientOcclusionEnabled() && model.useAmbientOcclusion()) {
             renderer.renderSmooth(world, model, entity.getCachedState(), entity.getPos(), matrixStack, vertexConsumers.getBuffer(RenderLayers.getBlockLayer(entity.getCachedState())), false, new Random(), 0, overlay);

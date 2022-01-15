@@ -24,6 +24,8 @@ import net.minecraft.world.World;
 
 import java.util.*;
 
+import static eu.pb4.graves.registry.AbstractGraveBlock.IS_LOCKED;
+
 public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
     public static BlockEntityType<VisualGraveBlockEntity> BLOCK_ENTITY_TYPE;
     public WorldHologram hologram = null;
@@ -90,7 +92,7 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
 
         var converter = ConfigManager.getConfig().style.converter;
         var rotation = this.getCachedState().get(Properties.ROTATION);
-        var isProtected = this.getCachedState().get(VisualGraveBlock.IS_LOCKED);
+        var isProtected = this.getCachedState().get(IS_LOCKED);
         for (var player : ((ServerWorld) this.world).getChunkManager().threadedAnvilChunkStorage.getPlayersWatchingChunk(new ChunkPos(this.pos), false)) {
             if (!GraveNetworking.sendGrave(player.networkHandler, pos, isProtected, this.visualData, this.visualData.getPlaceholders(player.server), this.textOverrides)) {
                 converter.sendNbt(player, this.getCachedState(), pos.toImmutable(), rotation, isProtected, this.visualData, null, this.textOverrides);

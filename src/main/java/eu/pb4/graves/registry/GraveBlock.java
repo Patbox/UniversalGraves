@@ -13,7 +13,6 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
@@ -27,8 +26,6 @@ import java.util.Map;
 
 @SuppressWarnings({"deprecation"})
 public class GraveBlock extends AbstractGraveBlock implements BlockEntityProvider {
-    public static BooleanProperty IS_LOCKED = BooleanProperty.of("is_locked");
-
     public static GraveBlock INSTANCE = new GraveBlock();
 
     private GraveBlock() {
