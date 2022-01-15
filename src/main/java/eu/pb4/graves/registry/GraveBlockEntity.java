@@ -17,7 +17,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
@@ -34,6 +33,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import java.util.*;
+
+import static eu.pb4.graves.registry.AbstractGraveBlock.IS_LOCKED;
 
 public class GraveBlockEntity extends AbstractGraveBlockEntity {
     public static BlockEntityType<GraveBlockEntity> BLOCK_ENTITY_TYPE;
@@ -181,10 +182,10 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity {
             return;
         }
 
-        boolean isProtected = state.get(GraveBlock.IS_LOCKED);
+        boolean isProtected = state.get(IS_LOCKED);
 
         if (isProtected && !self.data.isProtected()) {
-            world.setBlockState(pos, state.with(GraveBlock.IS_LOCKED, false));
+            world.setBlockState(pos, state.with(IS_LOCKED, false));
             isProtected = false;
             self.updateForAllPlayers();
         }

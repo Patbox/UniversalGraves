@@ -19,14 +19,12 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.*;
-import net.minecraft.loot.context.LootContext;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
@@ -37,16 +35,12 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings({"deprecation"})
 public class VisualGraveBlock extends AbstractGraveBlock implements BlockEntityProvider {
-    public static BooleanProperty IS_LOCKED = GraveBlock.IS_LOCKED;
-
     public static VisualGraveBlock INSTANCE = new VisualGraveBlock();
 
     private VisualGraveBlock() {
@@ -193,9 +187,9 @@ public class VisualGraveBlock extends AbstractGraveBlock implements BlockEntityP
                                 grave.getGrave().location()), grave.replacedBlockState, true);
                     }
                 } else if (itemStack.getItem() == Items.MOSS_BLOCK) {
-                    world.setBlockState(pos, state.with(GraveBlock.IS_LOCKED, false));
+                    world.setBlockState(pos, state.with(IS_LOCKED, false));
                 } else if (itemStack.getItem() == Items.SPONGE || itemStack.getItem() == Items.WET_SPONGE) {
-                    world.setBlockState(pos, state.with(GraveBlock.IS_LOCKED, true));
+                    world.setBlockState(pos, state.with(IS_LOCKED, true));
                 } else if (itemStack.getItem() instanceof ShovelItem) {
                     int val = state.get(Properties.ROTATION) + (player.isSneaking() ? -1 : 1);
                     if (val < 0) {
