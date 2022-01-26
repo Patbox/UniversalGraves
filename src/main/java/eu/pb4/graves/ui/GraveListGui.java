@@ -7,9 +7,7 @@ import eu.pb4.graves.grave.Grave;
 import eu.pb4.graves.grave.GraveManager;
 import eu.pb4.placeholders.PlaceholderAPI;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
-import eu.pb4.sgui.api.gui.SimpleGui;
 import me.lucko.fabric.api.permissions.v0.Permissions;
-import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
@@ -23,10 +21,11 @@ import java.util.*;
 
 public class GraveListGui extends PagedGui {
     private final UUID targetUUID;
+    private final boolean canModify;
     private int ticker = 0;
     private List<Grave> graves;
 
-    public GraveListGui(ServerPlayerEntity player, GameProfile profile) {
+    public GraveListGui(ServerPlayerEntity player, GameProfile profile, boolean canModify) {
         super(player);
         this.targetUUID = profile.getId();
 
@@ -40,6 +39,7 @@ public class GraveListGui extends PagedGui {
             ));
         }
         this.graves = new ArrayList<>(GraveManager.INSTANCE.getByUuid(this.targetUUID));
+        this.canModify = canModify;
         this.updateDisplay();
     }
 
@@ -84,7 +84,7 @@ public class GraveListGui extends PagedGui {
                             }
                         } else {
                             this.close();
-                            grave.openUi(player, false);
+                            grave.openUi(player, this.canModify);
                         }
                     });
 

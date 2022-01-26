@@ -28,36 +28,44 @@ public class Commands {
             dispatcher.register(
                     literal("graves")
                             .requires(Permissions.require("universal_graves.list", true))
-                            .executes(Commands::list)
+                            .executes((ctx) -> Commands.list(ctx, false))
+                            .then(literal("modify")
+                                    .requires(Permissions.require("universal_graves.modify", 3))
+                                    .executes((ctx) -> Commands.list(ctx, true))
+                            )
 
                             .then(literal("player")
-                                    .requires(Permissions.require("universal_graves.list_others", 2))
+                                    .requires(Permissions.require("universal_graves.list_others", 3))
                                     .then(argument("player", GameProfileArgumentType.gameProfile())
-                                            .executes(Commands::listOthers)
+                                            .executes((ctx) -> Commands.listOthers(ctx, false))
+                                            .then(literal("modify")
+                                                    .requires(Permissions.require("universal_graves.list_others.modify", 3))
+                                                    .executes((ctx) -> Commands.listOthers(ctx, true))
+                                            )
                                     ))
 
                             .then(literal("about").executes(Commands::about))
 
                             .then(literal("reload")
-                                    .requires(Permissions.require("universal_graves.reload", 3))
+                                    .requires(Permissions.require("universal_graves.reload", 4))
                                     .executes(Commands::reloadConfig)
                             )
             );
         });
     }
 
-    private static int list(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private static int list(CommandContext<ServerCommandSource> context, boolean canModify) throws CommandSyntaxException {
         ServerPlayerEntity player = context.getSource().getPlayer();
 
         try {
-            new GraveListGui(player, player.getGameProfile()).open();
+            new GraveListGui(player, player.getGameProfile(), canModify).open();
         } catch (Exception e) {
             e.printStackTrace();
         }
         return 0;
     }
 
-    private static int listOthers(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private static int listOthers(CommandContext<ServerCommandSource> context, boolean canModify) throws CommandSyntaxException {
         ServerPlayerEntity player = context.getSource().getPlayer();
         List<GameProfile> profiles = new ArrayList(context.getArgument("player", GameProfileArgumentType.GameProfileArgument.class).getNames(context.getSource()));
 
@@ -69,7 +77,7 @@ public class Commands {
             return 0;
         }
         try {
-            new GraveListGui(player, profiles.get(0)).open();
+            new GraveListGui(player, profiles.get(0), canModify).open();
         } catch (Exception e) {
             e.printStackTrace();
         }

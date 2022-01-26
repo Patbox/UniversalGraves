@@ -92,7 +92,8 @@ public abstract class AbstractGraveBlock extends Block implements PlayerAwarePol
         if (GraveNetworking.canReceive(player.networkHandler)) {
             return state;
         }
-        return getPolymerBlockState(state);
+        return (PolymerUtils.isOnClientSide() ? GravesModClient.serverSideModel : ConfigManager.getConfig().style)
+                .converter.getBlockState(state.get(Properties.ROTATION), state.get(IS_LOCKED), state.get(Properties.WATERLOGGED), player);
     }
 
     @Override

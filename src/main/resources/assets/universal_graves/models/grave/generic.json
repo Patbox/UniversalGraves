@@ -6,6 +6,7 @@
 		"base": "block/polished_deepslate",
 		"main": "block/stone_bricks"
 	},
+	"ambientocclusion": false,
 	"elements": [
 		{
 			"from": [0, 2, 6],

@@ -62,7 +62,7 @@ public class GraveCompassItem extends Item implements PolymerItem {
     @Override
     public ItemStack getPolymerItemStack(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
         var clientStack = PolymerItem.super.getPolymerItemStack(itemStack, player);
-        if (itemStack.hasNbt() && itemStack.getNbt().contains("GraveId", NbtElement.LONG_TYPE)) {
+        if (player != null && itemStack.hasNbt() && itemStack.getNbt().contains("GraveId", NbtElement.LONG_TYPE)) {
             var grave = GraveManager.INSTANCE.getId(itemStack.getNbt().getLong("GraveId"));
             if (grave != null) {
                 clientStack.getOrCreateNbt().putString("LodestoneDimension", grave.getLocation().world().toString());

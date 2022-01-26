@@ -1,5 +1,6 @@
 package eu.pb4.graves;
 
+import eu.pb4.graves.compat.SaveGearOnDeathCompat;
 import eu.pb4.graves.registry.*;
 import eu.pb4.graves.compat.GomlCompat;
 import eu.pb4.graves.compat.InventorioCompat;
@@ -61,6 +62,9 @@ public class GravesMod implements ModInitializer {
         }
         if (loader.isModLoaded("trinkets")) {
             TrinketsCompat.register();
+        }
+        if (loader.isModLoaded("sgod")) {
+            SaveGearOnDeathCompat.register();
         }
 
         ServerLifecycleEvents.SERVER_STARTING.register((server) -> ConfigManager.loadConfig());
