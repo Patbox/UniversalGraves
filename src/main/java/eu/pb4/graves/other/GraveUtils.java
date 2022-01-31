@@ -3,11 +3,13 @@ package eu.pb4.graves.other;
 
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.event.GraveValidPosCheckEvent;
+import eu.pb4.graves.registry.SafeXPEntity;
 import net.fabricmc.fabric.api.tag.TagFactory;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.ExperienceOrbEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -19,6 +21,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.border.WorldBorder;
 import org.jetbrains.annotations.Nullable;
@@ -104,8 +107,16 @@ public class GraveUtils {
         return new BlockCheckResult(null, result);
     }
 
+    public static void spawnExp(ServerWorld world, Vec3d pos, int amount) {
+        if (ConfigManager.getConfig().configData.useAlternativeXPEntity) {
+            SafeXPEntity.spawn(world, pos, amount);
+        } else {
+            ExperienceOrbEntity.spawn(world, pos, amount);
+        }
+    }
 
-    private static BlockResult isValidPos(ServerPlayerEntity player, ServerWorld world, WorldBorder border, BlockPos pos, boolean anyBlock) {
+
+        private static BlockResult isValidPos(ServerPlayerEntity player, ServerWorld world, WorldBorder border, BlockPos pos, boolean anyBlock) {
         BlockState state = world.getBlockState(pos);
         if (border.contains(pos) && pos.getY() >= world.getBottomY() && pos.getY() < world.getTopY() && !state.hasBlockEntity() && (state.isAir() || anyBlock || REPLACEABLE_TAG.contains(state.getBlock()))) {
             return GraveValidPosCheckEvent.EVENT.invoker().isValid(player, world, pos);

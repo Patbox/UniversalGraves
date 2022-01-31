@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import eu.pb4.graves.config.Config;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.other.*;
+import eu.pb4.graves.registry.SafeXPEntity;
 import eu.pb4.graves.ui.GraveGui;
 import eu.pb4.placeholders.PlaceholderAPI;
 import me.lucko.fabric.api.permissions.v0.Permissions;
@@ -430,7 +431,7 @@ public final class Grave {
         var chunk = world.getChunk(ChunkSectionPos.getSectionCoord(this.location.x()), ChunkSectionPos.getSectionCoord(this.location.z()));
 
         ItemScatterer.spawn(world, this.location.blockPos(), this.asInventory());
-        ExperienceOrbEntity.spawn(world, Vec3d.ofCenter(this.location.blockPos()), this.xp);
+        GraveUtils.spawnExp(world, Vec3d.ofCenter(this.location.blockPos()), this.xp);
     }
 
     @Override

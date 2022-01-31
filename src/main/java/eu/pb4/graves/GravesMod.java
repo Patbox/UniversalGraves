@@ -10,6 +10,7 @@ import eu.pb4.graves.grave.GraveManager;
 import eu.pb4.graves.other.Commands;
 import eu.pb4.graves.other.VanillaInventoryMask;
 import eu.pb4.polymer.api.block.PolymerBlockUtils;
+import eu.pb4.polymer.api.entity.PolymerEntityUtils;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -43,6 +44,8 @@ public class GravesMod implements ModInitializer {
         Registry.register(Registry.ITEM, new Identifier("universal_graves", "icon"), IconItem.INSTANCE);
         Registry.register(Registry.BLOCK, new Identifier("universal_graves", "grave"), GraveBlock.INSTANCE);
         Registry.register(Registry.BLOCK, new Identifier("universal_graves", "visual_grave"), VisualGraveBlock.INSTANCE);
+        Registry.register(Registry.ENTITY_TYPE, new Identifier("universal_graves", "xp"), SafeXPEntity.TYPE);
+        PolymerEntityUtils.registerType(SafeXPEntity.TYPE);
         GraveBlockEntity.BLOCK_ENTITY_TYPE = Registry.register(Registry.BLOCK_ENTITY_TYPE, "universal_graves:grave", FabricBlockEntityTypeBuilder.create(GraveBlockEntity::new, GraveBlock.INSTANCE).build(null));
         VisualGraveBlockEntity.BLOCK_ENTITY_TYPE = Registry.register(Registry.BLOCK_ENTITY_TYPE, "universal_graves:visual_grave", FabricBlockEntityTypeBuilder.create(VisualGraveBlockEntity::new, VisualGraveBlock.INSTANCE).build(null));
         Commands.register();

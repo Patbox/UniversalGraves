@@ -48,6 +48,8 @@ public class ConfigData extends VersionedConfigData implements Cloneable {
     public boolean replaceAnyBlock = false;
     public int maxPlacementDistance = 8;
     public boolean useRealTime = false;
+    public boolean useAlternativeXPEntity = FabricLoader.getInstance().isModLoaded("origins")
+            || FabricLoader.getInstance().isModLoaded("bewitchment");
 
     public boolean createFromPvP = true;
     public boolean createFromVoid = true;

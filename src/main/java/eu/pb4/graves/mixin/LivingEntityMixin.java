@@ -130,10 +130,15 @@ public abstract class LivingEntityMixin {
                                     placeholders2 = grave.getPlaceholders(player.getServer());
                                 } else {
                                     if (config.xpCalc != GravesXPCalculation.DROP) {
-                                        ExperienceOrbEntity.spawn(world, Vec3d.ofCenter(gravePos), finalExperience);
+                                        GraveUtils.spawnExp(world, Vec3d.ofCenter(gravePos), finalExperience);
                                     }
                                     text2 = config.creationFailedGraveMessage;
-                                    ItemScatterer.spawn(world, gravePos, DefaultedList.copyOf(ItemStack.EMPTY, items.toArray(new ItemStack[0])));
+                                    var droppedItems = DefaultedList.ofSize(0, ItemStack.EMPTY);
+                                    for (var item : items) {
+                                        droppedItems.add(item.stack());
+                                    }
+
+                                    ItemScatterer.spawn(world, gravePos, droppedItems);
                                     ((PlayerAdditions) player).graves_setLastGrave(-1);
                                 }
                                 if (text2 != null) {
