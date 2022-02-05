@@ -18,6 +18,12 @@ public class VanillaInventoryMask implements GraveInventoryMask {
                 consumer.addItem(player.getInventory().removeStack(i), i);
             }
         }
+
+        ItemStack itemStack = player.playerScreenHandler.getCursorStack();
+        if (GravesApi.canAddItem(player, itemStack)) {
+            consumer.addItem(itemStack.copy(), -1);
+            player.playerScreenHandler.setCursorStack(ItemStack.EMPTY);
+        }
     }
 
     @Override

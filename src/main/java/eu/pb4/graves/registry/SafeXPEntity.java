@@ -9,6 +9,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ExperienceOrbEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -33,10 +34,33 @@ public class SafeXPEntity extends ExperienceOrbEntity implements PolymerEntity {
     @Override
     public void onPlayerCollision(PlayerEntity player) {
         if (!this.world.isClient) {
+            // Clones vanilla logic to make sure other mods don't modify it
             if (player.experiencePickUpDelay == 0) {
                 player.experiencePickUpDelay = 2;
                 player.sendPickup(this, 1);
-                player.addExperience(this.getExperienceAmount());
+                var experience = this.getExperienceAmount();
+
+                player.addScore(experience);
+                player.experienceProgress += (float)experience / (float)player.getNextLevelExperience();
+                player.totalExperience = MathHelper.clamp(player.totalExperience + experience, 0, 2147483647);
+
+                while(player.experienceProgress < 0.0F) {
+                    float f = player.experienceProgress * (float)player.getNextLevelExperience();
+                    if (player.experienceLevel > 0) {
+                        player.addExperienceLevels(-1);
+                        player.experienceProgress = 1.0F + f / (float)player.getNextLevelExperience();
+                    } else {
+                        player.addExperienceLevels(-1);
+                        player.experienceProgress = 0.0F;
+                    }
+                }
+
+                while(player.experienceProgress >= 1.0F) {
+                    player.experienceProgress = (player.experienceProgress - 1.0F) * (float)player.getNextLevelExperience();
+                    player.addExperienceLevels(1);
+                    player.experienceProgress /= (float)player.getNextLevelExperience();
+                }
+
                 this.discard();
             }
         }

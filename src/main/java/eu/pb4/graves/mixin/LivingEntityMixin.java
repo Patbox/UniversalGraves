@@ -133,7 +133,7 @@ public abstract class LivingEntityMixin {
                                         GraveUtils.spawnExp(world, Vec3d.ofCenter(gravePos), finalExperience);
                                     }
                                     text2 = config.creationFailedGraveMessage;
-                                    var droppedItems = DefaultedList.ofSize(0, ItemStack.EMPTY);
+                                    var droppedItems = DefaultedList.<ItemStack>ofSize(0);
                                     for (var item : items) {
                                         droppedItems.add(item.stack());
                                     }
