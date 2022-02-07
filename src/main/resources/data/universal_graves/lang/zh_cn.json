@@ -1,16 +1,40 @@
 {
   "text.graves.grave_of": "%s之墓",
-  "text.graves.items_xp": "物品：%s 经验：%s",
-  "text.graves.protected_time": "将在%s后启封",
-  "text.graves.break_time": "将在%s后自动洒落",
+  "text.graves.items_xp": "物品: %s XP: %s",
+  "text.graves.items": "物品: %s",
+  "text.graves.protected_time": "将会在%s后启封",
+  "text.graves.protected_time_sign": "距离启封时间还有",
+  "text.graves.break_time": "将在%s自动洒落",
+  "text.graves.break_time_sign": "自动洒落时间",
   "text.graves.not_protected": "已启封！",
-  "text.graves.players_grave": "%s的坟墓",
-  "text.graves.gui_title": "你的坟墓",
-  "text.graves.no_longer_protected": "你在%s（%s）的坟墓（含有%s个物品）已启封！任何人都可以开启！",
-  "text.graves.expired": "你在%s（%s）的坟墓（含有%s个物品）已洒落！",
-  "text.graves.somebody_broke": "你在%s（%s）的坟墓（含有%s个物品）已被拆毁！",
-  "text.graves.created_at": "坟墓已生成：%s（%s）",
-  "text.graves.creation_failed": "坟墓生成失败！你的物品洒在了%s（%s）",
-  "text.graves.creation_failed_pvp": "玩家击杀不生成坟墓！你的物品洒在了%s（%s）",
-  "text.graves.creation_failed_claim": "领地内不生成坟墓！你的物品洒在了%s（%s）"
+  "text.graves.players_grave": "%s的墓碑",
+  "text.graves.gui_title": "你的墓碑",
+  "text.graves.no_longer_protected": "你在%s (%s)的墓碑 不再受保护！（含有%s个物品）",
+  "text.graves.expired": "你在%s (%s)的墓碑已洒落！（含有%s个物品）",
+  "text.graves.somebody_broke": "你在%s (%s)的墓碑已被破坏！（含有%s个物品）",
+  "text.graves.created_at": "墓碑在%s (%s)生成！",
+  "text.graves.created_at_expire": "墓碑在%s (%s)生成，将会在%s秒后洒落",
+  "text.graves.creation_failed": "无法创建墓碑！你的物品洒落在%s (%s)",
+  "text.graves.creation_failed_void": "你在虚空死亡了，墓碑不再生成！",
+  "text.graves.creation_failed_pvp": "玩家击杀不生成墓碑！（含有%s个物品）(%s)",
+  "text.graves.creation_failed_claim": "墓碑未生成！你的物品洒落在%s (%s)",
+
+  "text.graves.about.version": "版本：%s",
+  "text.graves.about.contributors": "贡献者",
+
+  "text.graves.gui.next_page": "下一页",
+  "text.graves.gui.previous_page": "上一页",
+  "text.graves.gui.remove_protection": "移除墓碑保护",
+  "text.graves.gui.break_grave": "破坏墓碑",
+  "text.graves.gui.quick_pickup": "全部带走",
+
+  "text.graves.gui.cant_reverse": "操作无法撤销！",
+  "text.graves.gui.click_to_confirm": "再次点击来确认！",
+
+  "item.universal_graves.grave_compass": "墓碑指南针",
+  "block.universal_graves.grave": "墓碑",
+  "block.universal_graves.visual_grave": "墓碑",
+
+  "gamerule.universal_graves:protection_time": "墓碑解锁时间",
+  "gamerule.universal_graves:breaking_time": "墓碑洒落时间"
 }

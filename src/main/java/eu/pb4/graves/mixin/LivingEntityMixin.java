@@ -118,7 +118,7 @@ public abstract class LivingEntityMixin {
 
                             ((PlayerAdditions) player).graves_setLastGrave(grave.getId());
                             GravesMod.DO_ON_NEXT_TICK.add(() -> {
-                                Text text2 = null;
+                                Text text2;
                                 Map<String, Text> placeholders2 = placeholders;
                                 BlockState oldBlockState = world.getBlockState(gravePos);
                                 world.setBlockState(gravePos, GraveBlock.INSTANCE.getDefaultState().with(Properties.ROTATION, player.getRandom().nextInt(15)));
