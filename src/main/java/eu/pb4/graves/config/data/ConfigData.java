@@ -72,6 +72,7 @@ public class ConfigData extends VersionedConfigData implements Cloneable {
     public List<String> hologramText = getDefaultHologram();
     public List<String> hologramVisualText = getDefaultVisualHologram();
 
+    public boolean gui = true;
     public String guiTitle = "<lang:'text.graves.gui_title':'${player}'>";
     public List<String> guiProtectedText = getDefaultProtectedGui();
     public List<String> guiText = getDefaultGui();
