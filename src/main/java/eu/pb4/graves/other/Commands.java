@@ -100,12 +100,6 @@ public class Commands {
     }
 
     private static int about(CommandContext<ServerCommandSource> context) {
-        /*context.getSource().sendFeedback(new LiteralText("Universal Graves")
-                .formatted(Formatting.AQUA)
-                .append(new LiteralText(" - " + GravesMod.VERSION)
-                        .formatted(Formatting.WHITE)
-                ), false);*/
-
         for (var text : context.getSource().getEntity() instanceof ServerPlayerEntity ? GenericModInfo.getAboutFull() : GenericModInfo.getAboutConsole()) {
             context.getSource().sendFeedback(text, false);
         }

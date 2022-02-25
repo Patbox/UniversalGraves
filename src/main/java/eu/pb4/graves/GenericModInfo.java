@@ -42,7 +42,7 @@ public class GenericModInfo {
                     base.append(new LiteralText(chr.repeat(line)).setStyle(Style.EMPTY.withColor(color)));
                     icon.add(base);
                 }
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 e.printStackTrace();
                 while (icon.size() < 16) {
                     icon.add(new LiteralText("/!\\ [ Invalid icon file ] /!\\").setStyle(Style.EMPTY.withColor(0xFF0000).withItalic(true)));

@@ -4,6 +4,7 @@ package eu.pb4.graves.other;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.event.GraveValidPosCheckEvent;
 import eu.pb4.graves.registry.SafeXPEntity;
+import eu.pb4.graves.registry.TempBlock;
 import net.fabricmc.fabric.api.tag.TagFactory;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -118,7 +119,8 @@ public class GraveUtils {
 
         private static BlockResult isValidPos(ServerPlayerEntity player, ServerWorld world, WorldBorder border, BlockPos pos, boolean anyBlock) {
         BlockState state = world.getBlockState(pos);
-        if (border.contains(pos) && pos.getY() >= world.getBottomY() && pos.getY() < world.getTopY() && !state.hasBlockEntity() && (state.isAir() || anyBlock || REPLACEABLE_TAG.contains(state.getBlock()))) {
+
+        if (state.getBlock() != TempBlock.INSTANCE && border.contains(pos) && pos.getY() >= world.getBottomY() && pos.getY() < world.getTopY() && !state.hasBlockEntity() && (state.isAir() || anyBlock || REPLACEABLE_TAG.contains(state.getBlock()))) {
             return GraveValidPosCheckEvent.EVENT.invoker().isValid(player, world, pos);
         } else {
             return BlockResult.BLOCK;

@@ -50,8 +50,14 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity {
     }
 
     public void setGrave(Grave grave, BlockState oldBlockState) {
-        this.data = grave;
         this.replacedBlockState = oldBlockState;
+        this.setGrave(grave);
+    }
+
+
+    public void setGrave(Grave grave) {
+        this.data = grave;
+
         this.visualData = grave.toVisualGraveData();
         GraveManager.INSTANCE.add(grave);
         this.graveId = grave.getId();
@@ -112,6 +118,7 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity {
         if (this.data != null) {
             this.visualData = this.data.toVisualGraveData();
             this.updateForAllPlayers();
+            this.markDirty();
         }
     }
 
@@ -154,13 +161,9 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity {
         }
 
         if (self.data == null) {
-            self.fetchGraveData();
-            self.dataRetrieveTries++;
-
-            if (self.dataRetrieveTries > 10) {
-                self.breakBlock();
+            if (world.getTime() % 10 == 0) {
+                self.fetchGraveData();
             }
-
             return;
         }
 
@@ -221,17 +224,26 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity {
 
             if (texts.size() != self.hologram.getElements().size()) {
                 self.hologram.clearElements();
+                for (Text text : texts) {
+                    if (text == LiteralText.EMPTY) {
+                        self.hologram.addElement(new SpacingHologramElement(0.28));
+                    } else {
+                        self.hologram.addText(text);
+                    }
+                }
+            } else {
+                int x = 0;
+                for (Text text : texts) {
+                    if (text == LiteralText.EMPTY) {
+                        self.hologram.setElement(x, new SpacingHologramElement(0.28));
+                    } else {
+                        self.hologram.setText(x, text);
+                    }
+                    x++;
+                }
             }
 
-            int x = 0;
-            for (Text text : texts) {
-                if (text == LiteralText.EMPTY) {
-                    self.hologram.setElement(x, new SpacingHologramElement(0.28));
-                } else {
-                    self.hologram.setText(x, text);
-                }
-                x++;
-            }
+
         } else {
             if (self.hologram != null) {
                 self.hologram.hide();

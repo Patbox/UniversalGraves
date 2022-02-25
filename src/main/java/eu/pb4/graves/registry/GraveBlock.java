@@ -83,7 +83,7 @@ public class GraveBlock extends AbstractGraveBlock implements BlockEntityProvide
                 grave.updateSelf(world.getServer());
 
                 if (!grave.isRemoved()) {
-                    if (ConfigManager.getConfig().configData.shiftClickTakesItems && player.isSneaking()) {
+                    if (ConfigManager.getConfig().configData.shiftClickTakesItems && (player.isSneaking() || !ConfigManager.getConfig().configData.clickGraveToOpenGui)) {
                         grave.quickEquip(player);
                     } else {
                         grave.openUi(player, true);

@@ -12,8 +12,10 @@ import eu.pb4.graves.other.GraveUtils;
 import eu.pb4.graves.other.GravesXPCalculation;
 import eu.pb4.graves.other.Location;
 import eu.pb4.graves.other.PlayerAdditions;
+import eu.pb4.graves.registry.TempBlock;
 import eu.pb4.placeholders.PlaceholderAPI;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.ExperienceOrbEntity;
 import net.minecraft.entity.LivingEntity;
@@ -117,15 +119,21 @@ public abstract class LivingEntityMixin {
                             var grave = Grave.createBlock(gameProfile, world.getRegistryKey().getValue(), gravePos,finalExperience, source.getDeathMessage(player), allowedUUID, items);
 
                             ((PlayerAdditions) player).graves_setLastGrave(grave.getId());
+                            BlockState oldBlockState = world.getBlockState(gravePos);
+                            world.setBlockState(gravePos, TempBlock.INSTANCE.getDefaultState());
+
+
                             GravesMod.DO_ON_NEXT_TICK.add(() -> {
                                 Text text2;
                                 Map<String, Text> placeholders2 = placeholders;
-                                BlockState oldBlockState = world.getBlockState(gravePos);
+
+                                BlockState storedBlockState = world.getBlockState(gravePos).getBlock() == TempBlock.INSTANCE ? oldBlockState : Blocks.AIR.getDefaultState();
+
                                 world.setBlockState(gravePos, GraveBlock.INSTANCE.getDefaultState().with(Properties.ROTATION, player.getRandom().nextInt(15)));
                                 BlockEntity entity = world.getBlockEntity(gravePos);
     
                                 if (entity instanceof GraveBlockEntity graveBlockEntity) {
-                                    graveBlockEntity.setGrave(grave, oldBlockState);
+                                    graveBlockEntity.setGrave(grave, storedBlockState);
                                     text2 = config.createdGraveMessage;
                                     placeholders2 = grave.getPlaceholders(player.getServer());
                                 } else {

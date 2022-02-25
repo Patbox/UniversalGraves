@@ -22,7 +22,8 @@
     ],
     "client": [
       "eu.pb4.graves.client.GravesModClient"
-    ]
+    ],
+    "preLaunch": ["eu.pb4.graves.CardboardWarning"]
   },
   "mixins": [
     "universal-graves.mixins.json"

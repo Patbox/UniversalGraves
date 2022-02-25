@@ -35,7 +35,7 @@ public class GravesMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        this.crabboardDetection();
+        CardboardWarning.checkAndAnnounce();
         FabricLoader loader = FabricLoader.getInstance();
         GenericModInfo.build(CONTAINER);
 
@@ -44,6 +44,7 @@ public class GravesMod implements ModInitializer {
         Registry.register(Registry.ITEM, new Identifier("universal_graves", "icon"), IconItem.INSTANCE);
         Registry.register(Registry.BLOCK, new Identifier("universal_graves", "grave"), GraveBlock.INSTANCE);
         Registry.register(Registry.BLOCK, new Identifier("universal_graves", "visual_grave"), VisualGraveBlock.INSTANCE);
+        Registry.register(Registry.BLOCK, new Identifier("universal_graves", "temp_block"), TempBlock.INSTANCE);
         Registry.register(Registry.ENTITY_TYPE, new Identifier("universal_graves", "xp"), SafeXPEntity.TYPE);
         PolymerEntityUtils.registerType(SafeXPEntity.TYPE);
         GraveBlockEntity.BLOCK_ENTITY_TYPE = Registry.register(Registry.BLOCK_ENTITY_TYPE, "universal_graves:grave", FabricBlockEntityTypeBuilder.create(GraveBlockEntity::new, GraveBlock.INSTANCE).build(null));
@@ -72,7 +73,7 @@ public class GravesMod implements ModInitializer {
 
         ServerLifecycleEvents.SERVER_STARTING.register((server) -> ConfigManager.loadConfig());
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
-            this.crabboardDetection();
+            CardboardWarning.checkAndAnnounce();
         });
 
         ServerWorldEvents.LOAD.register(((server, world) -> {
@@ -94,14 +95,5 @@ public class GravesMod implements ModInitializer {
         });
     }
 
-    private void crabboardDetection() {
-        if (FabricLoader.getInstance().isModLoaded("cardboard")) {
-            LOGGER.error("");
-            LOGGER.error("Cardboard detected! This mod doesn't work with it!");
-            LOGGER.error("You won't get any support as long as it's present!");
-            LOGGER.error("");
-            LOGGER.error("Read more: https://gist.github.com/Patbox/e44844294c358b614d347d369b0fc3bf");
-            LOGGER.error("");
-        }
-    }
+
 }
