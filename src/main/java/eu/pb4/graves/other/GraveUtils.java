@@ -5,7 +5,6 @@ import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.event.GraveValidPosCheckEvent;
 import eu.pb4.graves.registry.SafeXPEntity;
 import eu.pb4.graves.registry.TempBlock;
-import net.fabricmc.fabric.api.tag.TagFactory;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.Enchantment;
@@ -17,6 +16,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.property.Property;
 import net.minecraft.tag.Tag;
+import net.minecraft.tag.TagKey;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 
 public class GraveUtils {
     public static final Identifier REPLACEABLE_ID = new Identifier("universal_graves", "replaceable");
-    public static final Tag<Block> REPLACEABLE_TAG = TagFactory.BLOCK.create(GraveUtils.REPLACEABLE_ID);
+    public static final TagKey<Block> REPLACEABLE_TAG = TagKey.of(Registry.BLOCK_KEY, REPLACEABLE_ID);
     private static final Function<Map.Entry<Property<?>, Comparable<?>>, String> PROPERTY_MAP_PRINTER = new Function<>() {
         public String apply(@Nullable Map.Entry<Property<?>, Comparable<?>> entry) {
             if (entry == null) {
@@ -117,10 +117,10 @@ public class GraveUtils {
     }
 
 
-        private static BlockResult isValidPos(ServerPlayerEntity player, ServerWorld world, WorldBorder border, BlockPos pos, boolean anyBlock) {
+    private static BlockResult isValidPos(ServerPlayerEntity player, ServerWorld world, WorldBorder border, BlockPos pos, boolean anyBlock) {
         BlockState state = world.getBlockState(pos);
 
-        if (state.getBlock() != TempBlock.INSTANCE && border.contains(pos) && pos.getY() >= world.getBottomY() && pos.getY() < world.getTopY() && !state.hasBlockEntity() && (state.isAir() || anyBlock || REPLACEABLE_TAG.contains(state.getBlock()))) {
+        if (state.getBlock() != TempBlock.INSTANCE && border.contains(pos) && pos.getY() >= world.getBottomY() && pos.getY() < world.getTopY() && !state.hasBlockEntity() && (state.isAir() || anyBlock || state.isIn(REPLACEABLE_TAG))) {
             return GraveValidPosCheckEvent.EVENT.invoker().isValid(player, world, pos);
         } else {
             return BlockResult.BLOCK;
