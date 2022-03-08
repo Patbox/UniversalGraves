@@ -1,17 +1,40 @@
 {
   "text.graves.grave_of": "Tumba de %s",
-  "text.graves.items_xp": "Items: %s EXP: %s",
-  "text.graves.protected_time": "Protegido por %s",
+  "text.graves.items_xp": "Ítems: %s EXP: %s",
+  "text.graves.items": "Ítems: %s",
+  "text.graves.protected_time": "Protegida por %s",
+  "text.graves.protected_time_sign": "Protegida por",
   "text.graves.break_time": "Será destruida en %s",
-  "text.graves.not_protected": "No está protegida!",
+  "text.graves.break_time_sign": "Será destruida en",
+  "text.graves.not_protected": "¡No protegida!",
   "text.graves.players_grave": "Tumba de %s",
-  "text.graves.gui_title": "Tus Tumbas",
-  "text.graves.no_longer_protected": "Tu tumba en %s (%s) que contiene %s ítem(s) ya no está protegida!",
-  "text.graves.expired": "Tu tumba en %s (%s) que contenía %s item(s) ha expirado!",
-  "text.graves.somebody_broke": "Tu tumba en %s (%s) que contenía %s item(s) fue destruida!",
-  "text.graves.created_at": "Se ha creado una tumba en %s (%s)",
-  "text.graves.creation_failed": "No se ha logrado crear la tumba! Tus ítems fueron soltados en %s (%s)",
-  "text.graves.creation_failed_pvp": "La tumba no fue creada porque un jugador te mató! Tus ítems fueron soltados en %s (%s)",
-  "text.graves.creation_failed_claim": "La tumba no fue creada porque estabas en terreno protegido! Tus ítems fueron soltados en %s (%s)"
+  "text.graves.gui_title": "Tus tumbas",
+  "text.graves.no_longer_protected": "¡Tu tumba en %s (%s) que contiene %s ítem(s) ya no está protegida!",
+  "text.graves.expired": "¡Tu tumba en %s (%s) que contenía %s ítem(s) ha expirado!",
+  "text.graves.somebody_broke": "¡Tu tumba en %s (%s) que contenía %s ítem(s) ha sido destruida!",
+  "text.graves.created_at": "Tumba creada en %s (%s)",
+  "text.graves.created_at_expire": "Tumba creada en %s (%s). Expirará en %s",
+  "text.graves.creation_failed": "¡No se ha logrado crear la tumba! Tus ítems fueron soltados en %s (%s)",
+  "text.graves.creation_failed_void": "¡La tumba no fue creada, porque moriste en el vacío!",
+  "text.graves.creation_failed_pvp": "¡La tumba no fue creada, porque un jugador te mató! Tus ítems fueron soltados en %s (%s)",
+  "text.graves.creation_failed_claim": "¡La tumba no fue creada, porque estabas en terreno protegido! Tus ítems fueron soltados en %s (%s)",
 
+  "text.graves.about.version": "Versión: %s",
+  "text.graves.about.contributors": "Colaboradores",
+
+  "text.graves.gui.next_page": "Siguiente Página",
+  "text.graves.gui.previous_page": "Página Anterior",
+  "text.graves.gui.remove_protection": "Quitar Protección",
+  "text.graves.gui.break_grave": "Destruir Tumba",
+  "text.graves.gui.quick_pickup": "Coger Todos los Ítems",
+
+  "text.graves.gui.cant_reverse": "¡No puedes revertir esta acción!",
+  "text.graves.gui.click_to_confirm": "Haz clic de nuevo para confirmar",
+
+  "item.universal_graves.grave_compass": "Brújula de Tumba",
+  "block.universal_graves.grave": "Tumba",
+  "block.universal_graves.visual_grave": "Lápida",
+
+  "gamerule.universal_graves:protection_time": "Tiempo de protección de la tumba contra otros jugadores",
+  "gamerule.universal_graves:breaking_time": "Tiempo de expiración de la tumba"
 }
