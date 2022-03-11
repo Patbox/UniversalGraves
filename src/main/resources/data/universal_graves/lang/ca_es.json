@@ -1,0 +1,40 @@
+{
+  "text.graves.grave_of": "Tomba de %s",
+  "text.graves.items_xp": "Ítems: %s EXP: %s",
+  "text.graves.items": "Ítems: %s",
+  "text.graves.protected_time": "Protegida per %s",
+  "text.graves.protected_time_sign": "Protegida per",
+  "text.graves.break_time": "Es trenca en %s",
+  "text.graves.break_time_sign": "Es trenca en",
+  "text.graves.not_protected": "No protegida!",
+  "text.graves.players_grave": "Tomba de %s",
+  "text.graves.gui_title": "Les teves tombes",
+  "text.graves.no_longer_protected": "La teva tomba a %s (%s) que conté %s ítem(s) ja no està protegida!",
+  "text.graves.expired": "La teva tomba a %s (%s) que contenia %s ítem(s) ha expirat!",
+  "text.graves.somebody_broke": "La teva tomba a %s (%s) que contenia %s ítem(s) s'ha trencat!",
+  "text.graves.created_at": "Tomba creada a %s (%s)",
+  "text.graves.created_at_expire": "Tomba creada a %s (%s). Expirarà en %s",
+  "text.graves.creation_failed": "No s'ha aconseguit crear la tomba! Els teus ítems van ser deixats anar a %s (%s)",
+  "text.graves.creation_failed_void": "La tomba no ha estat creada, perquè vas morir al buit!",
+  "text.graves.creation_failed_pvp": "La tomba no ha estat creada, perquè un jugador et va matar! Els teus ítems van ser deixats anar a %s (%s)",
+  "text.graves.creation_failed_claim": "La tomba no ha estat creada, perquè estaves en terreny protegit! Els teus ítems van ser deixats anar en %s (%s)",
+
+  "text.graves.about.version": "Versió: %s",
+  "text.graves.about.contributors": "Col·laboradors",
+
+  "text.graves.gui.next_page": "Següent Pàgina",
+  "text.graves.gui.previous_page": "Pàgina Anterior",
+  "text.graves.gui.remove_protection": "Treure Protecció",
+  "text.graves.gui.break_grave": "Trencar Tomba",
+  "text.graves.gui.quick_pickup": "Agafar Tots els Ítems",
+
+  "text.graves.gui.cant_reverse": "No pots revertir aquesta acció!",
+  "text.graves.gui.click_to_confirm": "Fes clic de nou per confirmar",
+
+  "item.universal_graves.grave_compass": "Brúixola de Tomba",
+  "block.universal_graves.grave": "Tomba",
+  "block.universal_graves.visual_grave": "Làpida",
+
+  "gamerule.universal_graves:protection_time": "Temps de protecció de la tomba contra altres jugadors",
+  "gamerule.universal_graves:breaking_time": "Temps d'expiració de la tomba"
+}
