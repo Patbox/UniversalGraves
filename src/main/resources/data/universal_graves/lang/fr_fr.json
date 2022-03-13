@@ -1,0 +1,40 @@
+{
+    "text.graves.grave_of": "Tombe de %s",
+    "text.graves.items_xp": "Items: %s XP: %s",
+    "text.graves.items": "Items: %s",
+    "text.graves.protected_time": "Protégée pour %s",
+    "text.graves.protected_time_sign": "Protégée pour",
+    "text.graves.break_time": "Se détruit dans %s",
+    "text.graves.break_time_sign": "Se détruit dans",
+    "text.graves.not_protected": "Non protégée !",
+    "text.graves.players_grave": "Tombe de %s",
+    "text.graves.gui_title": "Vos tombes",
+    "text.graves.no_longer_protected": "Votre tombe à %s (%s) contenant %s item(s) n'est plus protégée !",
+    "text.graves.expired": "Votre tombe à %s (%s) contenant %s item(s) a expiré !",
+    "text.graves.somebody_broke": "Votre tombe à %s (%s) contenant %s item(s) a été détruite !",
+    "text.graves.created_at": "Tombé créée à %s (%s)",
+    "text.graves.created_at_expire": "Tombe créée à %s (%s). Expire dans %s",
+    "text.graves.creation_failed": "Impossible de créer la tombe ! Vos items ont été laissés à %s (%s)",
+    "text.graves.creation_failed_void": "La tombe n'a pas été créée, car vous êtes mort dans le vide !",
+    "text.graves.creation_failed_pvp": "La tombe n'a pas été créée, car un joueur vous a tué ! Vos items ont été laissés à %s (%s)",
+    "text.graves.creation_failed_claim": "La tombe n'a pas été créée, car vous étiez dans une zone protégée ! Vos items ont été laissés à %s (%s)",
+  
+    "text.graves.about.version": "Version: %s",
+    "text.graves.about.contributors": "Contributeurs",
+  
+    "text.graves.gui.next_page": "Page suivante",
+    "text.graves.gui.previous_page": "Page précédente",
+    "text.graves.gui.remove_protection": "Retirer la protection",
+    "text.graves.gui.break_grave": "Détruire la tombe",
+    "text.graves.gui.quick_pickup": "Tout prendre",
+  
+    "text.graves.gui.cant_reverse": "Vous ne pouvez pas annuler cette action !",
+    "text.graves.gui.click_to_confirm": "Veuillez cliquer à nouveau pour confirmer",
+  
+    "item.universal_graves.grave_compass": "Boussole de tombes",
+    "block.universal_graves.grave": "Tombe",
+    "block.universal_graves.visual_grave": "Pierre tombale",
+  
+    "gamerule.universal_graves:protection_time": "Temps de protection de la tombe contre les autres joueurs",
+    "gamerule.universal_graves:breaking_time": "Temps d'expiration de la tombe"
+  }
