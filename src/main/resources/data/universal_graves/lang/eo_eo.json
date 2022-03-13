@@ -1,0 +1,40 @@
+{
+    "text.graves.grave_of": "Tombo de %s",
+    "text.graves.items_xp": "Eroj: %s XP: %s",
+    "text.graves.items": "Eroj: %s",
+    "text.graves.protected_time": "Protektata por %s",
+    "text.graves.protected_time_sign": "Protektata por",
+    "text.graves.break_time": "Rompiĝas post %s",
+    "text.graves.break_time_sign": "Rompiĝas post",
+    "text.graves.not_protected": "Ne protektata!",
+    "text.graves.players_grave": "Tombo de %s",
+    "text.graves.gui_title": "Viaj tomboj",
+    "text.graves.no_longer_protected": "Via tombo al %s (%s) enhavante %s ero(j)n ne estas plu protektata!",
+    "text.graves.expired": "Via tombo al %s (%s) enhavante %s ero(j)n finiĝis!",
+    "text.graves.somebody_broke": "Via tombo al %s (%s) enhavante %s ero(j)n estis rompita!",
+    "text.graves.created_at": "Kreita tombo al %s (%s)",
+    "text.graves.created_at_expire": "Kreita tombo al %s (%s). Ĝi finiĝos post %s",
+    "text.graves.creation_failed": "Ne eblis krei tombon! Viajn aferojn estis ĵetitajn al %s (%s)",
+    "text.graves.creation_failed_void": "Tombo ne kreita, ĉar mortis en la malpleno!",
+    "text.graves.creation_failed_pvp": "Tombo ne kreita, ĉar ludanto mortigis vin! Viajn aferojn estis ĵetitajn al %s (%s)",
+    "text.graves.creation_failed_claim": "Tombo ne kreita, ĉar vi estis en claim! Viajn aferojn estis ĵetitajn al %s (%s)",
+  
+    "text.graves.about.version": "Versio: %s",
+    "text.graves.about.contributors": "Kontribuantoj",
+  
+    "text.graves.gui.next_page": "Sekva Paĝo",
+    "text.graves.gui.previous_page": "Antaŭa Paĝo",
+    "text.graves.gui.remove_protection": "Remove Protection",
+    "text.graves.gui.break_grave": "Rompi Tombon",
+    "text.graves.gui.quick_pickup": "Prendi Ĉiu",
+  
+    "text.graves.gui.cant_reverse": "Vi ne povas malfari tiun agon!",
+    "text.graves.gui.click_to_confirm": "Kliku denove por konfirmi",
+  
+    "item.universal_graves.grave_compass": "Tomba Kompaso",
+    "block.universal_graves.grave": "Tombo",
+    "block.universal_graves.visual_grave": "Tomboŝtono",
+  
+    "gamerule.universal_graves:protection_time": "Tempo de tomba protektado kontraŭ aliaj ludantoj",
+    "gamerule.universal_graves:breaking_time": "Tomba finiĝa tempo"
+  }
