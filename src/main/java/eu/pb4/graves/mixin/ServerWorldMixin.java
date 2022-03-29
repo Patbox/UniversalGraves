@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.function.Supplier;
 
-@Mixin(ServerWorld.class)
+@Mixin(value = ServerWorld.class, priority = 1005)
 public abstract class ServerWorldMixin extends World {
     protected ServerWorldMixin(MutableWorldProperties properties, RegistryKey<World> registryRef, RegistryEntry<DimensionType> registryEntry, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long seed) {
         super(properties, registryRef, registryEntry, profiler, isClient, debugWorld, seed);
@@ -27,8 +27,8 @@ public abstract class ServerWorldMixin extends World {
 
     @Inject(method = "canPlayerModifyAt", at = @At("HEAD"), cancellable = true)
     private void grave_disallowGraveBreaking(PlayerEntity player, BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
-        if (this.getBlockEntity(pos) instanceof GraveBlockEntity grave) {
-            cir.setReturnValue(grave.getGrave() != null && grave.getGrave().canTakeFrom(player));
+        if (this.getBlockEntity(pos) instanceof GraveBlockEntity grave && grave.getGrave() != null) {
+            cir.setReturnValue(grave.getGrave().canTakeFrom(player));
         }
     }
 

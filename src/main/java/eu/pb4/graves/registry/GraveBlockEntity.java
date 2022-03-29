@@ -252,7 +252,7 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity {
         }
     }
 
-    protected void breakBlock() {
+    public void breakBlock() {
         if (ConfigManager.getConfig().configData.keepBlockAfterBreaking) {
             world.setBlockState(pos, VisualGraveBlock.INSTANCE.getStateWithProperties(this.getCachedState()), Block.NOTIFY_ALL | Block.FORCE_STATE);
 

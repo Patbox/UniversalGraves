@@ -4,11 +4,10 @@ import com.mojang.authlib.GameProfile;
 import eu.pb4.graves.config.Config;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.other.*;
-import eu.pb4.graves.registry.SafeXPEntity;
+import eu.pb4.graves.registry.GraveBlockEntity;
 import eu.pb4.graves.ui.GraveGui;
 import eu.pb4.placeholders.PlaceholderAPI;
 import me.lucko.fabric.api.permissions.v0.Permissions;
-import net.minecraft.entity.ExperienceOrbEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
@@ -357,8 +356,19 @@ public final class Grave {
             }
         }
 
-        if (config.configData.dropItemsAfterExpiring || !shouldBreak) {
-            this.dropContent(server);
+        var world = server.getWorld(RegistryKey.of(Registry.WORLD_KEY, this.getLocation().world()));
+
+        if (world != null) {
+            var chunk = world.getChunk(ChunkSectionPos.getSectionCoord(this.location.x()), ChunkSectionPos.getSectionCoord(this.location.z()));
+
+            if (config.configData.dropItemsAfterExpiring || !shouldBreak) {
+                ItemScatterer.spawn(world, this.location.blockPos(), this.asInventory());
+                GraveUtils.spawnExp(world, Vec3d.ofCenter(this.location.blockPos()), this.xp);
+            }
+
+            if (chunk.getBlockEntity(this.location.blockPos()) instanceof GraveBlockEntity grave) {
+                grave.breakBlock();
+            }
         }
     }
 
@@ -424,14 +434,6 @@ public final class Grave {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    public void dropContent(MinecraftServer server) {
-        var world = server.getWorld(RegistryKey.of(Registry.WORLD_KEY, this.getLocation().world()));
-        var chunk = world.getChunk(ChunkSectionPos.getSectionCoord(this.location.x()), ChunkSectionPos.getSectionCoord(this.location.z()));
-
-        ItemScatterer.spawn(world, this.location.blockPos(), this.asInventory());
-        GraveUtils.spawnExp(world, Vec3d.ofCenter(this.location.blockPos()), this.xp);
     }
 
     @Override
