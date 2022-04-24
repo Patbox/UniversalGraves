@@ -1,0 +1,40 @@
+{
+  "text.graves.grave_of": "Tomba di %s",
+  "text.graves.items_xp": "Oggetti: %s XP: %s",
+  "text.graves.items": "Oggetti: %s",
+  "text.graves.protected_time": "Protetta per %s",
+  "text.graves.protected_time_sign": "Protetta per",
+  "text.graves.break_time": "Si distruggerà in %s",
+  "text.graves.break_time_sign": "Si distruggerà in",
+  "text.graves.not_protected": "Non protetta!",
+  "text.graves.players_grave": "Tomba di %s",
+  "text.graves.gui_title": "Le tue tombe",
+  "text.graves.no_longer_protected": "La tua tomba a %s (%s) che contiene %s oggetto/i non è più protetta!",
+  "text.graves.expired": "La tua tomba a %s (%s) che conteneva %s oggetto/i è scaduta!",
+  "text.graves.somebody_broke": "La tua tomba a %s (%s) che contiene %s oggetto/i è stata distrutta!",
+  "text.graves.created_at": "Tomba creata a %s (%s)",
+  "text.graves.created_at_expire": "Tomba creata a %s (%s). Scade in %s",
+  "text.graves.creation_failed": "Non è stato possibile creare una tomba! I tuoi oggetti verranno rilasciati a %s (%s)",
+  "text.graves.creation_failed_void": "Non è stata creata una tomba, perché sei morto nel vuoto!",
+  "text.graves.creation_failed_pvp": "Non è stata creata una tomba, perché sei stato ucciso da un giocatore! I tuoi oggetti sono stati rilasciati a %s (%s)",
+  "text.graves.creation_failed_claim": "Non è stata creata una tomba, perché ti trovavi all'interno di un claim! I tuoi oggetti sono stati rilasciati a %s (%s)",
+
+  "text.graves.about.version": "Versione: %s",
+  "text.graves.about.contributors": "Contributori",
+
+  "text.graves.gui.next_page": "Pagina Successiva",
+  "text.graves.gui.previous_page": "Pagina Precedente",
+  "text.graves.gui.remove_protection": "Rimuovi Protezione",
+  "text.graves.gui.break_grave": "Distruggi Tomba",
+  "text.graves.gui.quick_pickup": "Prendi Tutto",
+
+  "text.graves.gui.cant_reverse": "Questa azione non può essere annullata!",
+  "text.graves.gui.click_to_confirm": "Clicca di nuovo per confermare",
+
+  "item.universal_graves.grave_compass": "Bussola della Tomba",
+  "block.universal_graves.grave": "Tomba",
+  "block.universal_graves.visual_grave": "Lapide",
+
+  "gamerule.universal_graves:protection_time": "Tempo della protezione della tomba contro gli altri giocatori",
+  "gamerule.universal_graves:breaking_time": "Tempo di scadenza della tomba"
+}
