@@ -19,6 +19,10 @@
   "text.graves.creation_failed_pvp": "Grave wasn't created, because player killed you! Your items were dropped at %s (%s)",
   "text.graves.creation_failed_claim": "Grave wasn't created, because you were in a claim! Your items were dropped at %s (%s)",
 
+  "text.graves.damage_source_info": "You were damaged by: %s",
+  "text.graves.damage_source_info.enabled": "Enabled displaying of next damage sources! Type this command again to disable.",
+  "text.graves.damage_source_info.disabled": "Disabled displaying of damage sources!",
+
   "text.graves.about.version": "Version: %s",
   "text.graves.about.contributors": "Contributors",
 

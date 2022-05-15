@@ -23,6 +23,7 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -100,6 +101,7 @@ public final class Config {
 
     public final ItemStack guiQuickPickupIcon;
     public final ItemStack guiBarItem;
+    public final HashMap<Identifier, List<Box>> blacklistedAreas;
 
     public Config(ConfigData data) {
         this.configData = data;
@@ -164,6 +166,22 @@ public final class Config {
 
             if (id != null) {
                 this.worldNameOverrides.put(id, parse(entry.getValue(), null));
+
+            }
+        }
+
+        this.blacklistedAreas = new HashMap<>();
+
+        for (var entry : data.blacklistedAreas.entrySet()) {
+            var id = Identifier.tryParse(entry.getKey());
+
+            if (id != null) {
+                var list = new ArrayList<Box>();
+                this.blacklistedAreas.put(id, list);
+
+                for (var area : entry.getValue()) {
+                    list.add(new Box(area.x1, area.y1, area.z1, area.x2, area.y2, area.z2));
+                }
             }
         }
     }

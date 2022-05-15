@@ -25,8 +25,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.MessageType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.property.Properties;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
+import net.minecraft.text.*;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.Util;
 import net.minecraft.util.collection.DefaultedList;
@@ -38,6 +38,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.*;
 
@@ -51,6 +52,25 @@ public abstract class LivingEntityMixin {
     private void graves_onKill(CallbackInfo ci) {
         this.graves_commandKill = true;
     }
+
+    @Inject(method = "damage", at = @At("TAIL"))
+    private void graves_printDamage1(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+        if (((Object) this) instanceof ServerPlayerEntity player && ((PlayerAdditions) player).graves_getPrintNextDamageSource()) {
+            player.sendMessage(new TranslatableText("text.graves.damage_source_info",
+                    new LiteralText(source.name).setStyle(Style.EMPTY.withUnderline(true).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, source.name)))
+            ), false);
+        }
+    }
+
+    @Inject(method = "applyDamage", at = @At("TAIL"))
+    private void graves_printDamage2(DamageSource source, float amount, CallbackInfo ci) {
+        if (((Object) this) instanceof ServerPlayerEntity player && ((PlayerAdditions) player).graves_getPrintNextDamageSource()) {
+            player.sendMessage(new TranslatableText("text.graves.damage_source_info",
+                    new LiteralText(source.name).setStyle(Style.EMPTY.withUnderline(true).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, source.name)))
+            ), false);
+        }
+    }
+
 
     @Inject(method = "drop", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;dropInventory()V", shift = At.Shift.BEFORE), cancellable = true)
     private void replaceWithGrave(DamageSource source, CallbackInfo ci) {
@@ -68,13 +88,12 @@ public abstract class LivingEntityMixin {
                         "world", GraveUtils.toWorldName(player.getWorld().getRegistryKey().getValue())
                 );
 
-
                 if (!config.configData.createFromPvP && source.getAttacker() instanceof PlayerEntity) {
                     text = config.creationFailedPvPMessage;
-                } else if (!config.configData.createFromCommandDeaths && this.graves_commandKill) {
+                } else if ((!config.configData.createFromCommandDeaths && this.graves_commandKill) || config.configData.blacklistedDamageSources.contains(source.name)) {
 
                 } else if (!config.configData.createFromVoid && source == DamageSource.OUT_OF_WORLD && !this.graves_commandKill) {
-                    text = config.creationFailedPvPMessage;
+                    text = config.creationFailedVoidMessage;
                 } else {
                     var eventResult = PlayerGraveCreationEvent.EVENT.invoker().shouldCreate(player);
 

@@ -11,4 +11,7 @@ public interface PlayerAdditions {
     long graves_lastGrave();
 
     void graves_setLastGrave(long graveId);
+
+    void graves_setPrintNextDamageSource(boolean value);
+    boolean graves_getPrintNextDamageSource();
 }

@@ -1,6 +1,7 @@
 package eu.pb4.graves.other;
 
 
+import eu.pb4.graves.config.Config;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.event.GraveValidPosCheckEvent;
 import eu.pb4.graves.registry.SafeXPEntity;
@@ -55,24 +56,26 @@ public class GraveUtils {
     public static BlockCheckResult findGravePosition(ServerPlayerEntity player, ServerWorld world, BlockPos blockPos, int maxDistance, boolean anyBlock) {
         var border = world.getWorldBorder();
         blockPos = new BlockPos(MathHelper.clamp(blockPos.getX(), border.getBoundWest() + 1, border.getBoundEast() - 1), MathHelper.clamp(blockPos.getY(), world.getBottomY(), world.getTopY() - 1), MathHelper.clamp(blockPos.getZ(), border.getBoundNorth() + 1, border.getBoundSouth() - 1));
-        var result = isValidPos(player, world, border, blockPos, false);
+        var config = ConfigManager.getConfig();
+
+        var result = isValidPos(player, world, border, blockPos, false, config);
         if (result.allow) {
             return new BlockCheckResult(blockPos, result);
         } else {
-            var checkResult = findPos(player, world, blockPos, maxDistance, false, 0);
+            var checkResult = findPos(player, world, blockPos, maxDistance, false, 0, config);
 
             if (!checkResult.result.allow && anyBlock) {
-                checkResult = findPos(player, world, blockPos, maxDistance, true, 0);
+                checkResult = findPos(player, world, blockPos, maxDistance, true, 0, config);
             }
 
             return checkResult;
         }
     }
 
-    private static BlockCheckResult findPos(ServerPlayerEntity player, ServerWorld world, BlockPos blockPos, int maxDistance, boolean allowAnyBlock, int iteration) {
+    private static BlockCheckResult findPos(ServerPlayerEntity player, ServerWorld world, BlockPos blockPos, int maxDistance, boolean allowAnyBlock, int iteration, Config config) {
         int line = 1;
         var border = world.getWorldBorder();
-        BlockResult result = isValidPos(player, world, border, blockPos, allowAnyBlock);
+        BlockResult result = isValidPos(player, world, border, blockPos, allowAnyBlock, config);
 
         if (result.allow) {
             return new BlockCheckResult(blockPos, result);
@@ -92,7 +95,7 @@ public class GraveUtils {
                             continue;
                         }
 
-                        tempResult = isValidPos(player, world, border, pos, allowAnyBlock);
+                        tempResult = isValidPos(player, world, border, pos, allowAnyBlock, config);
                         if (tempResult.priority >= result.priority) {
                             result = tempResult;
                         }
@@ -117,10 +120,18 @@ public class GraveUtils {
     }
 
 
-    private static BlockResult isValidPos(ServerPlayerEntity player, ServerWorld world, WorldBorder border, BlockPos pos, boolean anyBlock) {
+    private static BlockResult isValidPos(ServerPlayerEntity player, ServerWorld world, WorldBorder border, BlockPos pos, boolean anyBlock, Config config) {
         BlockState state = world.getBlockState(pos);
 
         if (state.getBlock() != TempBlock.INSTANCE && border.contains(pos) && pos.getY() >= world.getBottomY() && pos.getY() < world.getTopY() && !state.hasBlockEntity() && (state.isAir() || anyBlock || state.isIn(REPLACEABLE_TAG))) {
+            var areas = config.blacklistedAreas.get(world.getRegistryKey().getValue());
+            if (areas != null) {
+                for (var area : areas) {
+                    if (area.contains(pos.getX(), pos.getY(), pos.getZ())) {
+                        return BlockResult.BLOCK_CLAIM;
+                    }
+                }
+            }
             return GraveValidPosCheckEvent.EVENT.invoker().isValid(player, world, pos);
         } else {
             return BlockResult.BLOCK;

@@ -11,7 +11,7 @@ import net.minecraft.block.enums.WallShape;
 
 import java.util.*;
 
-public class ConfigData extends VersionedConfigData implements Cloneable {
+public class ConfigData extends VersionedConfigData {
     public String _comment = "Before changing anything, see https://github.com/Patbox/UniversalGraves#configuration";
 
     public String graveStyle = GravesLookType.CLIENT_MODEL_OR_HEAD.name;
@@ -99,12 +99,13 @@ public class ConfigData extends VersionedConfigData implements Cloneable {
 
     public Map<String, String> worldNameOverrides = new HashMap<>();
     public List<String> blacklistedWorlds = new ArrayList<>();
+    public Map<String, List<Arena>> blacklistedAreas = new HashMap<>();
+    public Set<String> blacklistedDamageSources = new HashSet<>();
 
     @Deprecated
     public boolean tryDetectionSoulbound = false;
 
     public List<String> skippedEnchantments = new ArrayList<>();
-
 
     public String guiPreviousPageText = "<lang:'text.graves.gui.previous_page'>";
     public String guiPreviousPageBlockedText = "<dark_gray><lang:'text.graves.gui.previous_page'>";
@@ -223,12 +224,12 @@ public class ConfigData extends VersionedConfigData implements Cloneable {
         return list;
     }
 
-    @Override
-    public ConfigData clone() {
-        try {
-            return (ConfigData) super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
-        }
+    public class Arena {
+        public int x1;
+        public int y1;
+        public int z1;
+        public int x2;
+        public int y2;
+        public int z2;
     }
 }

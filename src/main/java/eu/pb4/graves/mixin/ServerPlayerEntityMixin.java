@@ -25,6 +25,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ServerPlayerEntity.class)
 public abstract class ServerPlayerEntityMixin extends PlayerEntity implements PlayerAdditions {
 
+    private boolean graves_printNextSource = false;
+
     public ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile profile) {
         super(world, pos, yaw, profile);
     }
@@ -88,5 +90,15 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Pl
     @Override
     public void graves_setLastGrave(long id) {
         this.graves_location = id;
+    }
+
+    @Override
+    public void graves_setPrintNextDamageSource(boolean value) {
+        this.graves_printNextSource = value;
+    }
+
+    @Override
+    public boolean graves_getPrintNextDamageSource() {
+        return this.graves_printNextSource;
     }
 }

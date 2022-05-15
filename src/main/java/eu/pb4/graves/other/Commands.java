@@ -14,6 +14,7 @@ import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 
 import java.util.ArrayList;
@@ -45,6 +46,9 @@ public class Commands {
                                     ))
 
                             .then(literal("about").executes(Commands::about))
+                            .then(literal("display_damage_sources")
+                                    .requires(Permissions.require("universal_graves.display_damage_sources", 3))
+                                    .executes(Commands::toggleDamageSourceInfo))
 
                             .then(literal("reload")
                                     .requires(Permissions.require("universal_graves.reload", 4))
@@ -52,6 +56,15 @@ public class Commands {
                             )
             );
         });
+    }
+
+    private static int toggleDamageSourceInfo(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        var pl = (PlayerAdditions) context.getSource().getPlayer();
+        var bl = pl.graves_getPrintNextDamageSource();
+
+        pl.graves_setPrintNextDamageSource(!bl);
+        context.getSource().sendFeedback(new TranslatableText("text.graves.damage_source_info." + (bl ? "disabled" : "enabled")), false);
+        return 0;
     }
 
     private static int list(CommandContext<ServerCommandSource> context, boolean canModify) throws CommandSyntaxException {

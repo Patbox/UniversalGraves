@@ -82,7 +82,24 @@ Additionally, every message type has few own local variables.
     /* and others */
   },
   "blacklistedWorlds": [                     // Allows to block creation of graves with worlds with matching id
+    "world:id"
     /*...*/
+  ],
+  "blacklistedAreas": {                     // Allows to block area within a world
+    "world:id2": [
+      { 
+        "x1": -10,
+        "y1": -100,
+        "z1": -20,
+        "x2": 4,
+        "y2": 256,
+        "z2": 30,
+      }
+    ]
+  },
+  "blacklistedDamageSources": [              // Allows to blacklist damage sources by name from creating graves
+    "damageSourceName"
+    /*...*/                                  // Use /graves display_damage_sources to find correct names to entry
   ],
   "tryDetectionSoulbound": true,             // Toggles automatic detection of soulbound enchantment (it's hit or miss)
   "skippedEnchantments": [                   // Allows to add own enchantments that end up being skipped from adding to grave
