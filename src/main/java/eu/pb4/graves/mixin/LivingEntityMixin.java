@@ -135,7 +135,15 @@ public abstract class LivingEntityMixin {
                                     allowedUUID.add(playerEntity.getUuid());
                                 }
                             }
-                            var grave = Grave.createBlock(gameProfile, world.getRegistryKey().getValue(), gravePos,finalExperience, source.getDeathMessage(player), allowedUUID, items);
+                            var grave = Grave.createBlock(
+                                    gameProfile,
+                                    world.getRegistryKey().getValue(),
+                                    gravePos,finalExperience,
+                                    source.getDeathMessage(player),
+                                    allowedUUID,
+                                    items,
+                                    (int) (world.getServer().getOverworld().getTimeOfDay() / 24000)
+                            );
 
                             ((PlayerAdditions) player).graves_setLastGrave(grave.getId());
                             BlockState oldBlockState = world.getBlockState(gravePos);

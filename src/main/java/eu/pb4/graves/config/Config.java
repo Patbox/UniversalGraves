@@ -26,6 +26,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import org.jetbrains.annotations.Nullable;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public final class Config {
@@ -101,6 +102,7 @@ public final class Config {
 
     public final ItemStack guiQuickPickupIcon;
     public final ItemStack guiBarItem;
+    public final SimpleDateFormat fullDateFormat;
     public final HashMap<Identifier, List<Box>> blacklistedAreas;
 
     public Config(ConfigData data) {
@@ -158,6 +160,8 @@ public final class Config {
 
         this.skippedEnchantments = parseIds(data.skippedEnchantments);
         this.blacklistedWorlds = parseIds(data.blacklistedWorlds);
+
+        this.fullDateFormat = new SimpleDateFormat(configData.fullDateFormat);
 
         this.worldNameOverrides = new HashMap<>();
 

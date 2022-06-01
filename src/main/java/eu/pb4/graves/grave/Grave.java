@@ -58,6 +58,7 @@ public final class Grave {
     protected boolean utilProtectionChangeMessage;
     protected boolean isProtectionEnabled;
     protected VisualGraveData visualData;
+    protected int minecraftDay;
 
     public Grave() {
         this.gameProfile = DEFAULT_GAME_PROFILE;
@@ -72,9 +73,10 @@ public final class Grave {
         this.utilProtectionChangeMessage = true;
         this.isProtectionEnabled = true;
         this.visualData = VisualGraveData.DEFAULT;
+        this.minecraftDay = -1;
     }
 
-    public Grave(long id, @Nullable GameProfile profile, BlockPos position, Identifier world, GraveType type, long creationTime, long gameCreationTime, int xp, Text deathCause, Collection<UUID> allowedUUIDs, Collection<PositionedItemStack> itemStacks, boolean isProtectionEnabled) {
+    public Grave(long id, @Nullable GameProfile profile, BlockPos position, Identifier world, GraveType type, long creationTime, long gameCreationTime, int xp, Text deathCause, Collection<UUID> allowedUUIDs, Collection<PositionedItemStack> itemStacks, boolean isProtectionEnabled, int minecraftDay) {
         this.gameProfile = profile;
         this.creationTime = creationTime;
         this.gameCreationTime = gameCreationTime;
@@ -87,11 +89,12 @@ public final class Grave {
         this.utilProtectionChangeMessage = !this.isProtected();
         this.isProtectionEnabled = isProtectionEnabled;
         this.id = id;
+        this.minecraftDay = minecraftDay;
         this.updateDisplay();
     }
 
-    public static Grave createBlock(GameProfile profile, Identifier world, BlockPos position, int xp, Text deathCause, Collection<UUID> allowedUUIDs, Collection<PositionedItemStack> itemStacks) {
-        return new Grave(GraveManager.INSTANCE.requestId(), profile, position, world, GraveType.BLOCK, System.currentTimeMillis() / 1000, GraveManager.INSTANCE.getCurrentGameTime(), xp, deathCause, allowedUUIDs, itemStacks, true);
+    public static Grave createBlock(GameProfile profile, Identifier world, BlockPos position, int xp, Text deathCause, Collection<UUID> allowedUUIDs, Collection<PositionedItemStack> itemStacks, int minecraftDay) {
+        return new Grave(GraveManager.INSTANCE.requestId(), profile, position, world, GraveType.BLOCK, System.currentTimeMillis() / 1000, GraveManager.INSTANCE.getCurrentGameTime(), xp, deathCause, allowedUUIDs, itemStacks, true, minecraftDay);
     }
 
     public NbtCompound writeNbt(NbtCompound nbt) {
@@ -102,6 +105,7 @@ public final class Grave {
         nbt.putInt("XP", this.xp);
         nbt.putLong("CreationTime", this.creationTime);
         nbt.putInt("ItemCount", this.itemCount);
+        nbt.putInt("MinecraftDay", this.minecraftDay);
         nbt.putString("DeathCause", Text.Serializer.toJson(this.deathCause));
         nbt.putString("Type", this.type.name());
         nbt.putBoolean("IsProtectionEnabled", this.isProtectionEnabled);
@@ -135,6 +139,7 @@ public final class Grave {
             this.xp = nbt.getInt("XP");
             this.creationTime = nbt.getLong("CreationTime");
             this.itemCount = nbt.getInt("ItemCount");
+            this.minecraftDay = nbt.getInt("MinecraftDay");
             this.deathCause = Text.Serializer.fromLenientJson(nbt.getString("DeathCause"));
             this.location = Location.fromNbt(nbt);
             this.allowedUUIDs.clear();
@@ -190,6 +195,9 @@ public final class Grave {
         values.put("position", new LiteralText("" + this.location.blockPos().toShortString()));
         values.put("world", GraveUtils.toWorldName(this.location.world()));
         values.put("death_cause", this.deathCause);
+        values.put("minecraft_day", new LiteralText("" + this.minecraftDay));
+        values.put("creation_date", new LiteralText(config.fullDateFormat.format(new Date(this.creationTime * 1000))));
+        values.put("since_creation", new LiteralText(config.getFormattedTime(System.currentTimeMillis() / 1000 - this.creationTime)));
         values.put("id", new LiteralText("" + this.id));
         return values;
     }
@@ -322,7 +330,7 @@ public final class Grave {
         }
         this.itemCount = i;
 
-        this.visualData = new VisualGraveData(this.getProfile(), this.deathCause, this.creationTime, this.location);
+        this.visualData = new VisualGraveData(this.getProfile(), this.deathCause, this.creationTime, this.location, this.minecraftDay);
     }
 
     public boolean isRemoved() {

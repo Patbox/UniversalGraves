@@ -97,6 +97,8 @@ public class ConfigData extends VersionedConfigData {
 
     public String infinityText = "∞";
 
+    public String fullDateFormat = "dd.MM.yyyy, HH:mm";
+
     public Map<String, String> worldNameOverrides = new HashMap<>();
     public List<String> blacklistedWorlds = new ArrayList<>();
     public Map<String, List<Arena>> blacklistedAreas = new HashMap<>();

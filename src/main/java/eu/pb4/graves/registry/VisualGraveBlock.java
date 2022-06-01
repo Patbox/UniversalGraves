@@ -168,7 +168,7 @@ public class VisualGraveBlock extends AbstractGraveBlock implements BlockEntityP
                                 NbtHelper.toGameProfile(itemStack.getNbt().getCompound(SkullItem.SKULL_OWNER_KEY)),
                                 grave.getGrave().deathCause(),
                                 grave.getGrave().creationTime(),
-                                grave.getGrave().location()), grave.replacedBlockState, true);
+                                grave.getGrave().location(), grave.getGrave().minecraftDay()), grave.replacedBlockState, true);
                     } else if (itemStack.hasNbt() && itemStack.getNbt().contains(SkullItem.SKULL_OWNER_KEY, NbtElement.STRING_TYPE)) {
                         player.getServer().getUserCache().findByNameAsync(itemStack.getNbt().getString(SkullItem.SKULL_OWNER_KEY), (profile) -> {
                             if (profile.isPresent()) {
@@ -176,7 +176,7 @@ public class VisualGraveBlock extends AbstractGraveBlock implements BlockEntityP
                                         profile.get(),
                                         grave.getGrave().deathCause(),
                                         grave.getGrave().creationTime(),
-                                        grave.getGrave().location()), grave.replacedBlockState, true);
+                                        grave.getGrave().location(), grave.getGrave().minecraftDay()), grave.replacedBlockState, true);
                             }
                         });
                     } else {
@@ -184,7 +184,7 @@ public class VisualGraveBlock extends AbstractGraveBlock implements BlockEntityP
                                 new GameProfile(Util.NIL_UUID, "Player"),
                                 grave.getGrave().deathCause(),
                                 grave.getGrave().creationTime(),
-                                grave.getGrave().location()), grave.replacedBlockState, true);
+                                grave.getGrave().location(), grave.getGrave().minecraftDay()), grave.replacedBlockState, true);
                     }
                 } else if (itemStack.getItem() == Items.MOSS_BLOCK) {
                     world.setBlockState(pos, state.with(IS_LOCKED, false));
