@@ -11,7 +11,8 @@ import eu.pb4.graves.other.VanillaInventoryMask;
 import eu.pb4.graves.other.VisualGraveData;
 import eu.pb4.holograms.api.elements.SpacingHologramElement;
 import eu.pb4.holograms.api.holograms.WorldHologram;
-import eu.pb4.placeholders.PlaceholderAPI;
+import eu.pb4.placeholders.api.Placeholders;
+import eu.pb4.placeholders.api.node.EmptyNode;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -25,8 +26,8 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.property.Properties;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
+import net.minecraft.text.TextContent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
@@ -213,11 +214,11 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity {
 
             List<Text> texts = new ArrayList<>();
 
-            for (Text text : isProtected ? config.hologramProtectedText : config.hologramText) {
-                if (text != LiteralText.EMPTY) {
-                    texts.add(PlaceholderAPI.parsePredefinedText(text, PlaceholderAPI.PREDEFINED_PLACEHOLDER_PATTERN, placeholders));
+            for (var text : isProtected ? config.hologramProtectedText : config.hologramText) {
+                if (text != EmptyNode.INSTANCE) {
+                    texts.add(Placeholders.parseText(text, Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, placeholders));
                 } else {
-                    texts.add(LiteralText.EMPTY);
+                    texts.add(Text.empty());
                 }
             }
 
@@ -225,7 +226,7 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity {
             if (texts.size() != self.hologram.getElements().size()) {
                 self.hologram.clearElements();
                 for (Text text : texts) {
-                    if (text == LiteralText.EMPTY) {
+                    if (text.getContent() == TextContent.EMPTY) {
                         self.hologram.addElement(new SpacingHologramElement(0.28));
                     } else {
                         self.hologram.addText(text);
@@ -234,7 +235,7 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity {
             } else {
                 int x = 0;
                 for (Text text : texts) {
-                    if (text == LiteralText.EMPTY) {
+                    if (text.getContent() == TextContent.EMPTY) {
                         self.hologram.setElement(x, new SpacingHologramElement(0.28));
                     } else {
                         self.hologram.setText(x, text);

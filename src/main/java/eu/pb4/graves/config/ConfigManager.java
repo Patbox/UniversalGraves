@@ -2,12 +2,9 @@ package eu.pb4.graves.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import eu.pb4.graves.GravesMod;
 import eu.pb4.graves.config.data.ConfigData;
 import eu.pb4.graves.config.data.VersionedConfigData;
-import eu.pb4.graves.config.data.old.ConfigDataV1;
 import net.fabricmc.loader.api.FabricLoader;
 import org.apache.commons.io.IOUtils;
 
@@ -45,7 +42,6 @@ public class ConfigManager {
                 String json = IOUtils.toString(new InputStreamReader(new FileInputStream(configFile), StandardCharsets.UTF_8));
 
                 config = switch (GSON.fromJson(json, VersionedConfigData.class).CONFIG_VERSION_DONT_TOUCH_THIS) {
-                    case 1 -> GSON.fromJson(json, ConfigDataV1.class).update();
                     default -> GSON.fromJson(json, ConfigData.class);
                 };
 

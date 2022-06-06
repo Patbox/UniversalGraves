@@ -24,7 +24,7 @@ public class GenericModInfo {
                 var source = ImageIO.read(Files.newInputStream(container.getPath("assets/logo_mini.png")));
 
                 for (int y = 0; y < source.getHeight(); y++) {
-                    var base = new LiteralText("");
+                    var base = Text.literal("");
                     int line = 0;
                     int color = source.getRGB(0, y) & 0xFFFFFF;
                     for (int x = 0; x < source.getWidth(); x++) {
@@ -33,19 +33,19 @@ public class GenericModInfo {
                         if (color == colorPixel) {
                             line++;
                         } else {
-                            base.append(new LiteralText(chr.repeat(line)).setStyle(Style.EMPTY.withColor(color)));
+                            base.append(Text.literal(chr.repeat(line)).setStyle(Style.EMPTY.withColor(color)));
                             color = colorPixel;
                             line = 1;
                         }
                     }
 
-                    base.append(new LiteralText(chr.repeat(line)).setStyle(Style.EMPTY.withColor(color)));
+                    base.append(Text.literal(chr.repeat(line)).setStyle(Style.EMPTY.withColor(color)));
                     icon.add(base);
                 }
             } catch (Throwable e) {
                 e.printStackTrace();
                 while (icon.size() < 16) {
-                    icon.add(new LiteralText("/!\\ [ Invalid icon file ] /!\\").setStyle(Style.EMPTY.withColor(0xFF0000).withItalic(true)));
+                    icon.add(Text.literal("/!\\ [ Invalid icon file ] /!\\").setStyle(Style.EMPTY.withColor(0xFF0000).withItalic(true)));
                 }
             }
 
@@ -58,28 +58,28 @@ public class GenericModInfo {
             var output = new ArrayList<Text>();
 
             try {
-                about.add(new LiteralText(container.getMetadata().getName()).setStyle(Style.EMPTY.withColor(0x00e6b4).withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,container.getMetadata().getContact().get("github").orElse("")))));
-                about.add(new TranslatableText("text.graves.about.version").setStyle(Style.EMPTY.withColor(0xf7e1a7))
-                        .append(new LiteralText(container.getMetadata().getVersion().getFriendlyString()).setStyle(Style.EMPTY.withColor(Formatting.WHITE))));
+                about.add(Text.literal(container.getMetadata().getName()).setStyle(Style.EMPTY.withColor(0x00e6b4).withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,container.getMetadata().getContact().get("github").orElse("")))));
+                about.add(Text.translatable("text.graves.about.version").setStyle(Style.EMPTY.withColor(0xf7e1a7))
+                        .append(Text.literal(container.getMetadata().getVersion().getFriendlyString()).setStyle(Style.EMPTY.withColor(Formatting.WHITE))));
 
                 aboutBasic.addAll(about);
-                aboutBasic.add(LiteralText.EMPTY);
+                aboutBasic.add(Text.empty());
                 aboutBasic.add(Text.of(container.getMetadata().getDescription()));
 
                 var contributors = new ArrayList<String>();
                 contributors.addAll(container.getMetadata().getAuthors().stream().map((p) -> p.getName()).collect(Collectors.toList()));
                 contributors.addAll(container.getMetadata().getContributors().stream().map((p) -> p.getName()).collect(Collectors.toList()));
 
-                about.add(new LiteralText("")
-                        .append(new TranslatableText("text.graves.about.contributors")
+                about.add(Text.literal("")
+                        .append(Text.translatable("text.graves.about.contributors")
                                 .setStyle(Style.EMPTY.withColor(Formatting.AQUA)
                                         .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                                new LiteralText(String.join(", ", contributors)
+                                                Text.literal(String.join(", ", contributors)
                                         ))
                                 )))
                         .append("")
                         .setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
-                about.add(LiteralText.EMPTY);
+                about.add(Text.empty());
 
                 var desc = new ArrayList<>(List.of(container.getMetadata().getDescription().split(" ")));
 
@@ -89,13 +89,13 @@ public class GenericModInfo {
                         (descPart.isEmpty() ? descPart : descPart.append(" ")).append(desc.remove(0));
 
                         if (descPart.length() > 16) {
-                            about.add(new LiteralText(descPart.toString()).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
+                            about.add(Text.literal(descPart.toString()).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
                             descPart = new StringBuilder();
                         }
                     }
 
                     if (descPart.length() > 0) {
-                        about.add(new LiteralText(descPart.toString()).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
+                        about.add(Text.literal(descPart.toString()).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
                     }
                 }
 
@@ -103,7 +103,7 @@ public class GenericModInfo {
                     int a = 0;
                     for (int i = 0; i < icon.length; i++) {
                         if (i == (icon.length - about.size() - 1) / 2 + a && a < about.size()) {
-                            output.add(icon[i].shallowCopy().append(new LiteralText("  ").setStyle(Style.EMPTY.withItalic(false)).append(about.get(a++))));
+                            output.add(icon[i].copy().append(Text.literal("  ").setStyle(Style.EMPTY.withItalic(false)).append(about.get(a++))));
                         } else {
                             output.add(icon[i]);
                         }
@@ -114,7 +114,7 @@ public class GenericModInfo {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                var invalid = new LiteralText("/!\\ [ Invalid about mod info ] /!\\").setStyle(Style.EMPTY.withColor(0xFF0000).withItalic(true));
+                var invalid = Text.literal("/!\\ [ Invalid about mod info ] /!\\").setStyle(Style.EMPTY.withColor(0xFF0000).withItalic(true));
 
                 output.add(invalid);
                 about.add(invalid);

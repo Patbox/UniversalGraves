@@ -3,7 +3,7 @@ package eu.pb4.graves.other;
 import eu.pb4.graves.GraveNetworking;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.grave.Grave;
-import eu.pb4.placeholders.PlaceholderAPI;
+import eu.pb4.placeholders.api.Placeholders;
 import eu.pb4.polymer.mixin.block.BlockEntityUpdateS2CPacketAccessor;
 import fr.catcore.server.translations.api.LocalizationTarget;
 import fr.catcore.server.translations.api.text.LocalizableText;
@@ -112,16 +112,16 @@ public final class GravesLookType {
             if (entry.blockEntityType() != null && entry.blockEntityNbt() != null) {
                 var compound = entry.blockEntityNbt().copy();
 
-                var texts = textOverride != null ? textOverride : isLocked ? config.signProtectedText : config.signText;
+                var texts = isLocked ? config.signProtectedText : config.signText;
                 var placeholders = (graveInfo != null ? graveInfo.getPlaceholders(player.getServer()) : visualData.getPlaceholders(player.getServer()));
-                var size = Math.min(4, texts.length);
+                var size = Math.min(4, (textOverride != null ? textOverride : texts).length);
 
                 var target = (LocalizationTarget) player;
 
                 for (int i = 0; i < size; i++) {
                     compound.putString("Text" + (i + 1),
                             Text.Serializer.toJson(
-                                    LocalizableText.asLocalizedFor(PlaceholderAPI.parsePredefinedText(texts[i], PlaceholderAPI.PREDEFINED_PLACEHOLDER_PATTERN, placeholders), target)
+                                    textOverride != null ? textOverride[i] : LocalizableText.asLocalizedFor(Placeholders.parseText(texts[i], Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, placeholders), target)
                             )
                     );
                 }

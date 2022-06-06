@@ -21,10 +21,10 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3f;
+import net.minecraft.util.math.random.Random;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
-import java.util.Random;
 
 import static eu.pb4.graves.registry.AbstractGraveBlock.IS_LOCKED;
 
@@ -67,7 +67,7 @@ public class GraveRenderer implements BlockEntityRenderer<AbstractGraveBlockEnti
             var client = MinecraftClient.getInstance();
             matrixStack.translate(0.1D, -0.65D, 0.1D);
             matrixStack.scale(0.8F, 0.8F, 0.8F);
-            client.getBlockRenderManager().renderBlock(lower, entity.getPos(), entity.getWorld(), matrixStack, vertexConsumers.getBuffer(RenderLayers.getBlockLayer(lower)), true, new Random());
+            client.getBlockRenderManager().renderBlock(lower, entity.getPos(), entity.getWorld(), matrixStack, vertexConsumers.getBuffer(RenderLayers.getBlockLayer(lower)), true, Random.create());
             matrixStack.pop();
         }
         matrixStack.push();
@@ -87,7 +87,7 @@ public class GraveRenderer implements BlockEntityRenderer<AbstractGraveBlockEnti
         if (profile != null) {
             MinecraftClient minecraftClient = MinecraftClient.getInstance();
             Map<MinecraftProfileTexture.Type, MinecraftProfileTexture> map = minecraftClient.getSkinProvider().getTextures(profile);
-            return map.containsKey(com.mojang.authlib.minecraft.MinecraftProfileTexture.Type.SKIN) ? RenderLayer.getEntityTranslucent(minecraftClient.getSkinProvider().loadSkin(map.get(com.mojang.authlib.minecraft.MinecraftProfileTexture.Type.SKIN), com.mojang.authlib.minecraft.MinecraftProfileTexture.Type.SKIN)) : RenderLayer.getEntityTranslucent(DefaultSkinHelper.getTexture(PlayerEntity.getUuidFromProfile(profile)));
+            return map.containsKey(com.mojang.authlib.minecraft.MinecraftProfileTexture.Type.SKIN) ? RenderLayer.getEntityTranslucent(minecraftClient.getSkinProvider().loadSkin(map.get(com.mojang.authlib.minecraft.MinecraftProfileTexture.Type.SKIN), com.mojang.authlib.minecraft.MinecraftProfileTexture.Type.SKIN)) : RenderLayer.getEntityTranslucent(DefaultSkinHelper.getTexture(profile.getId()));
         } else {
             return RenderLayer.getEntityCutoutNoCullZOffset(SKULL_TEXTURE);
         }
@@ -125,9 +125,9 @@ public class GraveRenderer implements BlockEntityRenderer<AbstractGraveBlockEnti
         var model = entity.getCachedState().get(IS_LOCKED) ? this.graveStoneModel : this.graveStoneUnlockedModel;
 
         if (MinecraftClient.isAmbientOcclusionEnabled() && model.useAmbientOcclusion()) {
-            renderer.renderSmooth(world, model, entity.getCachedState(), entity.getPos(), matrixStack, vertexConsumers.getBuffer(RenderLayers.getBlockLayer(entity.getCachedState())), false, new Random(), 0, overlay);
+            renderer.renderSmooth(world, model, entity.getCachedState(), entity.getPos(), matrixStack, vertexConsumers.getBuffer(RenderLayers.getBlockLayer(entity.getCachedState())), false, Random.create(), 0, overlay);
         } else {
-            renderer.renderFlat(world, model, entity.getCachedState(), entity.getPos(), matrixStack, vertexConsumers.getBuffer(RenderLayers.getBlockLayer(entity.getCachedState())), false, new Random(), 0, overlay);
+            renderer.renderFlat(world, model, entity.getCachedState(), entity.getPos(), matrixStack, vertexConsumers.getBuffer(RenderLayers.getBlockLayer(entity.getCachedState())), false, Random.create(), 0, overlay);
         }
 
         matrixStack.push();

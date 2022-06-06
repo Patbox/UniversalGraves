@@ -2,31 +2,32 @@ package eu.pb4.graves.mixin;
 
 import eu.pb4.graves.GravesApi;
 import eu.pb4.graves.GravesMod;
-import eu.pb4.graves.registry.GraveBlock;
-import eu.pb4.graves.registry.GraveBlockEntity;
-import eu.pb4.graves.event.PlayerGraveCreationEvent;
 import eu.pb4.graves.config.Config;
 import eu.pb4.graves.config.ConfigManager;
-import eu.pb4.graves.grave.*;
+import eu.pb4.graves.event.PlayerGraveCreationEvent;
+import eu.pb4.graves.grave.Grave;
+import eu.pb4.graves.grave.PositionedItemStack;
 import eu.pb4.graves.other.GraveUtils;
 import eu.pb4.graves.other.GravesXPCalculation;
-import eu.pb4.graves.other.Location;
 import eu.pb4.graves.other.PlayerAdditions;
+import eu.pb4.graves.registry.GraveBlock;
+import eu.pb4.graves.registry.GraveBlockEntity;
 import eu.pb4.graves.registry.TempBlock;
-import eu.pb4.placeholders.PlaceholderAPI;
+import eu.pb4.placeholders.api.Placeholders;
+import eu.pb4.placeholders.api.node.TextNode;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.ExperienceOrbEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.MessageType;
+import net.minecraft.network.message.MessageType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.property.Properties;
-import net.minecraft.text.*;
-import net.minecraft.util.Formatting;
+import net.minecraft.text.ClickEvent;
+import net.minecraft.text.Style;
+import net.minecraft.text.Text;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.Util;
 import net.minecraft.util.collection.DefaultedList;
@@ -56,8 +57,8 @@ public abstract class LivingEntityMixin {
     @Inject(method = "damage", at = @At("TAIL"))
     private void graves_printDamage1(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         if (((Object) this) instanceof ServerPlayerEntity player && ((PlayerAdditions) player).graves_getPrintNextDamageSource()) {
-            player.sendMessage(new TranslatableText("text.graves.damage_source_info",
-                    new LiteralText(source.name).setStyle(Style.EMPTY.withUnderline(true).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, source.name)))
+            player.sendMessage(Text.translatable("text.graves.damage_source_info",
+                    Text.literal(source.name).setStyle(Style.EMPTY.withUnderline(true).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, source.name)))
             ), false);
         }
     }
@@ -65,8 +66,8 @@ public abstract class LivingEntityMixin {
     @Inject(method = "applyDamage", at = @At("TAIL"))
     private void graves_printDamage2(DamageSource source, float amount, CallbackInfo ci) {
         if (((Object) this) instanceof ServerPlayerEntity player && ((PlayerAdditions) player).graves_getPrintNextDamageSource()) {
-            player.sendMessage(new TranslatableText("text.graves.damage_source_info",
-                    new LiteralText(source.name).setStyle(Style.EMPTY.withUnderline(true).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, source.name)))
+            player.sendMessage(Text.translatable("text.graves.damage_source_info",
+                    Text.literal(source.name).setStyle(Style.EMPTY.withUnderline(true).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, source.name)))
             ), false);
         }
     }
@@ -82,9 +83,9 @@ public abstract class LivingEntityMixin {
                     return;
                 }
 
-                Text text = null;
+                TextNode text = null;
                 Map<String, Text> placeholders = Map.of(
-                        "position", new LiteralText("" + player.getBlockPos().toShortString()),
+                        "position", Text.literal("" + player.getBlockPos().toShortString()),
                         "world", GraveUtils.toWorldName(player.getWorld().getRegistryKey().getValue())
                 );
 
@@ -151,7 +152,7 @@ public abstract class LivingEntityMixin {
 
 
                             GravesMod.DO_ON_NEXT_TICK.add(() -> {
-                                Text text2;
+                                TextNode text2;
                                 Map<String, Text> placeholders2 = placeholders;
 
                                 BlockState storedBlockState = world.getBlockState(gravePos).getBlock() == TempBlock.INSTANCE ? oldBlockState : Blocks.AIR.getDefaultState();
@@ -177,7 +178,7 @@ public abstract class LivingEntityMixin {
                                     ((PlayerAdditions) player).graves_setLastGrave(-1);
                                 }
                                 if (text2 != null) {
-                                    player.sendMessage(PlaceholderAPI.parsePredefinedText(text2, PlaceholderAPI.PREDEFINED_PLACEHOLDER_PATTERN, placeholders2), MessageType.SYSTEM, Util.NIL_UUID);
+                                    player.sendMessage(Placeholders.parseText(text2, Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, placeholders2), MessageType.SYSTEM);
                                 }
                             });
                             
@@ -200,7 +201,7 @@ public abstract class LivingEntityMixin {
                 }
 
                 if (text != null) {
-                    player.sendMessage(PlaceholderAPI.parsePredefinedText(text, PlaceholderAPI.PREDEFINED_PLACEHOLDER_PATTERN, placeholders), MessageType.SYSTEM, Util.NIL_UUID);
+                    player.sendMessage(Placeholders.parseText(text, Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, placeholders), MessageType.SYSTEM);
                 }
             } catch (Exception e) {
                 e.printStackTrace();

@@ -5,19 +5,21 @@ import eu.pb4.graves.GraveNetworking;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.grave.Grave;
 import eu.pb4.graves.grave.GraveManager;
-import eu.pb4.placeholders.PlaceholderAPI;
+import eu.pb4.placeholders.api.Placeholders;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class GraveListGui extends PagedGui {
     private final UUID targetUUID;
@@ -32,10 +34,10 @@ public class GraveListGui extends PagedGui {
         if (player.getUuid().equals(this.targetUUID)) {
             this.setTitle(ConfigManager.getConfig().guiTitle);
         } else {
-            this.setTitle(PlaceholderAPI.parsePredefinedText(
+            this.setTitle(Placeholders.parseText(
                     ConfigManager.getConfig().graveTitle,
-                    PlaceholderAPI.PREDEFINED_PLACEHOLDER_PATTERN,
-                    Map.of("player", new LiteralText(profile.getName()))
+                    Placeholders.PREDEFINED_PLACEHOLDER_PATTERN,
+                    Map.of("player", Text.literal(profile.getName()))
             ));
         }
         this.graves = new ArrayList<>(GraveManager.INSTANCE.getByUuid(this.targetUUID));
@@ -58,8 +60,8 @@ public class GraveListGui extends PagedGui {
             var placeholders = grave.getPlaceholders(this.player.getServer());
 
             List<Text> parsed = new ArrayList<>();
-            for (Text text : grave.isProtected() ? ConfigManager.getConfig().guiProtectedText : ConfigManager.getConfig().guiText) {
-                MutableText out = (MutableText) PlaceholderAPI.parsePredefinedText(text, PlaceholderAPI.PREDEFINED_PLACEHOLDER_PATTERN, placeholders);
+            for (var text : grave.isProtected() ? ConfigManager.getConfig().guiProtectedText : ConfigManager.getConfig().guiText) {
+                MutableText out = (MutableText) Placeholders.parseText(text, Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, placeholders);
                 if (out.getStyle().getColor() == null) {
                     out.setStyle(out.getStyle().withColor(Formatting.WHITE));
                 }
@@ -68,7 +70,7 @@ public class GraveListGui extends PagedGui {
 
             var list = grave.isProtected() ? config.guiProtectedItem : config.guiItem;
             var element = GuiElementBuilder.from(list[Math.abs(grave.hashCode() % list.length)])
-                    .setName((MutableText) parsed.remove(0))
+                    .setName(parsed.remove(0))
                     .setLore(parsed)
                     .setCallback((index, type, action) -> {
                         if (type.isRight) {

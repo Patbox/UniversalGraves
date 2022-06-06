@@ -6,7 +6,8 @@ import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.other.VisualGraveData;
 import eu.pb4.holograms.api.elements.SpacingHologramElement;
 import eu.pb4.holograms.api.holograms.WorldHologram;
-import eu.pb4.placeholders.PlaceholderAPI;
+import eu.pb4.placeholders.api.Placeholders;
+import eu.pb4.placeholders.api.node.EmptyNode;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
@@ -15,8 +16,8 @@ import net.minecraft.nbt.*;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.property.Properties;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
+import net.minecraft.text.TextContent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
@@ -138,18 +139,18 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
 
             if (self.textOverrides != null) {
                 for (Text text : self.textOverrides) {
-                    if (text != LiteralText.EMPTY) {
-                        texts.add(PlaceholderAPI.parsePredefinedText(text, PlaceholderAPI.PREDEFINED_PLACEHOLDER_PATTERN, placeholders));
+                    if (text.getContent() == TextContent.EMPTY) {
+                        texts.add(text);
                     } else {
-                        texts.add(LiteralText.EMPTY);
+                        texts.add(Text.empty());
                     }
                 }
             } else {
-                for (Text text : config.hologramVisualText) {
-                    if (!text.equals(LiteralText.EMPTY)) {
-                        texts.add(PlaceholderAPI.parsePredefinedText(text, PlaceholderAPI.PREDEFINED_PLACEHOLDER_PATTERN, placeholders));
+                for (var text : config.hologramVisualText) {
+                    if (!text.equals(EmptyNode.INSTANCE)) {
+                        texts.add(Placeholders.parseText(text, Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, placeholders));
                     } else {
-                        texts.add(LiteralText.EMPTY);
+                        texts.add(Text.empty());
                     }
                 }
             }
@@ -161,7 +162,7 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
 
             int x = 0;
             for (Text text : texts) {
-                if (text.equals(LiteralText.EMPTY)) {
+                if (text.getContent() == TextContent.EMPTY) {
                     self.hologram.setElement(x, new SpacingHologramElement(0.28));
                 } else {
                     self.hologram.setText(x, text);
@@ -188,10 +189,6 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
     @Override
     public VisualGraveData getClientData() {
         return this.visualData;
-    }
-
-    public Text[] getSignText() {
-        return this.textOverrides != null ? this.textOverrides : ConfigManager.getConfig().signVisualText;
     }
 
     public Text[] getTextOverrides() {

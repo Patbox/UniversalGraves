@@ -13,7 +13,7 @@ import net.minecraft.screen.slot.Slot;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class PagedGui extends SimpleGui {
@@ -152,7 +152,7 @@ public abstract class PagedGui extends SimpleGui {
         public static DisplayElement filler() {
             return DisplayElement.of(
                     GuiElementBuilder.from(ConfigManager.getConfig().guiBarItem)
-                            .setName(LiteralText.EMPTY)
+                            .setName(Text.empty())
                             .hideFlags()
             );        }
 

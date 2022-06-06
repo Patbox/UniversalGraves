@@ -2,8 +2,7 @@ package eu.pb4.graves;
 
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.other.VisualGraveData;
-import eu.pb4.placeholders.PlaceholderAPI;
-import eu.pb4.polymer.api.item.PolymerItemUtils;
+import eu.pb4.placeholders.api.Placeholders;
 import eu.pb4.polymer.api.networking.PolymerPacketUtils;
 import eu.pb4.polymer.api.networking.PolymerSyncUtils;
 import fr.catcore.server.translations.api.LocalizationTarget;
@@ -64,18 +63,27 @@ public final class GraveNetworking {
         if (version == 0 && config.canClientSide) {
             var target = (LocalizationTarget) handler.getPlayer();
 
-            var texts = textOverrides != null ? textOverrides : locked ? config.signProtectedText : config.signText;
 
             var buf = PolymerPacketUtils.buf(0);
             buf.writeBlockPos(blockPos);
             buf.writeNbt(data.toNbt());
-            buf.writeVarInt(texts.length);
 
-            for (var text : texts) {
-                buf.writeString(Text.Serializer.toJson(
-                        LocalizableText.asLocalizedFor(PlaceholderAPI.parsePredefinedText(text, PlaceholderAPI.PREDEFINED_PLACEHOLDER_PATTERN, placeholders), target)
-                ));
+            if (textOverrides != null) {
+                buf.writeVarInt(textOverrides.length);
+                for (var text : textOverrides) {
+                    buf.writeString(Text.Serializer.toJson(text));
+                }
+            } else {
+                var texts = locked ? config.signProtectedText : config.signText;
+
+                buf.writeVarInt(texts.length);
+                for (var text : texts) {
+                    buf.writeString(Text.Serializer.toJson(
+                            LocalizableText.asLocalizedFor(Placeholders.parseText(text, Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, placeholders), target)
+                    ));
+                }
             }
+
 
             PolymerPacketUtils.sendPacket(handler, SERVER_GRAVE, buf);
             return true;

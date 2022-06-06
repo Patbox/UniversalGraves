@@ -9,12 +9,11 @@ import eu.pb4.graves.GraveNetworking;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.ui.GraveListGui;
 import me.lucko.fabric.api.permissions.v0.Permissions;
-import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
 import java.util.ArrayList;
@@ -25,7 +24,7 @@ import static net.minecraft.server.command.CommandManager.literal;
 
 public class Commands {
     public static void register() {
-        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             dispatcher.register(
                     literal("graves")
                             .requires(Permissions.require("universal_graves.list", true))
@@ -63,7 +62,7 @@ public class Commands {
         var bl = pl.graves_getPrintNextDamageSource();
 
         pl.graves_setPrintNextDamageSource(!bl);
-        context.getSource().sendFeedback(new TranslatableText("text.graves.damage_source_info." + (bl ? "disabled" : "enabled")), false);
+        context.getSource().sendFeedback(Text.translatable("text.graves.damage_source_info." + (bl ? "disabled" : "enabled")), false);
         return 0;
     }
 
@@ -83,10 +82,10 @@ public class Commands {
         List<GameProfile> profiles = new ArrayList(context.getArgument("player", GameProfileArgumentType.GameProfileArgument.class).getNames(context.getSource()));
 
         if (profiles.size() == 0) {
-            context.getSource().sendFeedback(new LiteralText("This player doesn't exist!"), false);
+            context.getSource().sendFeedback(Text.literal("This player doesn't exist!"), false);
             return 0;
         } else if (profiles.size() > 1) {
-            context.getSource().sendFeedback(new LiteralText("Only one player can be selected!"), false);
+            context.getSource().sendFeedback(Text.literal("Only one player can be selected!"), false);
             return 0;
         }
         try {
@@ -100,13 +99,13 @@ public class Commands {
 
     private static int reloadConfig(CommandContext<ServerCommandSource> context) {
         if (ConfigManager.loadConfig()) {
-            context.getSource().sendFeedback(new LiteralText("Reloaded config!"), false);
+            context.getSource().sendFeedback(Text.literal("Reloaded config!"), false);
             for (var player : context.getSource().getServer().getPlayerManager().getPlayerList()) {
                 GraveNetworking.sendConfig(player.networkHandler);
             }
 
         } else {
-            context.getSource().sendError(new LiteralText("Error accrued while reloading config!").formatted(Formatting.RED));
+            context.getSource().sendError(Text.literal("Error accrued while reloading config!").formatted(Formatting.RED));
 
         }
         return 1;

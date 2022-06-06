@@ -26,7 +26,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.Properties;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -62,7 +61,7 @@ public class VisualGraveBlock extends AbstractGraveBlock implements BlockEntityP
         if (placer != null) {
             var optional = world.getBlockEntity(pos, VisualGraveBlockEntity.BLOCK_ENTITY_TYPE);
             if (optional.isPresent()) {
-                optional.get().textOverrides = new Text[]{LiteralText.EMPTY, LiteralText.EMPTY, LiteralText.EMPTY, LiteralText.EMPTY};
+                optional.get().textOverrides = new Text[]{Text.empty(), Text.empty(), Text.empty(), Text.empty()};
             }
         }
     }
@@ -152,7 +151,7 @@ public class VisualGraveBlock extends AbstractGraveBlock implements BlockEntityP
                         int i = 0;
 
                         for (var text : grave.textOverrides) {
-                            sign.setLine(i, text.shallowCopy());
+                            sign.setLine(i, text.copy());
                             i++;
 
                             if (i == 4) {

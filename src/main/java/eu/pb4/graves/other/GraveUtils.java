@@ -8,7 +8,6 @@ import eu.pb4.graves.registry.SafeXPEntity;
 import eu.pb4.graves.registry.TempBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.ExperienceOrbEntity;
 import net.minecraft.item.ItemStack;
@@ -16,9 +15,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.property.Property;
-import net.minecraft.tag.Tag;
 import net.minecraft.tag.TagKey;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -165,7 +162,7 @@ public class GraveUtils {
                 parts.add(String.join("", s));
             }
         }
-        return new LiteralText(String.join(" ", parts));
+        return Text.literal(String.join(" ", parts));
     }
 
     public static boolean hasSkippedEnchantment(ItemStack stack) {

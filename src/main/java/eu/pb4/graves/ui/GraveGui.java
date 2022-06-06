@@ -1,11 +1,10 @@
 package eu.pb4.graves.ui;
 
-import eu.pb4.graves.GraveNetworking;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.grave.Grave;
 import eu.pb4.graves.other.OutputSlot;
 import eu.pb4.graves.registry.GraveCompassItem;
-import eu.pb4.placeholders.PlaceholderAPI;
+import eu.pb4.placeholders.api.Placeholders;
 import eu.pb4.sgui.api.ClickType;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import me.lucko.fabric.api.permissions.v0.Permissions;
@@ -30,7 +29,7 @@ public class GraveGui extends PagedGui {
         super(player);
         this.grave = grave;
         this.canTake = canTake;
-        this.setTitle(PlaceholderAPI.parsePredefinedText(ConfigManager.getConfig().graveTitle, PlaceholderAPI.PREDEFINED_PLACEHOLDER_PATTERN, grave.getPlaceholders(player.getWorld().getServer())));
+        this.setTitle(Placeholders.parseText(ConfigManager.getConfig().graveTitle, Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, grave.getPlaceholders(player.getWorld().getServer())));
         this.inventory = this.grave.asInventory();
         this.updateDisplay();
     }
@@ -87,8 +86,8 @@ public class GraveGui extends PagedGui {
                 var placeholders = grave.getPlaceholders(this.player.getServer());
 
                 List<Text> parsed = new ArrayList<>();
-                for (Text text : grave.isProtected() ? ConfigManager.getConfig().guiProtectedText : ConfigManager.getConfig().guiText) {
-                    MutableText out = (MutableText) PlaceholderAPI.parsePredefinedText(text, PlaceholderAPI.PREDEFINED_PLACEHOLDER_PATTERN, placeholders);
+                for (var text : grave.isProtected() ? ConfigManager.getConfig().guiProtectedText : ConfigManager.getConfig().guiText) {
+                    MutableText out = (MutableText) Placeholders.parseText(text, Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, placeholders);
                     if (out.getStyle().getColor() == null) {
                         out.setStyle(out.getStyle().withColor(Formatting.WHITE));
                     }
@@ -135,7 +134,7 @@ public class GraveGui extends PagedGui {
                 return DisplayElement.of(GuiElementBuilder.from(config.guiRemoveProtectionIcon)
                         .setName(config.guiRemoveProtectionText)
                         .addLoreLine(config.guiCantReverseAction)
-                        .addLoreLine(LiteralText.EMPTY)
+                        .addLoreLine(Text.empty())
                         .addLoreLine(config.guiClickToConfirm)
                         .hideFlags()
                         .setCallback((x, y, z) -> {
@@ -163,7 +162,7 @@ public class GraveGui extends PagedGui {
                 return DisplayElement.of(GuiElementBuilder.from(config.guiBreakGraveIcon)
                         .setName(config.guiBreakGraveText)
                         .addLoreLine(config.guiCantReverseAction)
-                        .addLoreLine(LiteralText.EMPTY)
+                        .addLoreLine(Text.empty())
                         .addLoreLine(config.guiClickToConfirm)
                         .setSkullOwner("")
                         .hideFlags()

@@ -7,23 +7,25 @@ import eu.pb4.graves.registry.GraveBlock;
 import eu.pb4.graves.other.GravesLookType;
 import eu.pb4.graves.other.GravesXPCalculation;
 import eu.pb4.graves.registry.IconItem;
-import eu.pb4.placeholders.TextParser;
+import eu.pb4.placeholders.api.TextParserUtils;
+import eu.pb4.placeholders.api.node.EmptyNode;
+import eu.pb4.placeholders.api.node.TextNode;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.CropBlock;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.command.CommandRegistryWrapper;
 import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.command.argument.ItemStringReader;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.SimpleDateFormat;
@@ -33,39 +35,39 @@ public final class Config {
     public final ConfigData configData;
     public final GravesLookType style;
 
-    public final Text[] hologramProtectedText;
-    public final Text[] hologramText;
-    public final Text[] hologramVisualText;
+    public final TextNode[] hologramProtectedText;
+    public final TextNode[] hologramText;
+    public final TextNode[] hologramVisualText;
 
-    public final Text[] signProtectedText;
-    public final Text[] signText;
-    public final Text[] signVisualText;
+    public final TextNode[] signProtectedText;
+    public final TextNode[] signText;
+    public final TextNode[] signVisualText;
 
-    public final Text graveTitle;
+    public final TextNode graveTitle;
 
     public final Text guiTitle;
-    public final Text[] guiProtectedText;
-    public final Text[] guiText;
+    public final TextNode[] guiProtectedText;
+    public final TextNode[] guiText;
 
     public final ItemStack[] guiProtectedItem;
     public final ItemStack[] guiItem;
 
     @Nullable
-    public final Text noLongerProtectedMessage;
+    public final TextNode noLongerProtectedMessage;
     @Nullable
-    public final Text graveExpiredMessage;
+    public final TextNode graveExpiredMessage;
     @Nullable
-    public final Text graveBrokenMessage;
+    public final TextNode graveBrokenMessage;
     @Nullable
-    public final Text createdGraveMessage;
+    public final TextNode createdGraveMessage;
     @Nullable
-    public final Text creationFailedGraveMessage;
+    public final TextNode creationFailedGraveMessage;
     @Nullable
-    public final Text creationFailedVoidMessage;
+    public final TextNode creationFailedVoidMessage;
     @Nullable
-    public final Text creationFailedPvPMessage;
+    public final TextNode creationFailedPvPMessage;
     @Nullable
-    public final Text creationFailedClaimMessage;
+    public final TextNode creationFailedClaimMessage;
     public final GravesXPCalculation xpCalc;
 
     public final BlockStyleEntry[] customBlockStateStylesLocked;
@@ -116,31 +118,31 @@ public final class Config {
         this.signText = parse(data.customStyleSignText);
         this.signVisualText = parse(data.customStyleSignVisualText);
 
-        this.graveTitle = TextParser.parse(data.graveTitle);
+        this.graveTitle = TextParserUtils.formatNodes(data.graveTitle);
         this.canClientSide = data.allowClientSideStyle && this.style.allowClient;
 
-        this.guiTitle = TextParser.parse(data.guiTitle);
+        this.guiTitle = TextParserUtils.formatText(data.guiTitle);
         this.guiProtectedText = parse(data.guiProtectedText);
         this.guiText = parse(data.guiText);
 
-        this.noLongerProtectedMessage = parse(data.messageProtectionEnded, null);
-        this.graveExpiredMessage = parse(data.messageGraveExpired, null);
-        this.graveBrokenMessage = parse(data.messageGraveBroken, null);
-        this.createdGraveMessage = parse(data.messageGraveCreated, null);
-        this.creationFailedGraveMessage = parse(data.messageCreationFailed, null);
-        this.creationFailedVoidMessage = parse(data.messageCreationFailedVoid, null);
-        this.creationFailedPvPMessage = parse(data.messageCreationFailedPvP, null);
-        this.creationFailedClaimMessage = parse(data.messageCreationFailedClaim, null);
+        this.noLongerProtectedMessage = parse(data.messageProtectionEnded);
+        this.graveExpiredMessage = parse(data.messageGraveExpired);
+        this.graveBrokenMessage = parse(data.messageGraveBroken);
+        this.createdGraveMessage = parse(data.messageGraveCreated);
+        this.creationFailedGraveMessage = parse(data.messageCreationFailed);
+        this.creationFailedVoidMessage = parse(data.messageCreationFailedVoid);
+        this.creationFailedPvPMessage = parse(data.messageCreationFailedPvP);
+        this.creationFailedClaimMessage = parse(data.messageCreationFailedClaim);
 
-        this.guiPreviousPageText = parse(data.guiPreviousPageText, LiteralText.EMPTY);
-        this.guiPreviousPageBlockedText = parse(data.guiPreviousPageBlockedText, LiteralText.EMPTY);
-        this.guiNextPageText = parse(data.guiNextPageText, LiteralText.EMPTY);
-        this.guiNextPageBlockedText = parse(data.guiNextPageBlockedText, LiteralText.EMPTY);
-        this.guiRemoveProtectionText = parse(data.guiRemoveProtectionText, LiteralText.EMPTY);
-        this.guiBreakGraveText = parse(data.guiBreakGraveText, LiteralText.EMPTY);
-        this.guiQuickPickupText = parse(data.guiQuickPickupText, LiteralText.EMPTY);
-        this.guiCantReverseAction = parse(data.guiCantReverseAction, LiteralText.EMPTY);
-        this.guiClickToConfirm = parse(data.guiClickToConfirm, LiteralText.EMPTY);
+        this.guiPreviousPageText = parseText(data.guiPreviousPageText);
+        this.guiPreviousPageBlockedText = parseText(data.guiPreviousPageBlockedText);
+        this.guiNextPageText = parseText(data.guiNextPageText);
+        this.guiNextPageBlockedText = parseText(data.guiNextPageBlockedText);
+        this.guiRemoveProtectionText = parseText(data.guiRemoveProtectionText);
+        this.guiBreakGraveText = parseText(data.guiBreakGraveText);
+        this.guiQuickPickupText = parseText(data.guiQuickPickupText);
+        this.guiCantReverseAction = parseText(data.guiCantReverseAction);
+        this.guiClickToConfirm = parseText(data.guiClickToConfirm);
 
         this.guiInfoIcon = parseItem(data.guiInfoIcon);
         this.guiBarItem = parseItem(data.guiBarItem);
@@ -169,7 +171,7 @@ public final class Config {
             var id = Identifier.tryParse(entry.getKey());
 
             if (id != null) {
-                this.worldNameOverrides.put(id, parse(entry.getValue(), null));
+                this.worldNameOverrides.put(id, parseText(entry.getValue()));
 
             }
         }
@@ -205,17 +207,21 @@ public final class Config {
         return set;
     }
 
-    private static Text parse(String string, Text defaultText) {
-        return !string.isEmpty() ? TextParser.parse(string) : defaultText;
+    private static TextNode parse(String string) {
+        return !string.isEmpty() ? TextParserUtils.formatNodes(string) : null;
+    }
+
+    private static Text parseText(String string) {
+        return !string.isEmpty() ? TextParserUtils.formatText(string) : Text.empty();
     }
 
     private static ItemStack parseItem(String itemDef) {
         try {
-            var item = new ItemStringReader(new StringReader(itemDef), true).consume();
-            var itemStack = item.getItem().getDefaultStack();
+            var item = ItemStringReader.item(CommandRegistryWrapper.of(Registry.ITEM), new StringReader(itemDef));
+            var itemStack = item.item().value().getDefaultStack();
 
-            if (item.getNbt() != null) {
-                itemStack.setNbt(item.getNbt());
+            if (item.nbt() != null) {
+                itemStack.setNbt(item.nbt());
             }
             return itemStack;
         } catch (Exception e) {
@@ -241,10 +247,10 @@ public final class Config {
 
         for (String stateName : stringList) {
             try {
-                var stateData = new BlockArgumentParser(new StringReader(stateName), true).parse(true);
-                if (stateData.getBlockState().getBlock() != GraveBlock.INSTANCE && stateData.getBlockState() != null) {
-                    if (stateData.getBlockState().hasBlockEntity()) {
-                        var blockEntity = ((BlockEntityProvider) stateData.getBlockState().getBlock()).createBlockEntity(BlockPos.ORIGIN, stateData.getBlockState());
+                var stateData = BlockArgumentParser.block(Registry.BLOCK, new StringReader(stateName), true);
+                if (stateData.blockState().getBlock() != GraveBlock.INSTANCE && stateData.blockState() != null) {
+                    if (stateData.blockState().hasBlockEntity()) {
+                        var blockEntity = ((BlockEntityProvider) stateData.blockState().getBlock()).createBlockEntity(BlockPos.ORIGIN, stateData.blockState());
                         BlockEntityType<?> i = null;
 
                         var packet = blockEntity.toUpdatePacket();
@@ -252,13 +258,13 @@ public final class Config {
                             i = bePacket.getBlockEntityType();
                         }
 
-                        if (stateData.getNbtData() != null) {
-                            blockEntity.readNbt(stateData.getNbtData());
+                        if (stateData.nbt() != null) {
+                            blockEntity.readNbt(stateData.nbt());
                         }
 
-                        blockStates.add(new BlockStyleEntry(stateData.getBlockState(), i, blockEntity.toInitialChunkDataNbt()));
+                        blockStates.add(new BlockStyleEntry(stateData.blockState(), i, blockEntity.toInitialChunkDataNbt()));
                     } else {
-                        blockStates.add(new BlockStyleEntry(stateData.getBlockState(), null, null));
+                        blockStates.add(new BlockStyleEntry(stateData.blockState(), null, null));
                     }
                 } else {
                     blockStates.add(new BlockStyleEntry(Blocks.POTATOES.getDefaultState().with(CropBlock.AGE, 7), null, null));
@@ -307,19 +313,19 @@ public final class Config {
         return builder.toString();
     }
 
-    private static Text[] parse(List<String> strings) {
-        List<Text> texts = new ArrayList<>();
+    private static TextNode[] parse(List<String> strings) {
+        List<TextNode> texts = new ArrayList<>();
 
         for (String line : strings) {
             if (line == null) {
                 continue;
             } else if (line.isEmpty()) {
-                texts.add(LiteralText.EMPTY);
+                texts.add(EmptyNode.INSTANCE);
             } else {
-                texts.add(TextParser.parse(line));
+                texts.add(TextParserUtils.formatNodes(line));
             }
         }
-        return texts.toArray(new Text[0]);
+        return texts.toArray(new TextNode[0]);
     }
 
     public static record BlockStyleEntry(BlockState state, BlockEntityType<?> blockEntityType,

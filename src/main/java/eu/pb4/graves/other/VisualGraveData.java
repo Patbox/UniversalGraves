@@ -7,7 +7,6 @@ import eu.pb4.graves.grave.Grave;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -33,18 +32,18 @@ public record VisualGraveData(GameProfile gameProfile, Text deathCause, long cre
         Config config = ConfigManager.getConfig();
 
         Map<String, Text> values = new HashMap<>();
-        values.put("player", new LiteralText(this.gameProfile != null ? this.gameProfile.getName() : "<No player!>"));
-        values.put("protection_time", new LiteralText("" + (config.configData.protectionTime > -1 ? config.getFormattedTime(0) : config.configData.infinityText)));
-        values.put("break_time", new LiteralText("" + (config.configData.breakingTime > -1 ? config.getFormattedTime(0) : config.configData.infinityText)));
-        values.put("xp", new LiteralText("0"));
-        values.put("item_count", new LiteralText("0"));
-        values.put("position", new LiteralText("" + this.location.blockPos().toShortString()));
+        values.put("player", Text.literal(this.gameProfile != null ? this.gameProfile.getName() : "<No player!>"));
+        values.put("protection_time", Text.literal("" + (config.configData.protectionTime > -1 ? config.getFormattedTime(0) : config.configData.infinityText)));
+        values.put("break_time", Text.literal("" + (config.configData.breakingTime > -1 ? config.getFormattedTime(0) : config.configData.infinityText)));
+        values.put("xp", Text.literal("0"));
+        values.put("item_count", Text.literal("0"));
+        values.put("position", Text.literal("" + this.location.blockPos().toShortString()));
         values.put("world", GraveUtils.toWorldName(this.location.world()));
         values.put("death_cause", this.deathCause);
-        values.put("minecraft_day", new LiteralText("" + this.minecraftDay));
-        values.put("creation_date", new LiteralText(config.fullDateFormat.format(new Date(this.creationTime * 1000))));
-        values.put("since_creation", new LiteralText(config.getFormattedTime(System.currentTimeMillis() / 1000 - this.creationTime)));
-        values.put("id", new LiteralText("<no id>"));
+        values.put("minecraft_day", Text.literal("" + this.minecraftDay));
+        values.put("creation_date", Text.literal(config.fullDateFormat.format(new Date(this.creationTime * 1000))));
+        values.put("since_creation", Text.literal(config.getFormattedTime(System.currentTimeMillis() / 1000 - this.creationTime)));
+        values.put("id", Text.literal("<no id>"));
         return values;
     }
 
