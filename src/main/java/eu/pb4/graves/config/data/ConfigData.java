@@ -39,11 +39,14 @@ public class ConfigData extends VersionedConfigData {
 
     public int protectionTime = 900;
     public int breakingTime = 1800;
+    public int teleportTime = 5;
+    public int invincibleTime = 2;
     public boolean keepBlockAfterBreaking = false;
     public boolean restoreBlockAfterPlayerBreaking = true;
 
     public String xpStorageType = GravesXPCalculation.PERCENT_POINTS.name;
     public double xpPercentTypeValue = 100;
+    public double teleportHeight = 0.5;
 
     public boolean replaceAnyBlock = false;
     public int maxPlacementDistance = 8;
@@ -64,6 +67,9 @@ public class ConfigData extends VersionedConfigData {
     public boolean allowRemoteGraveBreaking = true;
 
     public String graveTitle = "<lang:'text.graves.players_grave':'${player}'>";
+
+    public String teleportTimerText = "<lang:'text.graves.teleport.teleport_timer'>";
+    public String teleportLocationText = "<lang: 'text.graves.teleport.teleport_location'>";
 
     public boolean hologram = true;
     public boolean hologramDisplayIfOnClient = false;
