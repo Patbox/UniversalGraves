@@ -103,6 +103,8 @@ public class GraveListGui extends PagedGui {
                                             if(--teleportTicks >= 0) {
                                                 if(!player.getPos().equals(currentPosition)) {
                                                     player.sendMessage(config.teleportCancelledText);
+                                                    player.playSound(SoundEvents.ENTITY_SHULKER_HURT_CLOSED,
+                                                            SoundCategory.MASTER, 1f, 0.5f);
                                                     return;
                                                 }
                                                 if(teleportTicks == 0) {
