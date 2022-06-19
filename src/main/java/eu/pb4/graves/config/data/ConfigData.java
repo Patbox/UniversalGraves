@@ -1,8 +1,9 @@
 package eu.pb4.graves.config.data;
 
-import eu.pb4.graves.other.GraveUtils;
 import eu.pb4.graves.other.GravesLookType;
 import eu.pb4.graves.other.GravesXPCalculation;
+import eu.pb4.graves.other.GraveUtils;
+import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.WallBlock;

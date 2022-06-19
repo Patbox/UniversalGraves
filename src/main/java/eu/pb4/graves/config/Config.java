@@ -342,8 +342,8 @@ public final class Config {
         return texts.toArray(new TextNode[0]);
     }
 
-    public record BlockStyleEntry(BlockState state, BlockEntityType<?> blockEntityType,
-                                  NbtCompound blockEntityNbt) {
+    public static record BlockStyleEntry(BlockState state, BlockEntityType<?> blockEntityType,
+                                         NbtCompound blockEntityNbt) {
     }
 
 }
