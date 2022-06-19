@@ -1,9 +1,8 @@
 package eu.pb4.graves.config.data;
 
+import eu.pb4.graves.other.GraveUtils;
 import eu.pb4.graves.other.GravesLookType;
 import eu.pb4.graves.other.GravesXPCalculation;
-import eu.pb4.graves.other.GraveUtils;
-import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.WallBlock;
@@ -68,8 +67,9 @@ public class ConfigData extends VersionedConfigData {
 
     public String graveTitle = "<lang:'text.graves.players_grave':'${player}'>";
 
-    public String teleportTimerText = "<lang:'text.graves.teleport.teleport_timer'>";
-    public String teleportLocationText = "<lang: 'text.graves.teleport.teleport_location'>";
+    public String teleportTimerText = "<lang:'text.graves.teleport.teleport_timer':'${time}'>";
+    public String teleportLocationText = "<lang:'text.graves.teleport.teleport_location':'${position}'>";
+    public String teleportCancelledText = "<red><lang:'text.graves.teleport.teleport_cancelled'>";
 
     public boolean hologram = true;
     public boolean hologramDisplayIfOnClient = false;
