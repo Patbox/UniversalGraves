@@ -64,10 +64,12 @@ public class ConfigData extends VersionedConfigData {
     public boolean giveGraveCompass = true;
     public boolean allowRemoteProtectionRemoval = true;
     public boolean allowRemoteGraveBreaking = true;
+    public boolean allowMovingDuringTeleportation = false;
 
     public String graveTitle = "<lang:'text.graves.players_grave':'${player}'>";
 
     public String teleportTimerText = "<lang:'text.graves.teleport.teleport_timer':'${time}'>";
+    public String teleportTimerTextAllowMoving = "<lang:'text.graves.teleport.teleport_timer_moving':'${time}'>";
     public String teleportLocationText = "<lang:'text.graves.teleport.teleport_location':'${position}'>";
     public String teleportCancelledText = "<red><lang:'text.graves.teleport.teleport_cancelled'>";
 

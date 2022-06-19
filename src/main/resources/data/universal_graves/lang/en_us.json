@@ -36,6 +36,7 @@
   "text.graves.gui.click_to_confirm": "Click again to confirm",
 
   "text.graves.teleport.teleport_timer": "Teleporting in %s seconds, don't move!",
+"text.graves.teleport.teleport_timer_moving": "Teleporting in %s seconds",
   "text.graves.teleport.teleport_location": "Teleporting to %s",
   "text.graves.teleport.teleport_cancelled": "Cancelled teleportation",
 

@@ -71,6 +71,8 @@ public final class Config {
     @Nullable
     public final TextNode teleportTimerText;
     @Nullable
+    public final TextNode teleportTimerAllowMovingText;
+    @Nullable
     public final TextNode teleportLocationText;
     public final GravesXPCalculation xpCalc;
 
@@ -152,6 +154,7 @@ public final class Config {
 
         this.teleportLocationText = parse(data.teleportLocationText);
         this.teleportTimerText = parse(data.teleportTimerText);
+        this.teleportTimerAllowMovingText = parse(data.teleportTimerTextAllowMoving);
 
         this.teleportCancelledText = parseText(data.teleportCancelledText);
 
