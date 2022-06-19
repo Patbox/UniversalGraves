@@ -2,9 +2,8 @@ package eu.pb4.graves.ui;
 
 import com.mojang.authlib.GameProfile;
 import eu.pb4.graves.GraveNetworking;
-import eu.pb4.graves.config.Config;
+import eu.pb4.graves.GravesMod;
 import eu.pb4.graves.config.ConfigManager;
-import eu.pb4.graves.config.data.ConfigData;
 import eu.pb4.graves.grave.Grave;
 import eu.pb4.graves.grave.GraveManager;
 import eu.pb4.placeholders.api.Placeholders;
@@ -18,13 +17,11 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class GraveListGui extends PagedGui {
     private final UUID targetUUID;
@@ -87,19 +84,46 @@ public class GraveListGui extends PagedGui {
                                 MinecraftServer server = Objects.requireNonNull(this.player.getServer(), "server; running on client?");
                                 ServerWorld world = server.getWorld(RegistryKey.of(Registry.WORLD_KEY, pos.world()));
                                 if (world != null) {
-                                    final ScheduledExecutorService teleportThread = Executors.newScheduledThreadPool(1);
-                                    server.execute(() -> this.player.sendMessage(Text.translatable(config.teleportTimerText), config.configData.teleportTime )));
-                                    teleportThread.schedule(() -> {
-                                        server.execute(() -> this.player.sendMessage(Text.translatable(config.teleportLocationText), pos.x() + ", " + (pos.y()+config.configData.teleportHeight) + ", " + pos.z())));
-                                        this.player.teleport(world, pos.x() + 0.5, pos.y() + 1 + config.configData.teleportHeight, pos.z() + 0.5, this.player.getYaw(), this.player.getPitch());
-                                        server.execute(() -> this.player.playSound(SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.MASTER, 1f, 1f));
-                                        server.execute(() -> this.player.setInvulnerable(true));
-                                        teleportThread.schedule(() -> {
-                                            Objects.requireNonNull(this.player.getServer()).execute(() -> player.setInvulnerable(false));
-                                        }, config.configData.invincibleTime, TimeUnit.SECONDS);
-                                    }, config.configData.teleportTime, TimeUnit.SECONDS);
+                                    this.player.sendMessage(Placeholders.parseText(config.teleportTimerText, Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, Map.of("time", Text.of(Integer.toString(config.configData.teleportTime)))));
+
+                                    GravesMod.DO_ON_NEXT_TICK.add(new Runnable() {
+                                        double x = pos.x();
+                                        double y = pos.y() + config.configData.teleportHeight;
+                                        double z = pos.z();
+
+                                        // If any movement occurs, the teleport request will be cancelled.
+                                        final Vec3d currentPosition = GraveListGui.this.player.getPos();
+
+                                        // Non-final to allow for decrementing.
+                                        int teleportTicks = config.configData.teleportTime * 20;
+                                        int invulnerableTicks = config.configData.invincibleTime * 20;
+
+                                        @Override
+                                        public void run() {
+                                            if(--teleportTicks >= 0) {
+                                                if(!player.getPos().equals(currentPosition)) {
+                                                    player.sendMessage(config.teleportCancelledText);
+                                                    return;
+                                                }
+                                                if(teleportTicks == 0) {
+                                                    player.sendMessage(Placeholders.parseText(config.teleportLocationText, Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, Map.of("position", Text.translatable("chat.coordinates", x, y, z))));
+
+                                                    player.teleport(world, x + 0.5D, y + 1.0D, z + 0.5D,
+                                                    player.getYaw(), player.getPitch());
+                                                    player.playSound(SoundEvents.ENTITY_ENDERMAN_TELEPORT,
+                                                    SoundCategory.MASTER, 1f, 1f);
+                                                    player.setInvulnerable(true);
+                                                }
+                                                GravesMod.DO_ON_NEXT_TICK.add(this);
+                                            } else if(--invulnerableTicks > 0) {
+                                                GravesMod.DO_ON_NEXT_TICK.add(this);
+                                            } else {
+                                                player.setInvulnerable(false);
+                                            }
+                                        }
+                                    });
                                 }
-                                }
+                            }
                         } else {
                             this.close();
                             grave.openUi(player, this.canModify);

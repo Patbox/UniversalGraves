@@ -3,9 +3,9 @@ package eu.pb4.graves.config;
 
 import com.mojang.brigadier.StringReader;
 import eu.pb4.graves.config.data.ConfigData;
-import eu.pb4.graves.registry.GraveBlock;
 import eu.pb4.graves.other.GravesLookType;
 import eu.pb4.graves.other.GravesXPCalculation;
+import eu.pb4.graves.registry.GraveBlock;
 import eu.pb4.graves.registry.IconItem;
 import eu.pb4.placeholders.api.TextParserUtils;
 import eu.pb4.placeholders.api.node.EmptyNode;
@@ -95,6 +95,8 @@ public final class Config {
     public final Text guiCantReverseAction;
     public final Text guiClickToConfirm;
 
+    public final Text teleportCancelledText;
+
     public final ItemStack guiInfoIcon;
 
     public final ItemStack guiPreviousPageIcon;
@@ -150,6 +152,8 @@ public final class Config {
 
         this.teleportLocationText = parse(data.teleportLocationText);
         this.teleportTimerText = parse(data.teleportTimerText);
+
+        this.teleportCancelledText = parseText(data.teleportCancelledText);
 
         this.guiInfoIcon = parseItem(data.guiInfoIcon);
         this.guiBarItem = parseItem(data.guiBarItem);
@@ -335,8 +339,8 @@ public final class Config {
         return texts.toArray(new TextNode[0]);
     }
 
-    public static record BlockStyleEntry(BlockState state, BlockEntityType<?> blockEntityType,
-                                         NbtCompound blockEntityNbt) {
+    public record BlockStyleEntry(BlockState state, BlockEntityType<?> blockEntityType,
+                                  NbtCompound blockEntityNbt) {
     }
 
 }
