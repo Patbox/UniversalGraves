@@ -3,9 +3,9 @@ package eu.pb4.graves.config;
 
 import com.mojang.brigadier.StringReader;
 import eu.pb4.graves.config.data.ConfigData;
-import eu.pb4.graves.registry.GraveBlock;
 import eu.pb4.graves.other.GravesLookType;
 import eu.pb4.graves.other.GravesXPCalculation;
+import eu.pb4.graves.registry.GraveBlock;
 import eu.pb4.graves.registry.IconItem;
 import eu.pb4.placeholders.api.TextParserUtils;
 import eu.pb4.placeholders.api.node.EmptyNode;
@@ -68,6 +68,12 @@ public final class Config {
     public final TextNode creationFailedPvPMessage;
     @Nullable
     public final TextNode creationFailedClaimMessage;
+    @Nullable
+    public final TextNode teleportTimerText;
+    @Nullable
+    public final TextNode teleportTimerAllowMovingText;
+    @Nullable
+    public final TextNode teleportLocationText;
     public final GravesXPCalculation xpCalc;
 
     public final BlockStyleEntry[] customBlockStateStylesLocked;
@@ -90,6 +96,8 @@ public final class Config {
     public final Text guiQuickPickupText;
     public final Text guiCantReverseAction;
     public final Text guiClickToConfirm;
+
+    public final Text teleportCancelledText;
 
     public final ItemStack guiInfoIcon;
 
@@ -143,6 +151,12 @@ public final class Config {
         this.guiQuickPickupText = parseText(data.guiQuickPickupText);
         this.guiCantReverseAction = parseText(data.guiCantReverseAction);
         this.guiClickToConfirm = parseText(data.guiClickToConfirm);
+
+        this.teleportLocationText = parse(data.teleportLocationText);
+        this.teleportTimerText = parse(data.teleportTimerText);
+        this.teleportTimerAllowMovingText = parse(data.teleportTimerTextAllowMoving);
+
+        this.teleportCancelledText = parseText(data.teleportCancelledText);
 
         this.guiInfoIcon = parseItem(data.guiInfoIcon);
         this.guiBarItem = parseItem(data.guiBarItem);

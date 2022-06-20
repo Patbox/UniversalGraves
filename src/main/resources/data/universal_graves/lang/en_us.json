@@ -35,6 +35,11 @@
   "text.graves.gui.cant_reverse": "You can't reverse this action!",
   "text.graves.gui.click_to_confirm": "Click again to confirm",
 
+  "text.graves.teleport.teleport_timer": "Teleporting in %s seconds, don't move!",
+  "text.graves.teleport.teleport_timer_moving": "Teleporting in %s seconds",
+  "text.graves.teleport.teleport_location": "Teleporting to %s",
+  "text.graves.teleport.teleport_cancelled": "Cancelled teleportation",
+
   "item.universal_graves.grave_compass": "Grave Compass",
   "block.universal_graves.grave": "Grave",
   "block.universal_graves.visual_grave": "Gravestone",
