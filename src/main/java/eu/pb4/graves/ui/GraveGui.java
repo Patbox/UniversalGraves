@@ -2,6 +2,7 @@ package eu.pb4.graves.ui;
 
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.grave.Grave;
+import eu.pb4.graves.other.GraveUtils;
 import eu.pb4.graves.other.OutputSlot;
 import eu.pb4.graves.registry.GraveCompassItem;
 import eu.pb4.placeholders.api.Placeholders;
@@ -12,6 +13,8 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.item.Items;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 
@@ -24,11 +27,13 @@ public class GraveGui extends PagedGui {
     private final boolean canTake;
     private int ticker = 0;
     private int actionTime = -1;
+    private boolean canTeleport;
 
-    public GraveGui(ServerPlayerEntity player, Grave grave, boolean canTake) {
+    public GraveGui(ServerPlayerEntity player, Grave grave, boolean canTake, boolean canTeleport) {
         super(player);
         this.grave = grave;
         this.canTake = canTake;
+        this.canTeleport = canTeleport;
         this.setTitle(Placeholders.parseText(ConfigManager.getConfig().graveTitle, Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, grave.getPlaceholders(player.getWorld().getServer())));
         this.inventory = this.grave.asInventory();
         this.updateDisplay();
@@ -117,7 +122,26 @@ public class GraveGui extends PagedGui {
                                 this.grave.quickEquip(this.player);
                             })
                     );
-                } else {
+                } else if (this.canTeleport) {
+                    var config = ConfigManager.getConfig();
+                    yield DisplayElement.of(GuiElementBuilder.from(config.guiTeleportIcon)
+                            .setName(config.teleportationCost.checkCost(player) ? config.guiTeleportActiveText : config.guiTeleportNotEnoughText)
+                            .addLoreLine(config.teleportationCost.getText(player))
+                            .setCallback((x, y, z) -> {
+                                if (config.teleportationCost.takeCost(player)) {
+                                    playClickSound(this.player);
+                                    this.close();
+                                    GraveUtils.teleportToGrave(this.player, grave, (b) -> {
+                                        if (!b) {
+                                            config.teleportationCost.returnCost(player);
+                                        }
+                                    });
+                                } else {
+                                    playClickSound(this.player, SoundEvents.ENTITY_VILLAGER_NO);
+                                }
+                            })
+                    );
+                } else  {
                     yield DisplayElement.lowerBar(player);
                 }
             }

@@ -6,6 +6,7 @@ import eu.pb4.graves.GravesMod;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.grave.Grave;
 import eu.pb4.graves.grave.GraveManager;
+import eu.pb4.graves.other.GraveUtils;
 import eu.pb4.placeholders.api.Placeholders;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import me.lucko.fabric.api.permissions.v0.Permissions;
@@ -81,62 +82,8 @@ public class GraveListGui extends PagedGui {
                     .setName(parsed.remove(0))
                     .setLore(parsed)
                     .setCallback((index, type, action) -> {
-                        if (type.isRight) {
-                            if (Permissions.check(this.player, "universal_graves.teleport", 3)) {
-                                this.close();
-
-                                var pos = grave.getLocation();
-                                var movingText = config.configData.allowMovingDuringTeleportation ? config.teleportTimerAllowMovingText : config.teleportTimerText;
-
-                                MinecraftServer server = Objects.requireNonNull(this.player.getServer(), "server; running on client?");
-                                ServerWorld world = server.getWorld(RegistryKey.of(Registry.WORLD_KEY, pos.world()));
-                                if (world != null) {
-                                    this.player.sendMessage(Placeholders.parseText(movingText, Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, Map.of("time", Text.of(Integer.toString(config.configData.teleportTime)))));
-                                }
-
-                                GravesMod.DO_ON_NEXT_TICK.add(new Runnable() {
-                                    double x = pos.x();
-                                    double y = pos.y() + config.configData.teleportHeight;
-                                    double z = pos.z();
-
-                                    // If any movement occurs, the teleport request will be cancelled.
-                                    final Vec3d currentPosition = GraveListGui.this.player.getPos();
-
-                                    // Non-final to allow for decrementing.
-                                    int teleportTicks = config.configData.teleportTime * 20;
-                                    int invulnerableTicks = config.configData.invincibleTime * 20;
-
-                                    @Override
-                                    public void run() {
-                                        if (--teleportTicks >= 0) {
-                                            if (!config.configData.allowMovingDuringTeleportation && !player.getPos().equals(currentPosition)) {
-                                                player.sendMessage(config.teleportCancelledText);
-                                                player.playSound(SoundEvents.ENTITY_SHULKER_HURT_CLOSED,
-                                                        SoundCategory.MASTER, 1f, 0.5f);
-                                                return;
-                                            }
-                                            if (teleportTicks == 0) {
-                                                player.sendMessage(Placeholders.parseText(config.teleportLocationText, PREDEFINED_PLACEHOLDER_PATTERN, Map.of("position", Text.translatable("chat.coordinates", x, y, z))));
-
-                                                player.teleport(world, x + 0.5D, y + 1.0D, z + 0.5D,
-                                                        player.getYaw(), player.getPitch());
-                                                player.playSound(SoundEvents.ENTITY_ENDERMAN_TELEPORT,
-                                                        SoundCategory.MASTER, 1f, 1f);
-                                                player.setInvulnerable(true);
-                                            }
-                                            GravesMod.DO_ON_NEXT_TICK.add(this);
-                                        } else if (--invulnerableTicks > 0) {
-                                            GravesMod.DO_ON_NEXT_TICK.add(this);
-                                        } else {
-                                            player.setInvulnerable(false);
-                                        }
-                                    }
-                                });
-                            }
-                        } else {
-                            this.close();
-                            grave.openUi(player, this.canModify);
-                        }
+                        this.close();
+                        grave.openUi(player, this.canModify);
                     });
 
             return DisplayElement.of(element);

@@ -1,9 +1,9 @@
 package eu.pb4.graves.config.data;
 
+import eu.pb4.common.protection.api.CommonProtection;
 import eu.pb4.graves.other.GravesLookType;
 import eu.pb4.graves.other.GravesXPCalculation;
 import eu.pb4.graves.other.GraveUtils;
-import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.WallBlock;
@@ -50,6 +50,9 @@ public class ConfigData extends VersionedConfigData {
 
     public boolean replaceAnyBlock = false;
     public int maxPlacementDistance = 8;
+    public boolean shiftLocationOnFailure = true;
+    public int maxShiftCount = 5;
+    public int shiftDistance = 40;
     public boolean useRealTime = false;
     public boolean useAlternativeXPEntity = FabricLoader.getInstance().isModLoaded("origins")
             || FabricLoader.getInstance().isModLoaded("bewitchment");
@@ -57,7 +60,7 @@ public class ConfigData extends VersionedConfigData {
     public boolean createFromPvP = true;
     public boolean createFromVoid = true;
     public boolean createFromCommandDeaths = true;
-    public boolean createInClaims = true;
+    public Map<String, Boolean> createInProtectedArea = new HashMap<>();
     public boolean dropItemsAfterExpiring = true;
 
     public boolean allowAttackersToTakeItems = false;
@@ -69,6 +72,9 @@ public class ConfigData extends VersionedConfigData {
 
     public String graveTitle = "<lang:'text.graves.players_grave':'${player}'>";
 
+    public String teleportationCostType = "creative";
+    public String teleportationCostConsumable = "";
+    public int teleportationCostCount = -1;
     public String teleportTimerText = "<lang:'text.graves.teleport.teleport_timer':'${time}'>";
     public String teleportTimerTextAllowMoving = "<lang:'text.graves.teleport.teleport_timer_moving':'${time}'>";
     public String teleportLocationText = "<lang:'text.graves.teleport.teleport_location':'${position}'>";
@@ -113,9 +119,6 @@ public class ConfigData extends VersionedConfigData {
     public Map<String, List<Arena>> blacklistedAreas = new HashMap<>();
     public Set<String> blacklistedDamageSources = new HashSet<>();
 
-    @Deprecated
-    public boolean tryDetectionSoulbound = false;
-
     public List<String> skippedEnchantments = new ArrayList<>();
 
     public String guiPreviousPageText = "<lang:'text.graves.gui.previous_page'>";
@@ -132,6 +135,12 @@ public class ConfigData extends VersionedConfigData {
     public String guiClickToConfirm = "<white><lang:'text.graves.gui.click_to_confirm'>";
 
 
+    public String guiTeleportActiveText = "<#a52dfa><lang:'text.graves.gui.teleport'>";
+    public String guiTeleportNotEnoughText = "<dark_gray><lang:'text.graves.gui.teleport'>";
+    public String guiTeleportCostActiveText = "<white><lang:'text.graves.gui.teleport.cost'> <#cfcfcf>${item} × ${count}";
+    public String guiTeleportCostNotEnoughText = "<white><lang:'text.graves.gui.teleport.cost'> <#cfcfcf>${item} × ${count} <gray>(<red><lang:'text.graves.gui.teleport.not_enough'></red>)";
+
+
     public String guiInfoIcon = "minecraft:oak_sign";
     public String guiBarItem = "minecraft:white_stained_glass_pane";
 
@@ -143,6 +152,8 @@ public class ConfigData extends VersionedConfigData {
 
     public String guiRemoveProtectionIcon = "universal_graves:icon{Texture:\"remove_protection\"}";
     public String guiBreakGraveIcon = "universal_graves:icon{Texture:\"break_grave\"}";
+    public String guiTeleportIcon = "minecraft:ender_pearl";
+
 
     public String guiQuickPickupIcon = "universal_graves:icon{Texture:\"quick_pickup\"}";
 
@@ -233,6 +244,14 @@ public class ConfigData extends VersionedConfigData {
         list.add("<white>${break_time}");
 
         return list;
+    }
+
+    public void fillMissing() {
+        for (var id : CommonProtection.getProviderIds()) {
+            if (!id.getNamespace().equals("universal_graves")) {
+                this.createInProtectedArea.put(id.toString(), false);
+            }
+        }
     }
 
     public class Arena {

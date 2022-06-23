@@ -1,6 +1,10 @@
 package eu.pb4.graves;
 
+import eu.pb4.common.protection.api.CommonProtection;
 import eu.pb4.graves.compat.SaveGearOnDeathCompat;
+import eu.pb4.graves.event.GraveValidPosCheckEvent;
+import eu.pb4.graves.other.GraveProtectionProvider;
+import eu.pb4.graves.other.GraveUtils;
 import eu.pb4.graves.registry.*;
 import eu.pb4.graves.compat.GomlCompat;
 import eu.pb4.graves.compat.InventorioCompat;
@@ -25,6 +29,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class GravesMod implements ModInitializer {
     public static final Logger LOGGER = LogManager.getLogger("Universal Graves");
@@ -54,6 +59,8 @@ public class GravesMod implements ModInitializer {
 
         GraveNetworking.initialize();
         new GraveGameRules();
+
+        CommonProtection.register(new Identifier("universal_graves", "graves"), GraveProtectionProvider.INSTANCE);
 
         GravesApi.registerInventoryMask(new Identifier("vanilla"), VanillaInventoryMask.INSTANCE);
 

@@ -12,6 +12,7 @@ import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
@@ -167,5 +168,9 @@ public abstract class PagedGui extends SimpleGui {
 
     public static final void playClickSound(ServerPlayerEntity player) {
         player.playSound(SoundEvents.UI_BUTTON_CLICK, SoundCategory.MASTER, 1, 1);
+    }
+
+    public static final void playClickSound(ServerPlayerEntity player, SoundEvent soundEvent) {
+        player.playSound(soundEvent, SoundCategory.MASTER, 1, 1);
     }
 }

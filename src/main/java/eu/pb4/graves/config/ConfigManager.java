@@ -50,6 +50,8 @@ public class ConfigManager {
                 config = new ConfigData();
             }
 
+            config.fillMissing();
+
             overrideConfig(config);
             ENABLED = true;
         }

@@ -5,11 +5,14 @@ import com.mojang.brigadier.StringReader;
 import eu.pb4.graves.config.data.ConfigData;
 import eu.pb4.graves.other.GravesLookType;
 import eu.pb4.graves.other.GravesXPCalculation;
+import eu.pb4.graves.other.TeleportationCost;
 import eu.pb4.graves.registry.GraveBlock;
 import eu.pb4.graves.registry.IconItem;
 import eu.pb4.placeholders.api.TextParserUtils;
 import eu.pb4.placeholders.api.node.EmptyNode;
 import eu.pb4.placeholders.api.node.TextNode;
+import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
+import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -84,6 +87,8 @@ public final class Config {
     public final Set<Identifier> blacklistedWorlds;
     public final boolean canClientSide;
 
+    public final TeleportationCost<?> teleportationCost;
+
     public final Text guiPreviousPageText;
     public final Text guiPreviousPageBlockedText;
 
@@ -96,6 +101,11 @@ public final class Config {
     public final Text guiQuickPickupText;
     public final Text guiCantReverseAction;
     public final Text guiClickToConfirm;
+
+    public final Text guiTeleportActiveText;
+    public final Text guiTeleportNotEnoughText;
+    public final TextNode guiTeleportCostActiveText;
+    public final TextNode guiTeleportCostNotEnoughText;
 
     public final Text teleportCancelledText;
 
@@ -110,10 +120,13 @@ public final class Config {
     public final ItemStack guiRemoveProtectionIcon;
     public final ItemStack guiBreakGraveIcon;
 
+    public final ItemStack guiTeleportIcon;
+
     public final ItemStack guiQuickPickupIcon;
     public final ItemStack guiBarItem;
     public final SimpleDateFormat fullDateFormat;
     public final HashMap<Identifier, List<Box>> blacklistedAreas;
+    public final Object2BooleanMap<Identifier> blacklistedProtectedAreas = new Object2BooleanOpenHashMap<>();
 
     public Config(ConfigData data) {
         this.configData = data;
@@ -152,6 +165,12 @@ public final class Config {
         this.guiCantReverseAction = parseText(data.guiCantReverseAction);
         this.guiClickToConfirm = parseText(data.guiClickToConfirm);
 
+        this.guiTeleportCostActiveText = parse(data.guiTeleportCostActiveText);
+        this.guiTeleportCostNotEnoughText = parse(data.guiTeleportCostNotEnoughText);
+
+        this.guiTeleportActiveText = parseText(data.guiTeleportActiveText);
+        this.guiTeleportNotEnoughText = parseText(data.guiTeleportNotEnoughText);
+
         this.teleportLocationText = parse(data.teleportLocationText);
         this.teleportTimerText = parse(data.teleportTimerText);
         this.teleportTimerAllowMovingText = parse(data.teleportTimerTextAllowMoving);
@@ -167,6 +186,9 @@ public final class Config {
         this.guiRemoveProtectionIcon = parseItem(data.guiRemoveProtectionIcon);
         this.guiBreakGraveIcon = parseItem(data.guiBreakGraveIcon);
         this.guiQuickPickupIcon = parseItem(data.guiQuickPickupIcon);
+        this.guiTeleportIcon = parseItem(data.guiTeleportIcon);
+
+        this.teleportationCost = TeleportationCost.decode(data.teleportationCostType, data.teleportationCostConsumable, data.teleportationCostCount);
 
         this.customBlockStateStylesLocked = parseBlockStyles(this.configData.customBlockStateLockedStyles);
         this.customBlockStateStylesUnlocked = parseBlockStyles(this.configData.customBlockStateUnlockedStyles);
@@ -204,6 +226,13 @@ public final class Config {
                 }
             }
         }
+
+        for (var entry : data.createInProtectedArea.entrySet()) {
+            var id = Identifier.tryParse(entry.getKey());
+            if (id != null) {
+                this.blacklistedProtectedAreas.put(id, !entry.getValue().booleanValue());
+            }
+        }
     }
 
     private static Set<Identifier> parseIds(List<String> ids) {
@@ -229,7 +258,7 @@ public final class Config {
         return !string.isEmpty() ? TextParserUtils.formatText(string) : Text.empty();
     }
 
-    private static ItemStack parseItem(String itemDef) {
+    public static ItemStack parseItem(String itemDef) {
         try {
             var item = ItemStringReader.item(CommandRegistryWrapper.of(Registry.ITEM), new StringReader(itemDef));
             var itemStack = item.item().value().getDefaultStack();

@@ -4,6 +4,7 @@ import eu.pb4.graves.GraveNetworking;
 import eu.pb4.graves.config.Config;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.grave.Grave;
+import eu.pb4.graves.grave.GraveHolder;
 import eu.pb4.graves.grave.GraveManager;
 import eu.pb4.graves.grave.PositionedItemStack;
 import eu.pb4.graves.other.Location;
@@ -33,11 +34,12 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
 import java.util.*;
 
 import static eu.pb4.graves.registry.AbstractGraveBlock.IS_LOCKED;
 
-public class GraveBlockEntity extends AbstractGraveBlockEntity {
+public class GraveBlockEntity extends AbstractGraveBlockEntity implements GraveHolder {
     public static BlockEntityType<GraveBlockEntity> BLOCK_ENTITY_TYPE;
     public WorldHologram hologram = null;
     public BlockState replacedBlockState = Blocks.AIR.getDefaultState();
@@ -110,11 +112,6 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity {
 
     protected void fetchGraveData() {
         this.data = GraveManager.INSTANCE.getId(this.graveId);
-
-        if (this.data == null) {
-            // Beta.1 grave handling
-            this.data = GraveManager.INSTANCE.getByLocation(new Location(this.world.getRegistryKey().getValue(), this.pos));
-        }
 
         if (this.data != null) {
             this.visualData = this.data.toVisualGraveData();
@@ -266,7 +263,13 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity {
         }
     }
 
+
+    @Nullable
     public Grave getGrave() {
+        if (this.data == null) {
+            this.fetchGraveData();
+        }
+
         return this.data;
     }
 

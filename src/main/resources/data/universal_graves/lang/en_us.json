@@ -31,6 +31,9 @@
   "text.graves.gui.remove_protection": "Remove Protection",
   "text.graves.gui.break_grave": "Break Grave",
   "text.graves.gui.quick_pickup": "Take All Items",
+  "text.graves.gui.teleport": "Teleport to grave",
+  "text.graves.gui.teleport.not_enough": "Not enough resources!",
+  "text.graves.gui.teleport.cost": "Cost:",
 
   "text.graves.gui.cant_reverse": "You can't reverse this action!",
   "text.graves.gui.click_to_confirm": "Click again to confirm",
@@ -45,5 +48,10 @@
   "block.universal_graves.visual_grave": "Gravestone",
 
   "gamerule.universal_graves:protection_time": "Time of grave's protection against other players",
-  "gamerule.universal_graves:breaking_time": "Grave expiration time"
+  "gamerule.universal_graves:breaking_time": "Grave expiration time",
+
+  "text.graves.teleportation_cost.level": "XP Levels",
+  "text.graves.teleportation_cost.creative": "Creative",
+  "text.graves.teleportation_cost.free": "Free",
+  "text.graves.teleportation_cost.item": "Items"
 }

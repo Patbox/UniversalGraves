@@ -40,6 +40,7 @@ import java.util.*;
 public final class Grave {
     public static final Text DEFAULT_DEATH_CAUSE = Text.literal("Unknown cause");
     public static final GameProfile DEFAULT_GAME_PROFILE = new GameProfile(UUID.fromString("9586e5ab-157a-4658-ad80-b07552a9ca63"), "Herobrine");
+    public static final Grave SOMETHING_BROKE_AGAIN = new Grave();
 
     @Nullable
     protected GameProfile gameProfile;
@@ -177,6 +178,9 @@ public final class Grave {
     }
 
     public VisualGraveData toVisualGraveData() {
+        if (this.visualData == null) {
+            this.updateDisplay();
+        }
         return this.visualData;
     }
 
@@ -240,8 +244,12 @@ public final class Grave {
         this.isProtectionEnabled = false;
     }
 
+    public boolean canTakeFrom(GameProfile profile) {
+        return !this.isProtected() || (this.gameProfile != null && this.gameProfile.getId().equals(profile.getId())) || this.allowedUUIDs.contains(profile.getId());
+    }
+
     public boolean canTakeFrom(PlayerEntity entity) {
-        return !this.isProtected() || (this.gameProfile != null && this.gameProfile.getId().equals(entity.getUuid())) || this.allowedUUIDs.contains(entity.getUuid()) || Permissions.check(entity, "graves.can_open_others", 3);
+        return this.canTakeFrom(entity.getGameProfile()) || Permissions.check(entity, "graves.can_open_others", 3);
     }
 
     public GameProfile getProfile() {
@@ -281,7 +289,8 @@ public final class Grave {
     }
 
     public void openUi(ServerPlayerEntity player, boolean canTake) {
-        new GraveGui(player, this, canTake).open();
+        new GraveGui(player, this, canTake, this.canTakeFrom(player)
+                && (ConfigManager.getConfig().teleportationCost.type() != TeleportationCost.Type.CREATIVE || player.isCreative())).open();
     }
 
     public Inventory asInventory() {

@@ -56,11 +56,12 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 
-	modImplementation include("eu.pb4:sgui:1.1.0+1.19")
+	modImplementation include("eu.pb4:sgui:1.1.1+1.19")
 	modImplementation include("eu.pb4:hologram-api:0.2.2+1.19")
-	modImplementation include("eu.pb4:placeholder-api:2.0.0-beta.4+1.19")
-	modImplementation include("eu.pb4:polymer:0.2.0+1.19")
-	modImplementation include("fr.catcore:server-translations-api:1.4.14+1.19-rc2")
+	modImplementation include("eu.pb4:placeholder-api:2.0.0-beta.6+1.19")
+	modImplementation include("eu.pb4:polymer:0.2.2+1.19")
+	modImplementation include("eu.pb4:common-protection-api:1.0.0")
+	modImplementation include("fr.catcore:server-translations-api:1.4.16+1.19")
 	//modImplementation include("fr.catcore:server-translations-api:1.4.8+1.18-pre1")
 	modImplementation include("me.lucko:fabric-permissions-api:0.1-SNAPSHOT")
 

@@ -47,24 +47,41 @@ Additionally, every message type has few own local variables, which you type as 
   "presetHeadUnlockedTexture": "...",        // Points to unlocked grave texture ("preset_head"), requires a value field
   "customBlockStateLockedStyles": ["..."],   // Custom visual blockstate for locked graves for style "custom". Limited to 16, uses same formatting as /setblock
   "customBlockStateUnlockedStyles": ["..."], // Custom visual blockstate for unlocked graves for style "custom". Limited to 16, uses same formatting as /setblock
-  "isProtected": true,                       // Changes if graves should be protected by default
+  "customStyleUpdateRate": 20,               // Update rate (in ticks) of custom sign(like) blocks
   "protectionTime": 300,                     // Time for which graves should be protected (is seconds), -1 for infinite
   "breakingTime": 900,                       // Time after which grave will break, -1 to disable breaking
-  "breakEmptyGraves": true,                  // If true, empty graves will break automatically
+  "teleportTime": 5,                         // Time before teleportation to grave happens (if enabled)
+  "invincibleTime": 2,                       // Time for which player is invincible after teleportation
+  "keepBlockAfterBreaking": true,            // Keeps (visual) grave block after it's broken
+  "restoreBlockAfterPlayerBreaking": true,   // Restores original block after breaking grave
   "xpStorageType": "vanilla",                // Allows to change how much of xp is stored, "none" for nothing/destroying, "vanilla" for vanilla amount, "percent_levels" for percent of levels, "percent_points" for percent of points and "drop" for dropping outside of grave
   "xpPercentTypeValue": 100.0,               // Changes how much percent of xp will be stored, works only with xpStorageType of `percent_...`
+  "teleportHeight": 0.5,                     // Height above grave player gets teleported to
   "replaceAnyBlock": true,                   // Allows to replace solid blocks if there is no other spot to place a grave
   "maxPlacementDistance": 8,                 // Maximal distance grave can be created from player's death location. Too big values can cause lag
+  "shiftLocationOnFailure": true,            // Makes free location searching code "shift" in random direction and try again
+  "maxShiftCount": 5,                        // Max number of shifts before failing
+  "shiftDistance": 40,                       // Distance in blocks in which shift is performed
   "useRealTime": false,                      // Switches to using real time for measuring time instead of ingame one
+  "useAlternativeXPEntity": false,           // Enables alternative XP entity, instead of vanilla one
   "createFromPvP": true,                     // If false, after dying from another players attack grave won't be created
   "createFromVoid": true,                    // If false, graves won't be created if player dies in void
   "createFromCommandDeaths": true,           // If false, graves won't be created if player dies because of kill command
-  "createInClaims": true,                    // if false, graves won't be created in claims
+  "createInProtectedArea": {                 // Allows to enable creation of graves in protected areas for mods using Common Protection API
+    "mod:type": false
+  },               
   "dropItemsAfterExpiring": true,            // If items should drop breaking from expiration
   "allowAttackersToTakeItems": false,        // Allows attackers to take items from victim's grave
   "shiftClickTakesItems": true,              // Enables quick pickup of graves if clicked while sneaking
   "giveGraveCompass": true,                  // When enabled, player will get a compass pointing to their grave after dying
   "graveTitle": "...",                       // Changes grave title
+  "teleportationCostType": "creative",       // Type of cost for teleportation, supports "creative", "free", "level" and "item"
+  "teleportationCostConsumable": "",         // Sets required type of consumable, used for items
+  "teleportationCostCount": 1,               // Required count of items
+  "teleportTimerText": "...",                // Text related to teleportation timer, while disallowing movement
+  "teleportTimerTextAllowMoving": "...",     // Text related to teleportation timer
+  "teleportLocationText": "...",             // Text for sending location of teleport
+  "teleportCancelledText": "...",            // Text sent after teleportation fails
   "hologram": true,                          // Enables hologram
   "hologramDisplayIfOnClient": true,         // Allows to toggle visibility of hologram for players having client side mod
   "hologramOffset": 1.2,                     // Changes vertical offset of hologram
