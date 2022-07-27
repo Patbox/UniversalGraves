@@ -369,7 +369,7 @@ public final class Grave {
             }
 
             if (text != null) {
-                owner.sendMessage(Placeholders.parseText(text, Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, this.getPlaceholders(server)), MessageType.SYSTEM);
+                owner.sendMessage(Placeholders.parseText(text, Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, this.getPlaceholders(server)));
             }
         }
 
@@ -405,7 +405,7 @@ public final class Grave {
             if (config.noLongerProtectedMessage != null) {
                 ServerPlayerEntity player = this.gameProfile != null ? server.getPlayerManager().getPlayer(this.gameProfile.getId()) : null;
                 if (player != null) {
-                    player.sendMessage(Placeholders.parseText(config.noLongerProtectedMessage, Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, this.getPlaceholders(server)), MessageType.SYSTEM);
+                    player.sendMessage(Placeholders.parseText(config.noLongerProtectedMessage, Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, this.getPlaceholders(server)));
                 }
             }
         }

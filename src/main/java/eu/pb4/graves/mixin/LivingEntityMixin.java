@@ -178,7 +178,7 @@ public abstract class LivingEntityMixin {
                                     ((PlayerAdditions) player).graves_setLastGrave(-1);
                                 }
                                 if (text2 != null) {
-                                    player.sendMessage(Placeholders.parseText(text2, Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, placeholders2), MessageType.SYSTEM);
+                                    player.sendMessage(Placeholders.parseText(text2, Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, placeholders2));
                                 }
                             });
                             
@@ -201,7 +201,7 @@ public abstract class LivingEntityMixin {
                 }
 
                 if (text != null) {
-                    player.sendMessage(Placeholders.parseText(text, Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, placeholders), MessageType.SYSTEM);
+                    player.sendMessage(Placeholders.parseText(text, Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, placeholders));
                 }
             } catch (Exception e) {
                 e.printStackTrace();
