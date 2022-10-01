@@ -2,31 +2,20 @@ package eu.pb4.graves.ui;
 
 import com.mojang.authlib.GameProfile;
 import eu.pb4.graves.GraveNetworking;
-import eu.pb4.graves.GravesMod;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.grave.Grave;
 import eu.pb4.graves.grave.GraveManager;
-import eu.pb4.graves.other.GraveUtils;
 import eu.pb4.placeholders.api.Placeholders;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
-import me.lucko.fabric.api.permissions.v0.Permissions;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.Objects;
 
 import static eu.pb4.placeholders.api.Placeholders.PREDEFINED_PLACEHOLDER_PATTERN;
 
@@ -35,8 +24,9 @@ public class GraveListGui extends PagedGui {
     private final boolean canModify;
     private int ticker = 0;
     private List<Grave> graves;
+    private boolean canFetch;
 
-    public GraveListGui(ServerPlayerEntity player, GameProfile profile, boolean canModify) {
+    public GraveListGui(ServerPlayerEntity player, GameProfile profile, boolean canModify, boolean canFetch) {
         super(player);
         this.targetUUID = profile.getId();
 
@@ -51,6 +41,7 @@ public class GraveListGui extends PagedGui {
         }
         this.graves = new ArrayList<>(GraveManager.INSTANCE.getByUuid(this.targetUUID));
         this.canModify = canModify;
+        this.canFetch = canFetch;
         this.updateDisplay();
     }
 
@@ -82,8 +73,8 @@ public class GraveListGui extends PagedGui {
                     .setName(parsed.remove(0))
                     .setLore(parsed)
                     .setCallback((index, type, action) -> {
-                        this.close();
-                        grave.openUi(player, this.canModify);
+                        this.close(true);
+                        grave.openUi(player, this.canModify, this.canFetch, () -> this.open());
                     });
 
             return DisplayElement.of(element);

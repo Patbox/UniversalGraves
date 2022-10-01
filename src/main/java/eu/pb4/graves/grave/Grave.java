@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import eu.pb4.graves.config.Config;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.other.*;
+import eu.pb4.graves.registry.GraveBlock;
 import eu.pb4.graves.registry.GraveBlockEntity;
 import eu.pb4.graves.ui.GraveGui;
 import eu.pb4.placeholders.api.Placeholders;
@@ -16,14 +17,12 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.network.message.MessageType;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.ItemScatterer;
-import net.minecraft.util.Util;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
@@ -277,7 +276,44 @@ public final class Grave {
     }
 
     public void setLocation(Location location) {
+        GraveManager.INSTANCE.moveToLocation(this, location);
         this.location = location;
+    }
+
+    public boolean moveTo(MinecraftServer server, Location location) {
+        var world = server.getWorld(RegistryKey.of(Registry.WORLD_KEY, location.world()));
+
+        if (world != null) {
+            var state = world.getBlockState(location.blockPos());
+
+            if (GraveUtils.canReplaceState(state, ConfigManager.getConfig().configData.replaceAnyBlock)
+                    && world.getWorldBorder().contains(location.blockPos()) && location.y() >= world.getBottomY() && location.y() < world.getTopY()) {
+
+                var old = this.location;
+                this.setLocation(location);
+
+                {
+                    var oldWorld = server.getWorld(RegistryKey.of(Registry.WORLD_KEY, old.world()));
+
+                    if (oldWorld != null) {
+                        var oldChunk = oldWorld.getChunk(ChunkSectionPos.getSectionCoord(old.x()), ChunkSectionPos.getSectionCoord(old.z()));
+
+                        if (oldChunk.getBlockEntity(old.blockPos()) instanceof GraveBlockEntity grave) {
+                            grave.setGrave(null);
+                            grave.breakBlock(false);
+                        }
+                    }
+                }
+
+                world.setBlockState(location.blockPos(), GraveBlock.INSTANCE.getDefaultState());
+
+                if (world.getBlockEntity(location.blockPos()) instanceof GraveBlockEntity entity) {
+                    entity.setGrave(this, state);
+                }
+                return true;
+            }
+        }
+        return false;
     }
 
     public void setLocation(Identifier identifier, BlockPos pos) {
@@ -288,9 +324,13 @@ public final class Grave {
         return this.items;
     }
 
-    public void openUi(ServerPlayerEntity player, boolean canTake) {
+    public void openUi(ServerPlayerEntity player, boolean canTake, boolean catFetch, @Nullable Runnable runnable) {
         new GraveGui(player, this, canTake, this.canTakeFrom(player)
-                && (ConfigManager.getConfig().teleportationCost.type() != TeleportationCost.Type.CREATIVE || player.isCreative())).open();
+                && (ConfigManager.getConfig().teleportationCost.type() != TeleportationCost.Type.CREATIVE || player.isCreative()), catFetch, runnable).open();
+    }
+
+    public void openUi(ServerPlayerEntity player, boolean canTake) {
+        openUi(player, canTake, false, null);
     }
 
     public Inventory asInventory() {

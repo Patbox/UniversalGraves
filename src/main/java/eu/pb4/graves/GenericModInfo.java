@@ -112,7 +112,7 @@ public class GenericModInfo {
                     Collections.addAll(output, icon);
                     output.addAll(about);
                 }
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 e.printStackTrace();
                 var invalid = Text.literal("/!\\ [ Invalid about mod info ] /!\\").setStyle(Style.EMPTY.withColor(0xFF0000).withItalic(true));
 

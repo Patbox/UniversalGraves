@@ -164,6 +164,19 @@ public abstract class PagedGui extends SimpleGui {
         public static DisplayElement lowerBar(ServerPlayerEntity player) {
             return GraveNetworking.canReceiveGui(player.networkHandler) ? DisplayElement.empty() : DisplayElement.filler();
         }
+
+        public static DisplayElement back(Runnable back) {
+            var config = ConfigManager.getConfig();
+            return DisplayElement.of(
+                    GuiElementBuilder.from(config.guiBackIcon)
+                            .setName(config.guiBackText)
+                            .hideFlags()
+                            .setCallback((x, y, z, d) -> {
+                                playClickSound(d.getPlayer());
+                                back.run();
+                            })
+            );
+        }
     }
 
     public static final void playClickSound(ServerPlayerEntity player) {

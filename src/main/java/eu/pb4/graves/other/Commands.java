@@ -70,7 +70,7 @@ public class Commands {
         ServerPlayerEntity player = context.getSource().getPlayer();
 
         try {
-            new GraveListGui(player, player.getGameProfile(), canModify).open();
+            new GraveListGui(player, player.getGameProfile(), canModify, Permissions.check(player, "universal_graves.fetch_grave", 3)).open();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -89,7 +89,7 @@ public class Commands {
             return 0;
         }
         try {
-            new GraveListGui(player, profiles.get(0), canModify).open();
+            new GraveListGui(player, profiles.get(0), canModify, Permissions.check(player, "universal_graves.fetch_grave.others", 3)).open();
         } catch (Exception e) {
             e.printStackTrace();
         }

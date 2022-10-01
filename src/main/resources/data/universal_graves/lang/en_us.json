@@ -34,6 +34,8 @@
   "text.graves.gui.teleport": "Teleport to grave",
   "text.graves.gui.teleport.not_enough": "Not enough resources!",
   "text.graves.gui.teleport.cost": "Cost:",
+  "text.graves.gui.fetch": "Move grave to your location",
+  "text.graves.gui.fetch_failed": "Couldn't move grave to your location!",
 
   "text.graves.gui.cant_reverse": "You can't reverse this action!",
   "text.graves.gui.click_to_confirm": "Click again to confirm",

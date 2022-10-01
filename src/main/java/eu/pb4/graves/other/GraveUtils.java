@@ -2,19 +2,30 @@ package eu.pb4.graves.other;
 
 
 import eu.pb4.common.protection.api.CommonProtection;
+import eu.pb4.graves.GravesApi;
 import eu.pb4.graves.GravesMod;
 import eu.pb4.graves.config.Config;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.event.GraveValidPosCheckEvent;
+import eu.pb4.graves.event.PlayerGraveCreationEvent;
 import eu.pb4.graves.grave.Grave;
+import eu.pb4.graves.grave.GraveManager;
+import eu.pb4.graves.grave.PositionedItemStack;
+import eu.pb4.graves.registry.GraveBlock;
+import eu.pb4.graves.registry.GraveBlockEntity;
 import eu.pb4.graves.registry.SafeXPEntity;
 import eu.pb4.graves.registry.TempBlock;
 import eu.pb4.placeholders.api.Placeholders;
+import eu.pb4.placeholders.api.node.TextNode;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.ExperienceOrbEntity;
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
@@ -24,10 +35,13 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.state.property.Properties;
 import net.minecraft.state.property.Property;
 import net.minecraft.tag.TagKey;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.ItemScatterer;
+import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
@@ -35,6 +49,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.border.WorldBorder;
 import org.jetbrains.annotations.Nullable;
 
@@ -137,7 +152,7 @@ public class GraveUtils {
     private static BlockResult isValidPos(ServerPlayerEntity player, ServerWorld world, WorldBorder border, BlockPos pos, boolean anyBlock, Config config) {
         BlockState state = world.getBlockState(pos);
 
-        if (state.getBlock() != TempBlock.INSTANCE && border.contains(pos) && pos.getY() >= world.getBottomY() && pos.getY() < world.getTopY() && !state.hasBlockEntity() && (state.isAir() || anyBlock || state.isIn(REPLACEABLE_TAG))) {
+        if (canReplaceState(state, anyBlock) && border.contains(pos) && pos.getY() >= world.getBottomY() && pos.getY() < world.getTopY()) {
             var areas = config.blacklistedAreas.get(world.getRegistryKey().getValue());
             if (areas != null) {
                 for (var area : areas) {
@@ -255,6 +270,153 @@ public class GraveUtils {
                 }
             });
         }
+    }
+
+    public static void createGrave(ServerPlayerEntity player, DamageSource source, boolean isCommandDeath) {
+        Config config = ConfigManager.getConfig();
+
+
+        if (player.getWorld().getGameRules().getBoolean(GameRules.KEEP_INVENTORY)
+                || config.blacklistedWorlds.contains(player.getWorld().getRegistryKey().getValue())
+                || config.configData.maxGraveCount == 0
+        ) {
+            return;
+        }
+
+        TextNode text = null;
+        var placeholders = Map.of(
+                "position", Text.literal("" + player.getBlockPos().toShortString()),
+                "world", GraveUtils.toWorldName(player.getWorld().getRegistryKey().getValue())
+        );
+
+        if (!config.configData.createFromPvP && source.getAttacker() instanceof PlayerEntity) {
+            text = config.creationFailedPvPMessage;
+        } else if ((!config.configData.createFromCommandDeaths && isCommandDeath) || config.configData.blacklistedDamageSources.contains(source.name)) {
+            return;
+        } else if (!config.configData.createFromVoid && source == DamageSource.OUT_OF_WORLD && !isCommandDeath) {
+            text = config.creationFailedVoidMessage;
+        } else {
+            var eventResult = PlayerGraveCreationEvent.EVENT.invoker().shouldCreate(player);
+
+            if (eventResult.canCreate()) {
+                var result = GraveUtils.findGravePosition(player, player.getWorld(), player.getBlockPos(), config.configData.maxPlacementDistance, config.configData.replaceAnyBlock);
+
+                if (result.result().canCreate()) {
+                    BlockPos gravePos = result.pos();
+                    List<PositionedItemStack> items = new ArrayList<>();
+
+                    for (var mask : GravesApi.getAllInventoryMasks()) {
+                        mask.addToGrave(player, (stack, slot, nbt) -> items.add(new PositionedItemStack(stack, slot, mask, nbt)));
+                    }
+
+                    int experience = 0;
+                    if (config.xpCalc != GravesXPCalculation.DROP) {
+                        experience = config.xpCalc.converter.calc(player);
+                    }
+
+                    if (items.size() == 0 && experience == 0) {
+                        return;
+                    }
+
+                    if (config.xpCalc != GravesXPCalculation.DROP) {
+                        player.experienceLevel = 0;
+                    }
+
+                    int finalExperience = experience;
+                    var world = player.getWorld();
+                    var gameProfile = player.getGameProfile();
+
+                    var allowedUUID = new HashSet<UUID>();
+
+                    if (config.configData.allowAttackersToTakeItems) {
+                        if (source.getAttacker() instanceof ServerPlayerEntity playerEntity) {
+                            allowedUUID.add(playerEntity.getUuid());
+                        }
+                        if (player.getAttacker() instanceof ServerPlayerEntity playerEntity) {
+                            allowedUUID.add(playerEntity.getUuid());
+                        }
+                    }
+                    var grave = Grave.createBlock(
+                            gameProfile,
+                            world.getRegistryKey().getValue(),
+                            gravePos,finalExperience,
+                            source.getDeathMessage(player),
+                            allowedUUID,
+                            items,
+                            (int) (world.getServer().getOverworld().getTimeOfDay() / 24000)
+                    );
+
+                    ((PlayerAdditions) player).graves_setLastGrave(grave.getId());
+                    BlockState oldBlockState = world.getBlockState(gravePos);
+                    world.setBlockState(gravePos, TempBlock.INSTANCE.getDefaultState());
+
+
+                    GravesMod.DO_ON_NEXT_TICK.add(() -> {
+                        TextNode text2;
+                        Map<String, Text> placeholders2 = placeholders;
+
+                        BlockState storedBlockState = world.getBlockState(gravePos).getBlock() == TempBlock.INSTANCE ? oldBlockState : Blocks.AIR.getDefaultState();
+
+                        world.setBlockState(gravePos, GraveBlock.INSTANCE.getDefaultState().with(Properties.ROTATION, player.getRandom().nextInt(15)));
+                        BlockEntity entity = world.getBlockEntity(gravePos);
+
+                        if (entity instanceof GraveBlockEntity graveBlockEntity) {
+                            GraveManager.INSTANCE.add(grave);
+                            graveBlockEntity.setGrave(grave, storedBlockState);
+                            text2 = config.createdGraveMessage;
+                            placeholders2 = grave.getPlaceholders(player.getServer());
+
+
+                            if (config.configData.maxGraveCount > -1) {
+                                var graves = new ArrayList<>(GraveManager.INSTANCE.getByPlayer(player));
+                                graves.sort(Comparator.comparing(x -> x.getCreationTime()));
+                                while (graves.size() > config.configData.maxGraveCount) {
+                                    graves.remove(0).destroyGrave(player.server, null);
+                                }
+                            }
+                        } else {
+                            if (config.xpCalc != GravesXPCalculation.DROP) {
+                                GraveUtils.spawnExp(world, Vec3d.ofCenter(gravePos), finalExperience);
+                            }
+                            text2 = config.creationFailedGraveMessage;
+                            var droppedItems = DefaultedList.<ItemStack>ofSize(0);
+                            for (var item : items) {
+                                droppedItems.add(item.stack());
+                            }
+
+                            ItemScatterer.spawn(world, gravePos, droppedItems);
+                            ((PlayerAdditions) player).graves_setLastGrave(-1);
+                        }
+                        if (text2 != null) {
+                            player.sendMessage(Placeholders.parseText(text2, Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, placeholders2));
+                        }
+                    });
+
+                } else {
+                    text = switch (result.result()) {
+                        case BLOCK -> config.creationFailedGraveMessage;
+                        case BLOCK_CLAIM -> config.creationFailedClaimMessage;
+                        case ALLOW -> null;
+                    };
+                }
+            } else {
+                text = switch (eventResult) {
+                    case BLOCK -> config.creationFailedGraveMessage;
+                    case BLOCK_CLAIM -> config.creationFailedClaimMessage;
+                    case BLOCK_PVP -> config.creationFailedPvPMessage;
+                    case BLOCK_VOID -> config.creationFailedVoidMessage;
+                    default -> null;
+                };
+            }
+        }
+
+        if (text != null) {
+            player.sendMessage(Placeholders.parseText(text, Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, placeholders));
+        }
+    }
+
+    public static boolean canReplaceState(BlockState state, boolean dontValidateWithTag) {
+        return state.getBlock() != TempBlock.INSTANCE && !state.hasBlockEntity() && (state.isAir() || dontValidateWithTag || state.isIn(REPLACEABLE_TAG));
     }
 
 

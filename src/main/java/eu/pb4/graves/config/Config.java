@@ -101,6 +101,7 @@ public final class Config {
     public final Text guiQuickPickupText;
     public final Text guiCantReverseAction;
     public final Text guiClickToConfirm;
+    public final Text guiBackText;
 
     public final Text guiTeleportActiveText;
     public final Text guiTeleportNotEnoughText;
@@ -110,6 +111,7 @@ public final class Config {
     public final Text teleportCancelledText;
 
     public final ItemStack guiInfoIcon;
+    public final Text guiFetchText;
 
     public final ItemStack guiPreviousPageIcon;
     public final ItemStack guiPreviousPageBlockedIcon;
@@ -124,9 +126,12 @@ public final class Config {
 
     public final ItemStack guiQuickPickupIcon;
     public final ItemStack guiBarItem;
+    public final ItemStack guiBackIcon;
+    public final ItemStack guiFetchIcon;
     public final SimpleDateFormat fullDateFormat;
     public final HashMap<Identifier, List<Box>> blacklistedAreas;
     public final Object2BooleanMap<Identifier> blacklistedProtectedAreas = new Object2BooleanOpenHashMap<>();
+    public final Text guiFetchFailedText;
 
     public Config(ConfigData data) {
         this.configData = data;
@@ -171,6 +176,10 @@ public final class Config {
         this.guiTeleportActiveText = parseText(data.guiTeleportActiveText);
         this.guiTeleportNotEnoughText = parseText(data.guiTeleportNotEnoughText);
 
+        this.guiBackText = parseText(data.guiBackText);
+        this.guiFetchText = parseText(data.guiFetchText);
+        this.guiFetchFailedText = parseText(data.guiFetchFailedText);
+
         this.teleportLocationText = parse(data.teleportLocationText);
         this.teleportTimerText = parse(data.teleportTimerText);
         this.teleportTimerAllowMovingText = parse(data.teleportTimerTextAllowMoving);
@@ -187,6 +196,8 @@ public final class Config {
         this.guiBreakGraveIcon = parseItem(data.guiBreakGraveIcon);
         this.guiQuickPickupIcon = parseItem(data.guiQuickPickupIcon);
         this.guiTeleportIcon = parseItem(data.guiTeleportIcon);
+        this.guiBackIcon = parseItem(data.guiBackItem);
+        this.guiFetchIcon = parseItem(data.guiFetchIcon);
 
         this.teleportationCost = TeleportationCost.decode(data.teleportationCostType, data.teleportationCostConsumable, data.teleportationCostCount);
 

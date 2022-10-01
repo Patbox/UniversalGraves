@@ -8,6 +8,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.WallBlock;
 import net.minecraft.block.enums.WallShape;
+import net.minecraft.text.Text;
 
 import java.util.*;
 
@@ -43,6 +44,8 @@ public class ConfigData extends VersionedConfigData {
     public int invincibleTime = 2;
     public boolean keepBlockAfterBreaking = false;
     public boolean restoreBlockAfterPlayerBreaking = true;
+    public int maxGraveCount = -1;
+
 
     public String xpStorageType = GravesXPCalculation.PERCENT_POINTS.name;
     public double xpPercentTypeValue = 100;
@@ -133,6 +136,9 @@ public class ConfigData extends VersionedConfigData {
     public String guiQuickPickupText = "<yellow><lang:'text.graves.gui.quick_pickup'>";
     public String guiCantReverseAction = "<dark_red><bold><lang:'text.graves.gui.cant_reverse'>";
     public String guiClickToConfirm = "<white><lang:'text.graves.gui.click_to_confirm'>";
+    public String guiFetchText = "<yellow><lang:'text.graves.gui.fetch'>";
+    public String guiBackText = "<red><lang:'gui.back'>";
+    public String guiFetchFailedText = "<red><lang:'text.graves.gui.fetch_failed'>";
 
 
     public String guiTeleportActiveText = "<#a52dfa><lang:'text.graves.gui.teleport'>";
@@ -153,9 +159,11 @@ public class ConfigData extends VersionedConfigData {
     public String guiRemoveProtectionIcon = "universal_graves:icon{Texture:\"remove_protection\"}";
     public String guiBreakGraveIcon = "universal_graves:icon{Texture:\"break_grave\"}";
     public String guiTeleportIcon = "minecraft:ender_pearl";
+    public String guiFetchIcon = "minecraft:lead";
 
 
     public String guiQuickPickupIcon = "universal_graves:icon{Texture:\"quick_pickup\"}";
+    public String guiBackItem = "minecraft:barrier";
 
     private static List<String> getDefaultProtectedHologram() {
         List<String> list = new ArrayList<>();
@@ -248,7 +256,7 @@ public class ConfigData extends VersionedConfigData {
 
     public void fillMissing() {
         for (var id : CommonProtection.getProviderIds()) {
-            if (!id.getNamespace().equals("universal_graves")) {
+            if (!id.getNamespace().equals("universal_graves") && !this.createInProtectedArea.containsKey(id.toString())) {
                 this.createInProtectedArea.put(id.toString(), false);
             }
         }

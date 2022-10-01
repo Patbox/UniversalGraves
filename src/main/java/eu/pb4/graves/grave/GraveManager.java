@@ -9,14 +9,16 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.*;
 
-public class GraveManager extends PersistentState {
+public final class GraveManager extends PersistentState {
     public static GraveManager INSTANCE;
 
     private HashMap<UUID, Set<Grave>> byUuid = new HashMap<>();
@@ -109,6 +111,12 @@ public class GraveManager extends PersistentState {
         return this.byLocation.get(location);
     }
 
+    @ApiStatus.Internal
+    public void moveToLocation(Grave grave, Location location) {
+        this.byLocation.remove(grave.location);
+        this.byLocation.put(location, grave);
+    }
+
     public Grave getByLocation(Identifier world, BlockPos pos) {
         return this.getByLocation(new Location(world, pos.toImmutable()));
     }
@@ -158,5 +166,9 @@ public class GraveManager extends PersistentState {
 
     public int getBreakingTime() {
         return this.breakingTime;
+    }
+
+    public Collection<Grave> getByPlayer(ServerPlayerEntity player) {
+        return this.getByUuid(player.getUuid());
     }
 }

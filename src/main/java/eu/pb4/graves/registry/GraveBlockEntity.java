@@ -61,9 +61,12 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity implements GraveH
     public void setGrave(Grave grave) {
         this.data = grave;
 
-        this.visualData = grave.toVisualGraveData();
-        GraveManager.INSTANCE.add(grave);
-        this.graveId = grave.getId();
+        if (grave != null) {
+            this.visualData = grave.toVisualGraveData();
+            this.graveId = grave.getId();
+        } else {
+            this.graveId = -1;
+        }
         this.markDirty();
     }
 
@@ -251,7 +254,11 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity implements GraveH
     }
 
     public void breakBlock() {
-        if (ConfigManager.getConfig().configData.keepBlockAfterBreaking) {
+        breakBlock(true);
+    }
+
+    public void breakBlock(boolean canCreateVisual) {
+        if (canCreateVisual && ConfigManager.getConfig().configData.keepBlockAfterBreaking) {
             world.setBlockState(pos, VisualGraveBlock.INSTANCE.getStateWithProperties(this.getCachedState()), Block.NOTIFY_ALL | Block.FORCE_STATE);
 
             if (world.getBlockEntity(pos) instanceof VisualGraveBlockEntity blockEntity) {
