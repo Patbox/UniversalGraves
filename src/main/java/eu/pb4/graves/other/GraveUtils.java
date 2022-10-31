@@ -222,12 +222,13 @@ public class GraveUtils {
     public static void teleportToGrave(ServerPlayerEntity player, Grave grave, BooleanConsumer finishedCallback) {
         var config = ConfigManager.getConfig();
         var pos = grave.getLocation();
-        var movingText = config.configData.allowMovingDuringTeleportation ? config.teleportTimerAllowMovingText : config.teleportTimerText;
+        var movingText = config.configData.allowMovingDuringTeleportation || player.isCreative() ? config.teleportTimerAllowMovingText : config.teleportTimerText;
 
         MinecraftServer server = Objects.requireNonNull(player.getServer(), "server; running on client?");
         ServerWorld world = server.getWorld(RegistryKey.of(Registry.WORLD_KEY, pos.world()));
         if (world != null) {
-            player.sendMessage(Placeholders.parseText(movingText, Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, Map.of("time", Text.of(Integer.toString(config.configData.teleportTime)))));
+            player.sendMessage(Placeholders.parseText(movingText, Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, Map.of("time",
+                    Text.of(player.isCreative() ? "0" : Integer.toString(config.configData.teleportTime)))));
 
             GravesMod.DO_ON_NEXT_TICK.add(new Runnable() {
                 double x = pos.x();
@@ -238,7 +239,7 @@ public class GraveUtils {
                 final Vec3d currentPosition = player.getPos();
 
                 // Non-final to allow for decrementing.
-                int teleportTicks = config.configData.teleportTime * 20;
+                int teleportTicks = player.isCreative() ? 1 : config.configData.teleportTime * 20;
                 int invulnerableTicks = config.configData.invincibleTime * 20;
 
                 @Override

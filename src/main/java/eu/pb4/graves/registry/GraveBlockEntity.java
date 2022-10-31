@@ -226,7 +226,7 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity implements GraveH
             if (texts.size() != self.hologram.getElements().size()) {
                 self.hologram.clearElements();
                 for (Text text : texts) {
-                    if (text.getContent() == TextContent.EMPTY) {
+                    if (text.getContent() == TextContent.EMPTY && text.getSiblings().size() == 0) {
                         self.hologram.addElement(new SpacingHologramElement(0.28));
                     } else {
                         self.hologram.addText(text);
@@ -235,7 +235,7 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity implements GraveH
             } else {
                 int x = 0;
                 for (Text text : texts) {
-                    if (text.getContent() == TextContent.EMPTY) {
+                    if (text.getContent() == TextContent.EMPTY && text.getSiblings().size() == 0) {
                         self.hologram.setElement(x, new SpacingHologramElement(0.28));
                     } else {
                         self.hologram.setText(x, text);

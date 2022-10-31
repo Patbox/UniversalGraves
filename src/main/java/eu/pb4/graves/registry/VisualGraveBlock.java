@@ -143,6 +143,7 @@ public class VisualGraveBlock extends AbstractGraveBlock implements BlockEntityP
                                     this.getLine(2),
                                     this.getLine(3)
                             };
+                            grave.markDirty();
                         }
                     };
                     sign.setSignType(Blocks.BIRCH_SIGN);

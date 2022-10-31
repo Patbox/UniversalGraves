@@ -117,35 +117,36 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
 
         Config config = ConfigManager.getConfig();
 
-        Map<String, Text> placeholders = self.visualData.getPlaceholders(self.world.getServer());
-
-        if (self.textOverrides != self.deltaTextOverride && !self.textOverrides.equals(self.deltaTextOverride)) {
-            self.updateForAllPlayers();
-            self.deltaTextOverride = self.textOverrides.clone();
-        }
-
         if (config.configData.hologram) {
             if (self.hologram == null) {
-                self.hologram = new WorldHologram((ServerWorld) world, new Vec3d(pos.getX(), pos.getY(), pos.getZ()).add(0.5, config.configData.hologramOffset, 0.5)){
+                self.hologram = new WorldHologram((ServerWorld) world, new Vec3d(pos.getX(), pos.getY(), pos.getZ()).add(0.5, config.configData.hologramOffset, 0.5)) {
                     @Override
                     public boolean canAddPlayer(ServerPlayerEntity player) {
-                        return !config.configData.hologramDisplayIfOnClient ? !GraveNetworking.canReceive(player.networkHandler) : true;
+                        return config.configData.hologramDisplayIfOnClient || !GraveNetworking.canReceive(player.networkHandler);
                     }
                 };
                 self.hologram.show();
             }
 
+            boolean dirty = false;
             List<Text> texts = new ArrayList<>();
 
             if (self.textOverrides != null) {
-                for (Text text : self.textOverrides) {
-                    if (text.getContent() == TextContent.EMPTY) {
-                        texts.add(text);
-                    } else {
-                        texts.add(Text.empty());
+                if ((self.deltaTextOverride == null || !Arrays.equals(self.textOverrides, self.deltaTextOverride))) {
+                    for (Text text : self.textOverrides) {
+                        texts.add(text.copy());
                     }
+
+                    self.updateForAllPlayers();
+                    self.deltaTextOverride = new Text[self.textOverrides.length];
+                    for (int i = 0; i < self.textOverrides.length; i++) {
+                        self.deltaTextOverride[i] = self.textOverrides[i].copy();
+                    }
+                    dirty = true;
                 }
             } else {
+                Map<String, Text> placeholders = self.visualData.getPlaceholders(self.world.getServer());
+
                 for (var text : config.hologramVisualText) {
                     if (!text.equals(EmptyNode.INSTANCE)) {
                         texts.add(Placeholders.parseText(text, Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, placeholders));
@@ -153,21 +154,24 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
                         texts.add(Text.empty());
                     }
                 }
+                dirty = true;
             }
 
 
-            if (texts.size() != self.hologram.getElements().size()) {
-                self.hologram.clearElements();
-            }
-
-            int x = 0;
-            for (Text text : texts) {
-                if (text.getContent() == TextContent.EMPTY) {
-                    self.hologram.setElement(x, new SpacingHologramElement(0.28));
-                } else {
-                    self.hologram.setText(x, text);
+            if (dirty) {
+                if (texts.size() != self.hologram.getElements().size()) {
+                    self.hologram.clearElements();
                 }
-                x++;
+
+                int x = 0;
+                for (Text text : texts) {
+                    if (text.getContent() == TextContent.EMPTY && text.getSiblings().size() == 00) {
+                        self.hologram.setElement(x, new SpacingHologramElement(0.28));
+                    } else {
+                        self.hologram.setText(x, text);
+                    }
+                    x++;
+                }
             }
         } else {
             if (self.hologram != null) {
