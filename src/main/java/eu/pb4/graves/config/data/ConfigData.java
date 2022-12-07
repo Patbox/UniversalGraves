@@ -163,7 +163,7 @@ public class ConfigData extends VersionedConfigData {
 
 
     public String guiQuickPickupIcon = "universal_graves:icon{Texture:\"quick_pickup\"}";
-    public String guiBackItem = "minecraft:barrier";
+    public String guiBackItem = "minecraft:structure_void";
 
     private static List<String> getDefaultProtectedHologram() {
         List<String> list = new ArrayList<>();

@@ -17,6 +17,8 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -27,8 +29,8 @@ import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -281,7 +283,7 @@ public final class Grave {
     }
 
     public boolean moveTo(MinecraftServer server, Location location) {
-        var world = server.getWorld(RegistryKey.of(Registry.WORLD_KEY, location.world()));
+        var world = server.getWorld(RegistryKey.of(RegistryKeys.WORLD, location.world()));
 
         if (world != null) {
             var state = world.getBlockState(location.blockPos());
@@ -293,7 +295,7 @@ public final class Grave {
                 this.setLocation(location);
 
                 {
-                    var oldWorld = server.getWorld(RegistryKey.of(Registry.WORLD_KEY, old.world()));
+                    var oldWorld = server.getWorld(RegistryKey.of(RegistryKeys.WORLD, old.world()));
 
                     if (oldWorld != null) {
                         var oldChunk = oldWorld.getChunk(ChunkSectionPos.getSectionCoord(old.x()), ChunkSectionPos.getSectionCoord(old.z()));
@@ -413,7 +415,7 @@ public final class Grave {
             }
         }
 
-        var world = server.getWorld(RegistryKey.of(Registry.WORLD_KEY, this.getLocation().world()));
+        var world = server.getWorld(RegistryKey.of(RegistryKeys.WORLD, this.getLocation().world()));
 
         if (world != null) {
             var chunk = world.getChunk(ChunkSectionPos.getSectionCoord(this.location.x()), ChunkSectionPos.getSectionCoord(this.location.z()));

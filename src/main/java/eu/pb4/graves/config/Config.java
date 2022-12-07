@@ -18,7 +18,8 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.CropBlock;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.command.CommandRegistryWrapper;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.command.argument.ItemStringReader;
 import net.minecraft.item.ItemStack;
@@ -28,7 +29,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.registry.Registry;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.SimpleDateFormat;
@@ -271,7 +272,7 @@ public final class Config {
 
     public static ItemStack parseItem(String itemDef) {
         try {
-            var item = ItemStringReader.item(CommandRegistryWrapper.of(Registry.ITEM), new StringReader(itemDef));
+            var item = ItemStringReader.item(Registries.ITEM.getReadOnlyWrapper(), new StringReader(itemDef));
             var itemStack = item.item().value().getDefaultStack();
 
             if (item.nbt() != null) {
@@ -301,7 +302,7 @@ public final class Config {
 
         for (String stateName : stringList) {
             try {
-                var stateData = BlockArgumentParser.block(Registry.BLOCK, new StringReader(stateName), true);
+                var stateData = BlockArgumentParser.block(Registries.BLOCK.getReadOnlyWrapper(), new StringReader(stateName), true);
                 if (stateData.blockState().getBlock() != GraveBlock.INSTANCE && stateData.blockState() != null) {
                     if (stateData.blockState().hasBlockEntity()) {
                         var blockEntity = ((BlockEntityProvider) stateData.blockState().getBlock()).createBlockEntity(BlockPos.ORIGIN, stateData.blockState());

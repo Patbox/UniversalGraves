@@ -4,7 +4,8 @@ import eu.pb4.graves.GraveNetworking;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.grave.Grave;
 import eu.pb4.placeholders.api.Placeholders;
-import eu.pb4.polymer.mixin.block.BlockEntityUpdateS2CPacketAccessor;
+import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
+import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import fr.catcore.server.translations.api.LocalizationTarget;
 import fr.catcore.server.translations.api.text.LocalizableText;
 import net.minecraft.block.*;
@@ -130,7 +131,7 @@ public final class GravesLookType {
                 compound.putInt("y", pos.getY());
                 compound.putInt("z", pos.getZ());
 
-                player.networkHandler.sendPacket(BlockEntityUpdateS2CPacketAccessor.createBlockEntityUpdateS2CPacket(pos, entry.blockEntityType(), compound));
+                player.networkHandler.sendPacket(PolymerBlockUtils.createBlockEntityPacket(pos, entry.blockEntityType(), compound));
             }
         }
 
@@ -237,7 +238,7 @@ public final class GravesLookType {
             compound.putInt("x", pos.getX());
             compound.putInt("y", pos.getY());
             compound.putInt("z", pos.getZ());
-            player.networkHandler.sendPacket(BlockEntityUpdateS2CPacketAccessor.createBlockEntityUpdateS2CPacket(pos, BlockEntityType.SKULL, compound));
+            player.networkHandler.sendPacket(PolymerBlockUtils.createBlockEntityPacket(pos, BlockEntityType.SKULL, compound));
         }
     }
 

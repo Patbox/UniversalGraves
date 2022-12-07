@@ -8,11 +8,13 @@ import eu.pb4.holograms.api.elements.SpacingHologramElement;
 import eu.pb4.holograms.api.holograms.WorldHologram;
 import eu.pb4.placeholders.api.Placeholders;
 import eu.pb4.placeholders.api.node.EmptyNode;
+import eu.pb4.sgui.api.gui.SignGui;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.nbt.*;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.property.Properties;
@@ -71,7 +73,7 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
         super.readNbt(nbt);
         try {
             this.visualData = VisualGraveData.fromNbt(nbt.getCompound("VisualData"));
-            this.replacedBlockState = NbtHelper.toBlockState((NbtCompound) Objects.requireNonNull(nbt.get("BlockState")));
+            this.replacedBlockState = NbtHelper.toBlockState(Registries.BLOCK.getReadOnlyWrapper(), (NbtCompound) Objects.requireNonNull(nbt.get("BlockState")));
             this.allowModification = nbt.getBoolean("AllowModification");
 
             if (nbt.contains("TextOverride", NbtElement.LIST_TYPE)) {
@@ -197,5 +199,36 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
 
     public Text[] getTextOverrides() {
         return this.textOverrides;
+    }
+
+    public void openEditScreen(ServerPlayerEntity player) {
+        var sign = new SignGui(player) {
+            @Override
+            public void onClose() {
+                VisualGraveBlockEntity.this.textOverrides = new Text[]{
+                        this.getLine(0),
+                        this.getLine(1),
+                        this.getLine(2),
+                        this.getLine(3)
+                };
+                VisualGraveBlockEntity.this.markDirty();
+            }
+        };
+        sign.setSignType(Blocks.BIRCH_SIGN);
+
+        if (this.textOverrides != null) {
+            int i = 0;
+
+            for (var text : this.textOverrides) {
+                sign.setLine(i, text.copy());
+                i++;
+
+                if (i == 4) {
+                    break;
+                }
+            }
+        }
+
+        sign.open();
     }
 }

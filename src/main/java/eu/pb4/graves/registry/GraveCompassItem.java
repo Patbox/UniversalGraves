@@ -1,10 +1,9 @@
 package eu.pb4.graves.registry;
 
-import eu.pb4.graves.grave.Grave;
 import eu.pb4.graves.grave.GraveManager;
-import eu.pb4.graves.other.Location;
 import eu.pb4.graves.other.PlayerAdditions;
-import eu.pb4.polymer.api.item.PolymerItem;
+import eu.pb4.polymer.core.api.item.PolymerItem;
+import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -60,8 +59,8 @@ public class GraveCompassItem extends Item implements PolymerItem {
     }
 
     @Override
-    public ItemStack getPolymerItemStack(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
-        var clientStack = PolymerItem.super.getPolymerItemStack(itemStack, player);
+    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipContext context, @Nullable ServerPlayerEntity player) {
+        var clientStack = PolymerItem.super.getPolymerItemStack(itemStack, context, player);
         if (player != null && itemStack.hasNbt() && itemStack.getNbt().contains("GraveId", NbtElement.LONG_TYPE)) {
             var grave = GraveManager.INSTANCE.getId(itemStack.getNbt().getLong("GraveId"));
             if (grave != null) {

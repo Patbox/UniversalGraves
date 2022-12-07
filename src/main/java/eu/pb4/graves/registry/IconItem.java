@@ -1,8 +1,9 @@
 package eu.pb4.graves.registry;
 
-import eu.pb4.polymer.api.item.PolymerItem;
-import eu.pb4.polymer.api.item.PolymerItemUtils;
-import eu.pb4.polymer.api.utils.PolymerUtils;
+import eu.pb4.polymer.core.api.item.PolymerItem;
+import eu.pb4.polymer.core.api.item.PolymerItemUtils;
+import eu.pb4.polymer.core.api.utils.PolymerUtils;
+import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -32,7 +33,7 @@ public final class IconItem extends Item implements PolymerItem {
     }
 
     @Override
-    public ItemStack getPolymerItemStack(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
+    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipContext context, @Nullable ServerPlayerEntity player) {
         var stack = PolymerItemUtils.createItemStack(itemStack, player);
         var texture = itemStack.hasNbt() ? itemStack.getNbt().getString("Texture") : "";
         stack.getOrCreateNbt().put("SkullOwner", PolymerUtils.createSkullOwner(Texture.BY_NAME.getOrDefault(texture, Texture.INVALID).texture));

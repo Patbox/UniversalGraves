@@ -1,13 +1,15 @@
 package eu.pb4.graves.registry;
 
 import eu.pb4.graves.mixin.ExperienceOrbEntityAccessor;
-import eu.pb4.polymer.api.entity.PolymerEntity;
+
+import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ExperienceOrbEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -67,7 +69,7 @@ public class SafeXPEntity extends ExperienceOrbEntity implements PolymerEntity {
     }
 
     @Override
-    public EntityType<?> getPolymerEntityType() {
-        return EntityType.EXPERIENCE_BOTTLE;
+    public EntityType<?> getPolymerEntityType(ServerPlayerEntity player) {
+        return EntityType.EXPERIENCE_ORB;
     }
 }

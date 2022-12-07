@@ -6,7 +6,7 @@ import eu.pb4.graves.registry.AbstractGraveBlockEntity;
 import eu.pb4.graves.registry.VisualGraveBlockEntity;
 import eu.pb4.graves.registry.GraveBlockEntity;
 import eu.pb4.graves.other.GravesLookType;
-import eu.pb4.polymer.api.client.PolymerClientUtils;
+import eu.pb4.polymer.networking.api.client.PolymerClientNetworking;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.model.*;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -35,9 +35,9 @@ public class GravesModClient implements ClientModInitializer {
                 (ctx) -> (BlockEntityRenderer<GraveBlockEntity>) (Object) new GraveRenderer(ctx));
 
 
-        PolymerClientUtils.registerPacketHandler(GraveNetworking.SERVER_HELLO, this::handleHelloPacket, 0);
-        PolymerClientUtils.registerPacketHandler(GraveNetworking.SERVER_GRAVE, this::handleGravePacket, 0);
-        PolymerClientUtils.registerPacketHandler(GraveNetworking.SERVER_UI, this::handleUIPacket, 0);
+        PolymerClientNetworking.registerPacketHandler(GraveNetworking.SERVER_HELLO, this::handleHelloPacket, 0);
+        PolymerClientNetworking.registerPacketHandler(GraveNetworking.SERVER_GRAVE, this::handleGravePacket, 0);
+        PolymerClientNetworking.registerPacketHandler(GraveNetworking.SERVER_UI, this::handleUIPacket, 0);
 
         ClientPlayConnectionEvents.JOIN.register(this::onConnect);
 

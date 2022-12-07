@@ -6,10 +6,10 @@ import eu.pb4.graves.client.GravesModClient;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.grave.Grave;
 import eu.pb4.graves.other.VisualGraveData;
-import eu.pb4.polymer.api.block.PlayerAwarePolymerBlock;
-import eu.pb4.polymer.api.client.PolymerClientDecoded;
-import eu.pb4.polymer.api.client.PolymerKeepModel;
-import eu.pb4.polymer.api.utils.PolymerUtils;
+import eu.pb4.polymer.core.api.block.PolymerBlock;
+import eu.pb4.polymer.core.api.utils.PolymerClientDecoded;
+import eu.pb4.polymer.core.api.utils.PolymerKeepModel;
+import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import net.minecraft.block.*;
 import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.entity.ai.pathing.NavigationType;
@@ -31,7 +31,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 
 @SuppressWarnings({"deprecation"})
-public abstract class AbstractGraveBlock extends Block implements PlayerAwarePolymerBlock, Waterloggable, PolymerClientDecoded, PolymerKeepModel {
+public abstract class AbstractGraveBlock extends Block implements PolymerBlock, Waterloggable, PolymerClientDecoded, PolymerKeepModel {
     public static BooleanProperty IS_LOCKED = BooleanProperty.of("is_locked");
 
     protected AbstractGraveBlock(Settings settings) {
@@ -51,7 +51,7 @@ public abstract class AbstractGraveBlock extends Block implements PlayerAwarePol
 
     @Override
     public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        if (!PolymerUtils.isOnClientSide() && context instanceof EntityShapeContext entityShapeContext && entityShapeContext.getEntity() instanceof ServerPlayerEntity player) {
+        if (!PolymerUtils.isOnClientThread() && context instanceof EntityShapeContext entityShapeContext && entityShapeContext.getEntity() instanceof ServerPlayerEntity player) {
             return ConfigManager.getConfig().style.converter.getBlockState(
                     state.get(Properties.ROTATION),
                     state.get(IS_LOCKED),
@@ -69,12 +69,12 @@ public abstract class AbstractGraveBlock extends Block implements PlayerAwarePol
 
     @Override
     public Block getPolymerBlock(BlockState state) {
-        return (PolymerUtils.isOnClientSide() ? GravesModClient.serverSideModel : ConfigManager.getConfig().style)
+        return (PolymerUtils.isOnClientThread() ? GravesModClient.serverSideModel : ConfigManager.getConfig().style)
                 .converter.getBlock(state.get(IS_LOCKED));
     }
 
     @Override
-    public Block getPolymerBlock(ServerPlayerEntity player, BlockState state) {
+    public Block getPolymerBlock(BlockState state, ServerPlayerEntity player) {
         if (GraveNetworking.canReceive(player.networkHandler)) {
             return this;
         }
@@ -83,21 +83,21 @@ public abstract class AbstractGraveBlock extends Block implements PlayerAwarePol
 
     @Override
     public BlockState getPolymerBlockState(BlockState state) {
-        return (PolymerUtils.isOnClientSide() ? GravesModClient.serverSideModel : ConfigManager.getConfig().style)
+        return (PolymerUtils.isOnClientThread() ? GravesModClient.serverSideModel : ConfigManager.getConfig().style)
                 .converter.getBlockState(state.get(Properties.ROTATION), state.get(IS_LOCKED), state.get(Properties.WATERLOGGED), null);
     }
 
     @Override
-    public BlockState getPolymerBlockState(ServerPlayerEntity player, BlockState state) {
+    public BlockState getPolymerBlockState(BlockState state, ServerPlayerEntity player) {
         if (GraveNetworking.canReceive(player.networkHandler)) {
             return state;
         }
-        return (PolymerUtils.isOnClientSide() ? GravesModClient.serverSideModel : ConfigManager.getConfig().style)
+        return (PolymerUtils.isOnClientThread() ? GravesModClient.serverSideModel : ConfigManager.getConfig().style)
                 .converter.getBlockState(state.get(Properties.ROTATION), state.get(IS_LOCKED), state.get(Properties.WATERLOGGED), player);
     }
 
     @Override
-    public void onPolymerBlockSend(ServerPlayerEntity player, BlockPos.Mutable pos, BlockState state) {
+    public void onPolymerBlockSend(BlockState state, BlockPos.Mutable pos, ServerPlayerEntity player) {
         var grave = getGraveData(player.world, pos);
         var visualGrave = getVisualData(player.world, pos, grave);
         var placeholders = this.getPlaceholders(player.server, visualGrave, grave);
@@ -131,6 +131,6 @@ public abstract class AbstractGraveBlock extends Block implements PlayerAwarePol
 
     @Override
     public boolean shouldDecodePolymer() {
-        return !PolymerUtils.isOnClientSide() || GravesModClient.config.enabled();
+        return !PolymerUtils.isOnClientThread() || GravesModClient.config.enabled();
     }
 }

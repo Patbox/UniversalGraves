@@ -2,6 +2,7 @@ package eu.pb4.graves.client;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
+import eu.pb4.graves.other.VisualGraveData;
 import eu.pb4.graves.registry.AbstractGraveBlockEntity;
 import net.fabricmc.fabric.api.client.model.BakedModelManagerHelper;
 import net.minecraft.block.Blocks;
@@ -17,12 +18,13 @@ import net.minecraft.client.render.entity.model.SkullEntityModel;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.util.DefaultSkinHelper;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3f;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.random.Random;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 import java.util.Map;
 
@@ -52,6 +54,9 @@ public class GraveRenderer implements BlockEntityRenderer<AbstractGraveBlockEnti
     
     @Override
     public void render(AbstractGraveBlockEntity entity, float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumers, int light, int overlay) {
+        if (entity.getClientData() == VisualGraveData.DEFAULT) {
+            return;
+        }
         switch (GravesModClient.model) {
             case HEAD -> renderHead(entity, tickDelta, matrixStack, vertexConsumers, light, overlay);
             case GENERIC_GRAVE -> renderGrave(entity, tickDelta, matrixStack, vertexConsumers, light, overlay);
@@ -106,17 +111,17 @@ public class GraveRenderer implements BlockEntityRenderer<AbstractGraveBlockEnti
 
         switch (rotation / 4) {
             case 1 -> {
-                matrixStack.multiply(Vec3f.POSITIVE_Y.getRadialQuaternion((float) Math.PI));
+                matrixStack.multiply(RotationAxis.POSITIVE_Y.rotation(MathHelper.PI));
                 matrixStack.translate(-1, 0, -1);
                 break;
             }
             case 2 -> {
-                matrixStack.multiply(Vec3f.POSITIVE_Y.getRadialQuaternion((float) Math.PI / 2));
+                matrixStack.multiply(RotationAxis.POSITIVE_Y.rotation(MathHelper.PI / 2));
                 matrixStack.translate(-1, 0, 0);
                 break;
             }
             case 3 -> {
-                matrixStack.multiply(Vec3f.POSITIVE_Y.getRadialQuaternion((float) Math.PI / 2 * 3));
+                matrixStack.multiply(RotationAxis.POSITIVE_Y.rotation(MathHelper.PI / 2 * 3));
                 matrixStack.translate(0, 0, -1);
                 break;
             }

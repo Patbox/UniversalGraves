@@ -30,6 +30,9 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -37,7 +40,6 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.property.Properties;
 import net.minecraft.state.property.Property;
-import net.minecraft.tag.TagKey;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.ItemScatterer;
@@ -47,8 +49,8 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.border.WorldBorder;
 import org.jetbrains.annotations.Nullable;
@@ -61,7 +63,7 @@ import static eu.pb4.placeholders.api.Placeholders.PREDEFINED_PLACEHOLDER_PATTER
 
 public class GraveUtils {
     public static final Identifier REPLACEABLE_ID = new Identifier("universal_graves", "replaceable");
-    public static final TagKey<Block> REPLACEABLE_TAG = TagKey.of(Registry.BLOCK_KEY, REPLACEABLE_ID);
+    public static final TagKey<Block> REPLACEABLE_TAG = TagKey.of(RegistryKeys.BLOCK, REPLACEABLE_ID);
     public static final Inventory EMPTY_INVENTORY = new SimpleInventory(0);
     private static final Function<Map.Entry<Property<?>, Comparable<?>>, String> PROPERTY_MAP_PRINTER = new Function<>() {
         public String apply(@Nullable Map.Entry<Property<?>, Comparable<?>> entry) {
@@ -178,7 +180,7 @@ public class GraveUtils {
 
     public static String blockStateToString(BlockState state) {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(Registry.BLOCK.getId(state.getBlock()));
+        stringBuilder.append(Registries.BLOCK.getId(state.getBlock()));
         if (!state.getEntries().isEmpty()) {
             stringBuilder.append('[');
             stringBuilder.append(state.getEntries().entrySet().stream().map(PROPERTY_MAP_PRINTER).collect(Collectors.joining(",")));
@@ -225,7 +227,7 @@ public class GraveUtils {
         var movingText = config.configData.allowMovingDuringTeleportation || player.isCreative() ? config.teleportTimerAllowMovingText : config.teleportTimerText;
 
         MinecraftServer server = Objects.requireNonNull(player.getServer(), "server; running on client?");
-        ServerWorld world = server.getWorld(RegistryKey.of(Registry.WORLD_KEY, pos.world()));
+        ServerWorld world = server.getWorld(RegistryKey.of(RegistryKeys.WORLD, pos.world()));
         if (world != null) {
             player.sendMessage(Placeholders.parseText(movingText, Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, Map.of("time",
                     Text.of(player.isCreative() ? "0" : Integer.toString(config.configData.teleportTime)))));

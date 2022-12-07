@@ -38,7 +38,7 @@ public abstract class GenericContainerScreenMixin extends HandledScreen<GenericC
             { // Mouse
                 if (this.handler.getCursorStack().isEmpty() && this.focusedSlot != null && this.focusedSlot.hasStack()) {
                     if (this.focusedSlot.inventory == this.handler.getInventory() && this.focusedSlot.id > 35 && this.focusedSlot.id < 47) {
-                        this.renderTooltip(matrices, this.focusedSlot.getStack().getTooltip(MinecraftClient.getInstance().player, TooltipContext.Default.NORMAL), mouseX, mouseY);
+                        this.renderTooltip(matrices, this.focusedSlot.getStack().getTooltip(MinecraftClient.getInstance().player, TooltipContext.Default.BASIC), mouseX, mouseY);
                     } else {
                         this.renderTooltip(matrices, this.focusedSlot.getStack(), mouseX, mouseY);
                     }
@@ -52,7 +52,7 @@ public abstract class GenericContainerScreenMixin extends HandledScreen<GenericC
     @Inject(method = "drawBackground", at = @At("HEAD"), cancellable = true)
     private void graves_customUiTexture(MatrixStack matrices, float delta, int mouseX, int mouseY, CallbackInfo ci) {
         if (this.grave_enableTexture) {
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            RenderSystem.setShader(GameRenderer::getPositionTexProgram);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             RenderSystem.setShaderTexture(0, GravesModClient.UI_TEXTURE);
             int i = (this.width - this.backgroundWidth) / 2;

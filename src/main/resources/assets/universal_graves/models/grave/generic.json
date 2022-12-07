@@ -1,8 +1,8 @@
 {
 	"credit": "Made with Blockbench",
 	"textures": {
-		"particle": "universal_graves:grave/generic_front",
-		"background": "universal_graves:grave/generic_front",
+		"particle": "universal_graves:block/generic_front",
+		"background": "universal_graves:block/generic_front",
 		"base": "block/polished_deepslate",
 		"main": "block/stone_bricks"
 	},

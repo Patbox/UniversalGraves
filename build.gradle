@@ -56,10 +56,10 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 
-	modImplementation include("eu.pb4:sgui:1.1.5+1.19.1")
-	modImplementation include("eu.pb4:hologram-api:0.2.2+1.19")
-	modImplementation include("eu.pb4:placeholder-api:2.0.0-pre.1+1.19.2")
-	modImplementation include("eu.pb4:polymer:0.2.17+1.19.2")
+	modImplementation include("eu.pb4:sgui:1.2.0+1.19.3")
+	modImplementation include("eu.pb4:hologram-api:0.2.3+1.19.3")
+	modImplementation include("eu.pb4:placeholder-api:2.0.0-pre.2+1.19.3")
+	modImplementation include("eu.pb4:polymer-core:0.3.0-rc.2+1.19.3-rc3")
 	modImplementation include("eu.pb4:common-protection-api:1.0.0")
 	modImplementation include("fr.catcore:server-translations-api:1.4.18+1.19.2")
 	modImplementation include("me.lucko:fabric-permissions-api:0.1-SNAPSHOT")
@@ -144,7 +144,7 @@ curseforge {
 			releaseType = "release"
 			changelog = System.getenv("CHANGELOG")
 			changelogType = "markdown"
-			addGameVersion ((String) project.minecraft_version)
+			addGameVersion ((String) project.minecraft_version.split("-")[0])
 			addGameVersion "Fabric"
 			addGameVersion "Quilt"
 			mainArtifact(remapJar)

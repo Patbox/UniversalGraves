@@ -1,7 +1,9 @@
 package eu.pb4.graves.registry;
 
 import com.mojang.authlib.GameProfile;
+import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.grave.Grave;
+import eu.pb4.graves.other.GravesLookType;
 import eu.pb4.graves.other.VisualGraveData;
 import eu.pb4.sgui.api.gui.SignGui;
 import net.minecraft.block.Block;
@@ -32,6 +34,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.Util;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -120,7 +123,7 @@ public class VisualGraveBlock extends AbstractGraveBlock implements BlockEntityP
     @Nullable
     @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
-        return super.getPlacementState(ctx).with(Properties.ROTATION, (int) (Math.random() * 16));
+        return this.getDefaultState().with(Properties.ROTATION, RotationPropertyHelper.fromYaw(ctx.getPlayerYaw() + 180.0F));
     }
 
     @Override
@@ -133,35 +136,7 @@ public class VisualGraveBlock extends AbstractGraveBlock implements BlockEntityP
 
                 var itemStack = player.getStackInHand(hand);
                 if (itemStack.getItem() == Items.FEATHER) {
-
-                    var sign = new SignGui(player) {
-                        @Override
-                        public void onClose() {
-                            grave.textOverrides = new Text[]{
-                                    this.getLine(0),
-                                    this.getLine(1),
-                                    this.getLine(2),
-                                    this.getLine(3)
-                            };
-                            grave.markDirty();
-                        }
-                    };
-                    sign.setSignType(Blocks.BIRCH_SIGN);
-
-                    if (grave.textOverrides != null) {
-                        int i = 0;
-
-                        for (var text : grave.textOverrides) {
-                            sign.setLine(i, text.copy());
-                            i++;
-
-                            if (i == 4) {
-                                break;
-                            }
-                        }
-                    }
-
-                    sign.open();
+                    grave.openEditScreen(player);
                 } else if (itemStack.getItem() == Items.PLAYER_HEAD) {
                     if (itemStack.hasNbt() && itemStack.getNbt().contains(SkullItem.SKULL_OWNER_KEY, NbtElement.COMPOUND_TYPE)) {
                         grave.setVisualData(new VisualGraveData(
@@ -193,8 +168,8 @@ public class VisualGraveBlock extends AbstractGraveBlock implements BlockEntityP
                 } else if (itemStack.getItem() instanceof ShovelItem) {
                     int val = state.get(Properties.ROTATION) + (player.isSneaking() ? -1 : 1);
                     if (val < 0) {
-                        val = Properties.ROTATION_MAX;
-                    } else if (val > 15) {
+                        val = RotationPropertyHelper.getMax();
+                    } else if (val > RotationPropertyHelper.getMax()) {
                         val = 0;
                     }
 

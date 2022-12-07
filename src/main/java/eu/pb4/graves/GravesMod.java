@@ -1,35 +1,38 @@
 package eu.pb4.graves;
 
 import eu.pb4.common.protection.api.CommonProtection;
-import eu.pb4.graves.compat.SaveGearOnDeathCompat;
-import eu.pb4.graves.event.GraveValidPosCheckEvent;
-import eu.pb4.graves.other.GraveProtectionProvider;
-import eu.pb4.graves.other.GraveUtils;
-import eu.pb4.graves.registry.*;
 import eu.pb4.graves.compat.GomlCompat;
 import eu.pb4.graves.compat.InventorioCompat;
+import eu.pb4.graves.compat.SaveGearOnDeathCompat;
 import eu.pb4.graves.compat.TrinketsCompat;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.grave.GraveManager;
 import eu.pb4.graves.other.Commands;
+import eu.pb4.graves.other.GraveProtectionProvider;
 import eu.pb4.graves.other.VanillaInventoryMask;
-import eu.pb4.polymer.api.block.PolymerBlockUtils;
-import eu.pb4.polymer.api.entity.PolymerEntityUtils;
+import eu.pb4.graves.registry.*;
+import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
+import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
+import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
+import net.minecraft.item.ItemGroups;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class GravesMod implements ModInitializer {
     public static final Logger LOGGER = LogManager.getLogger("Universal Graves");
@@ -44,18 +47,22 @@ public class GravesMod implements ModInitializer {
         FabricLoader loader = FabricLoader.getInstance();
         GenericModInfo.build(CONTAINER);
 
-        Registry.register(Registry.ITEM, new Identifier("universal_graves", "grave_compass"), GraveCompassItem.INSTANCE);
-        Registry.register(Registry.ITEM, new Identifier("universal_graves", "visual_grave"), VisualGraveBlockItem.INSTANCE);
-        Registry.register(Registry.ITEM, new Identifier("universal_graves", "icon"), IconItem.INSTANCE);
-        Registry.register(Registry.BLOCK, new Identifier("universal_graves", "grave"), GraveBlock.INSTANCE);
-        Registry.register(Registry.BLOCK, new Identifier("universal_graves", "visual_grave"), VisualGraveBlock.INSTANCE);
-        Registry.register(Registry.BLOCK, new Identifier("universal_graves", "temp_block"), TempBlock.INSTANCE);
-        Registry.register(Registry.ENTITY_TYPE, new Identifier("universal_graves", "xp"), SafeXPEntity.TYPE);
+        Registry.register(Registries.ITEM, new Identifier("universal_graves", "grave_compass"), GraveCompassItem.INSTANCE);
+        Registry.register(Registries.ITEM, new Identifier("universal_graves", "visual_grave"), VisualGraveBlockItem.INSTANCE);
+        Registry.register(Registries.ITEM, new Identifier("universal_graves", "icon"), IconItem.INSTANCE);
+        Registry.register(Registries.BLOCK, new Identifier("universal_graves", "grave"), GraveBlock.INSTANCE);
+        Registry.register(Registries.BLOCK, new Identifier("universal_graves", "visual_grave"), VisualGraveBlock.INSTANCE);
+        Registry.register(Registries.BLOCK, new Identifier("universal_graves", "temp_block"), TempBlock.INSTANCE);
+        Registry.register(Registries.ENTITY_TYPE, new Identifier("universal_graves", "xp"), SafeXPEntity.TYPE);
         PolymerEntityUtils.registerType(SafeXPEntity.TYPE);
-        GraveBlockEntity.BLOCK_ENTITY_TYPE = Registry.register(Registry.BLOCK_ENTITY_TYPE, "universal_graves:grave", FabricBlockEntityTypeBuilder.create(GraveBlockEntity::new, GraveBlock.INSTANCE).build(null));
-        VisualGraveBlockEntity.BLOCK_ENTITY_TYPE = Registry.register(Registry.BLOCK_ENTITY_TYPE, "universal_graves:visual_grave", FabricBlockEntityTypeBuilder.create(VisualGraveBlockEntity::new, VisualGraveBlock.INSTANCE).build(null));
+        GraveBlockEntity.BLOCK_ENTITY_TYPE = Registry.register(Registries.BLOCK_ENTITY_TYPE, "universal_graves:grave", FabricBlockEntityTypeBuilder.create(GraveBlockEntity::new, GraveBlock.INSTANCE).build(null));
+        VisualGraveBlockEntity.BLOCK_ENTITY_TYPE = Registry.register(Registries.BLOCK_ENTITY_TYPE, "universal_graves:visual_grave", FabricBlockEntityTypeBuilder.create(VisualGraveBlockEntity::new, VisualGraveBlock.INSTANCE).build(null));
         Commands.register();
         PolymerBlockUtils.registerBlockEntity(GraveBlockEntity.BLOCK_ENTITY_TYPE, VisualGraveBlockEntity.BLOCK_ENTITY_TYPE);
+
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register((e) -> {
+            e.add(VisualGraveBlockItem.INSTANCE);
+        });
 
         GraveNetworking.initialize();
         new GraveGameRules();
