@@ -1,23 +1,27 @@
 {
   "text.graves.grave_of": "%s之墓",
-  "text.graves.items_xp": "物品: %s XP: %s",
-  "text.graves.items": "物品: %s",
-  "text.graves.protected_time": "将会在%s后启封",
-  "text.graves.protected_time_sign": "距离启封时间还有",
+  "text.graves.items_xp": "物品：%s 经验值：%s",
+  "text.graves.items": "物品：%s",
+  "text.graves.protected_time": "将会在%s后失去保护",
+  "text.graves.protected_time_sign": "距离失去保护还有",
   "text.graves.break_time": "将在%s自动洒落",
   "text.graves.break_time_sign": "自动洒落时间",
-  "text.graves.not_protected": "已启封！",
+  "text.graves.not_protected": "未受保护！",
   "text.graves.players_grave": "%s的墓碑",
   "text.graves.gui_title": "你的墓碑",
   "text.graves.no_longer_protected": "你在%s (%s)的墓碑 不再受保护！（含有%s个物品）",
   "text.graves.expired": "你在%s (%s)的墓碑已洒落！（含有%s个物品）",
   "text.graves.somebody_broke": "你在%s (%s)的墓碑已被破坏！（含有%s个物品）",
   "text.graves.created_at": "墓碑在%s (%s)生成！",
-  "text.graves.created_at_expire": "墓碑在%s (%s)生成，将会在%s秒后洒落",
+  "text.graves.created_at_expire": "墓碑在%s (%s)生成，物品将会在%s秒后洒落",
   "text.graves.creation_failed": "无法创建墓碑！你的物品洒落在%s (%s)",
-  "text.graves.creation_failed_void": "你在虚空死亡了，墓碑不再生成！",
+  "text.graves.creation_failed_void": "你在虚空死亡了，而墓碑在虚空并不会生成！",
   "text.graves.creation_failed_pvp": "玩家击杀不生成墓碑！（含有%s个物品）(%s)",
   "text.graves.creation_failed_claim": "墓碑未生成！你的物品洒落在%s (%s)",
+
+  "text.graves.damage_source_info": "伤害来源: %s",
+  "text.graves.damage_source_info.enabled": "已启用显示伤害来源，再次输入此命令以切换启用状态.",
+  "text.graves.damage_source_info.disabled": "已关闭显示伤害来源!",
 
   "text.graves.about.version": "版本：%s",
   "text.graves.about.contributors": "贡献者",
@@ -27,14 +31,29 @@
   "text.graves.gui.remove_protection": "移除墓碑保护",
   "text.graves.gui.break_grave": "破坏墓碑",
   "text.graves.gui.quick_pickup": "全部带走",
+  "text.graves.gui.teleport": "传送到墓碑所在位置",
+  "text.graves.gui.teleport.not_enough": "传送所需资源不足!",
+  "text.graves.gui.teleport.cost": "消耗:",
+  "text.graves.gui.fetch": "将墓碑移动到你当前位置",
+  "text.graves.gui.fetch_failed": "无法将墓碑移动到你当前的位置!",
 
   "text.graves.gui.cant_reverse": "操作无法撤销！",
   "text.graves.gui.click_to_confirm": "再次点击来确认！",
+
+  "text.graves.teleport.teleport_timer": "将在 %s 秒内传送, 请在原地不要走动!",
+  "text.graves.teleport.teleport_timer_moving": "在 %s 秒内传送",
+  "text.graves.teleport.teleport_location": "传送到 %s",
+  "text.graves.teleport.teleport_cancelled": "传送被取消",
 
   "item.universal_graves.grave_compass": "墓碑指南针",
   "block.universal_graves.grave": "墓碑",
   "block.universal_graves.visual_grave": "墓碑",
 
-  "gamerule.universal_graves:protection_time": "墓碑解锁时间",
-  "gamerule.universal_graves:breaking_time": "墓碑洒落时间"
+  "gamerule.universal_graves:protection_time": "墓碑受保护的时间",
+  "gamerule.universal_graves:breaking_time": "墓碑洒落时间",
+
+  "text.graves.teleportation_cost.level": "经验值",
+  "text.graves.teleportation_cost.creative": "创造模式",
+  "text.graves.teleportation_cost.free": "免费",
+  "text.graves.teleportation_cost.item": "物品"
 }
