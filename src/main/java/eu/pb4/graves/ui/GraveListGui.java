@@ -73,8 +73,7 @@ public class GraveListGui extends PagedGui {
                     .setName(parsed.remove(0))
                     .setLore(parsed)
                     .setCallback((index, type, action) -> {
-                        this.close(true);
-                        grave.openUi(player, this.canModify, this.canFetch, () -> this.open());
+                        grave.openUi(player, this.canModify, this.canFetch);
                     });
 
             return DisplayElement.of(element);

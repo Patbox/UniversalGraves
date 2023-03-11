@@ -54,25 +54,6 @@ public abstract class LivingEntityMixin {
         this.graves_commandKill = true;
     }
 
-    @Inject(method = "damage", at = @At("TAIL"))
-    private void graves_printDamage1(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
-        if (((Object) this) instanceof ServerPlayerEntity player && ((PlayerAdditions) player).graves_getPrintNextDamageSource()) {
-            player.sendMessage(Text.translatable("text.graves.damage_source_info",
-                    Text.literal(source.name).setStyle(Style.EMPTY.withUnderline(true).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, source.name)))
-            ), false);
-        }
-    }
-
-    @Inject(method = "applyDamage", at = @At("TAIL"))
-    private void graves_printDamage2(DamageSource source, float amount, CallbackInfo ci) {
-        if (((Object) this) instanceof ServerPlayerEntity player && ((PlayerAdditions) player).graves_getPrintNextDamageSource()) {
-            player.sendMessage(Text.translatable("text.graves.damage_source_info",
-                    Text.literal(source.name).setStyle(Style.EMPTY.withUnderline(true).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, source.name)))
-            ), false);
-        }
-    }
-
-
     @Inject(method = "drop", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;dropInventory()V", shift = At.Shift.BEFORE), cancellable = true)
     private void replaceWithGrave(DamageSource source, CallbackInfo ci) {
         if (((Object) this) instanceof ServerPlayerEntity player) {

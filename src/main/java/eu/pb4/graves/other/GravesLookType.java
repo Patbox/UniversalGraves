@@ -5,9 +5,6 @@ import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.grave.Grave;
 import eu.pb4.placeholders.api.Placeholders;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
-import eu.pb4.polymer.core.api.utils.PolymerUtils;
-import fr.catcore.server.translations.api.LocalizationTarget;
-import fr.catcore.server.translations.api.text.LocalizableText;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.enums.WallShape;
@@ -22,6 +19,7 @@ import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.server.translations.api.Localization;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -117,12 +115,10 @@ public final class GravesLookType {
                 var placeholders = (graveInfo != null ? graveInfo.getPlaceholders(player.getServer()) : visualData.getPlaceholders(player.getServer()));
                 var size = Math.min(4, (textOverride != null ? textOverride : texts).length);
 
-                var target = (LocalizationTarget) player;
-
                 for (int i = 0; i < size; i++) {
                     compound.putString("Text" + (i + 1),
                             Text.Serializer.toJson(
-                                    textOverride != null ? textOverride[i] : LocalizableText.asLocalizedFor(Placeholders.parseText(texts[i], Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, placeholders), target)
+                                    textOverride != null ? textOverride[i] : Localization.text(Placeholders.parseText(texts[i], Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, placeholders), player)
                             )
                     );
                 }

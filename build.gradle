@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '0.12-SNAPSHOT'
+	id 'fabric-loom' version '1.0.+'
 	id 'maven-publish'
 	id "com.modrinth.minotaur" version "2.+"
 	id 'com.matthewprenger.cursegradle' version '1.4.0'
@@ -56,12 +56,13 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 
-	modImplementation include("eu.pb4:sgui:1.2.0+1.19.3")
+	modImplementation include("eu.pb4:sgui:1.2.1+1.19.3")
 	modImplementation include("eu.pb4:hologram-api:0.2.3+1.19.3")
-	modImplementation include("eu.pb4:placeholder-api:2.0.0-pre.2+1.19.3")
-	modImplementation include("eu.pb4:polymer-core:0.3.0-rc.2+1.19.3-rc3")
+	modImplementation include("eu.pb4:placeholder-api:2.0.0-rc.1+1.19.3")
+	modImplementation include('xyz.nucleoid:server-translations-api:2.0.0-beta.2+1.19.4-pre2')
+	modImplementation include('eu.pb4:polymer-core:0.4.0-pre.2+1.19.4-rc2')
 	modImplementation include("eu.pb4:common-protection-api:1.0.0")
-	modImplementation include("fr.catcore:server-translations-api:1.4.18+1.19.2")
+
 	modImplementation include("me.lucko:fabric-permissions-api:0.1-SNAPSHOT")
 
 	modCompileOnly "dev.emi:trinkets:3.0.4"

@@ -8,7 +8,9 @@ import eu.pb4.graves.other.OutputSlot;
 import eu.pb4.graves.registry.GraveCompassItem;
 import eu.pb4.placeholders.api.Placeholders;
 import eu.pb4.sgui.api.ClickType;
+import eu.pb4.sgui.api.GuiHelpers;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
+import eu.pb4.sgui.api.gui.GuiInterface;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.Items;
@@ -18,7 +20,6 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,24 +28,23 @@ public class GraveGui extends PagedGui {
     private final Grave grave;
     private final Inventory inventory;
     private final boolean canTake;
-    @Nullable
-    private final Runnable back;
     private final boolean canFetch;
+    private final GuiInterface previousUi;
     private int ticker = 0;
     private int actionTimeRemoveProtect = -1;
     private int actionTimeFetch = -1;
     private final boolean canTeleport;
 
-    public GraveGui(ServerPlayerEntity player, Grave grave, boolean canTake, boolean canTeleport, boolean canFetch, @Nullable Runnable back) {
+    public GraveGui(ServerPlayerEntity player, Grave grave, boolean canTake, boolean canTeleport, boolean canFetch) {
         super(player);
         this.grave = grave;
         this.canTake = canTake;
         this.canTeleport = canTeleport;
         this.canFetch = canFetch;
-        this.back = back;
         this.setTitle(Placeholders.parseText(ConfigManager.getConfig().graveTitle, Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, grave.getPlaceholders(player.getWorld().getServer())));
         this.inventory = this.grave.asInventory();
         this.updateDisplay();
+        this.previousUi = GuiHelpers.getCurrentGui(player);
     }
 
     @Override
@@ -55,7 +55,11 @@ public class GraveGui extends PagedGui {
     @Override
     public void onTick() {
         if (this.grave.isRemoved()) {
-            this.close();
+            if (this.previousUi != null) {
+                this.previousUi.open();
+            } else {
+                this.close();
+            }
         }
 
         this.ticker++;
@@ -178,9 +182,9 @@ public class GraveGui extends PagedGui {
                             })
                     ) : DisplayElement.lowerBar(player);
             case 5 -> DisplayElement.previousPage(this);
-            case 6 -> this.back != null ? DisplayElement.nextPage(this) : DisplayElement.lowerBar(player);
-            case 7 -> this.back == null ? DisplayElement.nextPage(this) : DisplayElement.lowerBar(player);
-            case 8 -> this.back != null ? DisplayElement.back(this.back) : DisplayElement.lowerBar(player);
+            case 6 -> this.previousUi != null ? DisplayElement.nextPage(this) : DisplayElement.lowerBar(player);
+            case 7 -> this.previousUi == null ? DisplayElement.nextPage(this) : DisplayElement.lowerBar(player);
+            case 8 -> this.previousUi != null ? DisplayElement.back(this.previousUi::open) : DisplayElement.lowerBar(player);
             default -> DisplayElement.lowerBar(player);
         };
     }

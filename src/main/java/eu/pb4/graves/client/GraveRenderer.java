@@ -79,7 +79,7 @@ public class GraveRenderer implements BlockEntityRenderer<AbstractGraveBlockEnti
         matrixStack.translate(0.5D, blockModelEnabled ? 0.1D : 0, 0.5D);
         matrixStack.scale(-1.0F, -1.0F, 1.0F);
         var rotation = 22.5F * entity.getCachedState().get(Properties.ROTATION);
-        var useSkull =  GravesModClient.config.playerHeadsTurnSkull() && !entity.getCachedState().get(IS_LOCKED);
+        var useSkull = GravesModClient.config.playerHeadsTurnSkull() && !entity.getCachedState().get(IS_LOCKED);
 
         var model = useSkull ? this.skullModel : this.playerHeadModel;
 
@@ -91,8 +91,10 @@ public class GraveRenderer implements BlockEntityRenderer<AbstractGraveBlockEnti
     public static RenderLayer getRenderLayer(@Nullable GameProfile profile) {
         if (profile != null) {
             MinecraftClient minecraftClient = MinecraftClient.getInstance();
-            Map<MinecraftProfileTexture.Type, MinecraftProfileTexture> map = minecraftClient.getSkinProvider().getTextures(profile);
-            return map.containsKey(com.mojang.authlib.minecraft.MinecraftProfileTexture.Type.SKIN) ? RenderLayer.getEntityTranslucent(minecraftClient.getSkinProvider().loadSkin(map.get(com.mojang.authlib.minecraft.MinecraftProfileTexture.Type.SKIN), com.mojang.authlib.minecraft.MinecraftProfileTexture.Type.SKIN)) : RenderLayer.getEntityTranslucent(DefaultSkinHelper.getTexture(profile.getId()));
+            var map = minecraftClient.getSkinProvider().getTextures(profile);
+            return map.containsKey(MinecraftProfileTexture.Type.SKIN)
+                    ? RenderLayer.getEntityTranslucent(minecraftClient.getSkinProvider().loadSkin(map.get(MinecraftProfileTexture.Type.SKIN), MinecraftProfileTexture.Type.SKIN))
+                    : RenderLayer.getEntityTranslucent(DefaultSkinHelper.getTexture(profile.getId()));
         } else {
             return RenderLayer.getEntityCutoutNoCullZOffset(SKULL_TEXTURE);
         }
@@ -142,7 +144,7 @@ public class GraveRenderer implements BlockEntityRenderer<AbstractGraveBlockEnti
         for (var text : entity.getClientText()) {
             var orderedText = text.asOrderedText();
             float offset = (float)(-this.textRenderer.getWidth(orderedText) / 2);
-            this.textRenderer.draw(orderedText, offset, (float)(i * 10 - 20), 0xFFFFFF, false, matrixStack.peek().getPositionMatrix(), vertexConsumers, false, 0, light);
+            this.textRenderer.draw(orderedText, offset, (float)(i * 10 - 20), 0xFFFFFF, false, matrixStack.peek().getPositionMatrix(), vertexConsumers, TextRenderer.TextLayerType.NORMAL, 0, light);
             i++;
         }
         matrixStack.pop();

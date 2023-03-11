@@ -86,7 +86,7 @@ public class GraveBlock extends AbstractGraveBlock implements BlockEntityProvide
                     if (ConfigManager.getConfig().configData.shiftClickTakesItems && (player.isSneaking() || !ConfigManager.getConfig().configData.clickGraveToOpenGui)) {
                         grave.quickEquip(player);
                     } else {
-                        grave.openUi(player, true);
+                        grave.openUi(player, true, false);
                     }
                 }
                 return ActionResult.SUCCESS;
@@ -107,7 +107,7 @@ public class GraveBlock extends AbstractGraveBlock implements BlockEntityProvide
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        return GraveBlockEntity::tick;
+        return type == GraveBlockEntity.BLOCK_ENTITY_TYPE && !world.isClient ? GraveBlockEntity::tick : null;
     }
 
     @Override

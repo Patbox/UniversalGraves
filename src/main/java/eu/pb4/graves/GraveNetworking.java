@@ -5,14 +5,13 @@ import eu.pb4.graves.other.VisualGraveData;
 import eu.pb4.placeholders.api.Placeholders;
 import eu.pb4.polymer.core.api.utils.PolymerSyncUtils;
 import eu.pb4.polymer.networking.api.PolymerServerNetworking;
-import fr.catcore.server.translations.api.LocalizationTarget;
-import fr.catcore.server.translations.api.text.LocalizableText;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.server.translations.api.Localization;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,9 +60,6 @@ public final class GraveNetworking {
         var config = ConfigManager.getConfig();
 
         if (version == 0 && config.canClientSide) {
-            var target = (LocalizationTarget) handler.getPlayer();
-
-
             var buf = PolymerServerNetworking.buf(0);
             buf.writeBlockPos(blockPos);
             buf.writeNbt(data.toNbt());
@@ -79,7 +75,7 @@ public final class GraveNetworking {
                 buf.writeVarInt(texts.length);
                 for (var text : texts) {
                     buf.writeString(Text.Serializer.toJson(
-                            LocalizableText.asLocalizedFor(Placeholders.parseText(text, Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, placeholders), target)
+                           Localization.text(Placeholders.parseText(text, Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, placeholders), handler.player)
                     ));
                 }
             }

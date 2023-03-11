@@ -84,6 +84,7 @@ public final class Config {
     public final BlockStyleEntry[] customBlockStateStylesUnlocked;
 
     public final Set<Identifier> skippedEnchantments;
+    public final Set<Identifier> blackListedDamageSources;
     public final Map<Identifier, Text> worldNameOverrides;
     public final Set<Identifier> blacklistedWorlds;
     public final boolean canClientSide;
@@ -210,6 +211,7 @@ public final class Config {
 
         this.skippedEnchantments = parseIds(data.skippedEnchantments);
         this.blacklistedWorlds = parseIds(data.blacklistedWorlds);
+        this.blackListedDamageSources = parseIds(data.blacklistedDamageSources);
 
         this.fullDateFormat = new SimpleDateFormat(configData.fullDateFormat);
 
@@ -247,7 +249,7 @@ public final class Config {
         }
     }
 
-    private static Set<Identifier> parseIds(List<String> ids) {
+    private static Set<Identifier> parseIds(Collection<String> ids) {
         var set = new HashSet<Identifier>();
         for (var id : ids) {
             if (id != null) {

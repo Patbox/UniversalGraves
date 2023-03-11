@@ -25,6 +25,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.ExperienceOrbEntity;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.damage.DamageSources;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
@@ -82,7 +83,7 @@ public class GraveUtils {
 
     public static BlockCheckResult findGravePosition(ServerPlayerEntity player, ServerWorld world, BlockPos blockPos, int maxDistance, boolean anyBlock) {
         var border = world.getWorldBorder();
-        blockPos = new BlockPos(MathHelper.clamp(blockPos.getX(), border.getBoundWest() + 1, border.getBoundEast() - 1), MathHelper.clamp(blockPos.getY(), world.getBottomY(), world.getTopY() - 1), MathHelper.clamp(blockPos.getZ(), border.getBoundNorth() + 1, border.getBoundSouth() - 1));
+        blockPos = BlockPos.ofFloored(MathHelper.clamp(blockPos.getX(), border.getBoundWest() + 1, border.getBoundEast() - 1), MathHelper.clamp(blockPos.getY(), world.getBottomY(), world.getTopY() - 1), MathHelper.clamp(blockPos.getZ(), border.getBoundNorth() + 1, border.getBoundSouth() - 1));
         var config = ConfigManager.getConfig();
 
         var result = isValidPos(player, world, border, blockPos, false, config);
@@ -294,9 +295,9 @@ public class GraveUtils {
 
         if (!config.configData.createFromPvP && source.getAttacker() instanceof PlayerEntity) {
             text = config.creationFailedPvPMessage;
-        } else if ((!config.configData.createFromCommandDeaths && isCommandDeath) || config.configData.blacklistedDamageSources.contains(source.name)) {
+        } else if ((!config.configData.createFromCommandDeaths && isCommandDeath) || config.blackListedDamageSources.contains(player.world.getRegistryManager().get(RegistryKeys.DAMAGE_TYPE).getId(source.getType())) || config.configData.blacklistedDamageSources.contains(source.getName())) {
             return;
-        } else if (!config.configData.createFromVoid && source == DamageSource.OUT_OF_WORLD && !isCommandDeath) {
+        } else if (!config.configData.createFromVoid && source.getType() == player.world.getDamageSources().outOfWorld().getType() && !isCommandDeath) {
             text = config.creationFailedVoidMessage;
         } else {
             var eventResult = PlayerGraveCreationEvent.EVENT.invoker().shouldCreate(player);

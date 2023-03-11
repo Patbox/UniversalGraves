@@ -326,13 +326,9 @@ public final class Grave {
         return this.items;
     }
 
-    public void openUi(ServerPlayerEntity player, boolean canTake, boolean catFetch, @Nullable Runnable runnable) {
+    public void openUi(ServerPlayerEntity player, boolean canTake, boolean canFetch) {
         new GraveGui(player, this, canTake, this.canTakeFrom(player)
-                && (ConfigManager.getConfig().teleportationCost.type() != TeleportationCost.Type.CREATIVE || player.isCreative()), catFetch, runnable).open();
-    }
-
-    public void openUi(ServerPlayerEntity player, boolean canTake) {
-        openUi(player, canTake, false, null);
+                && (ConfigManager.getConfig().teleportationCost.type() != TeleportationCost.Type.CREATIVE || player.isCreative()), canFetch).open();
     }
 
     public Inventory asInventory() {

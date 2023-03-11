@@ -45,9 +45,6 @@ public class Commands {
                                     ))
 
                             .then(literal("about").executes(Commands::about))
-                            .then(literal("display_damage_sources")
-                                    .requires(Permissions.require("universal_graves.display_damage_sources", 3))
-                                    .executes(Commands::toggleDamageSourceInfo))
 
                             .then(literal("reload")
                                     .requires(Permissions.require("universal_graves.reload", 4))

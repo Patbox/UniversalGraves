@@ -1,6 +1,7 @@
 package eu.pb4.graves.grave;
 
-import javax.annotation.Nullable;
+
+import org.jetbrains.annotations.Nullable;
 
 public interface GraveHolder {
     @Nullable
