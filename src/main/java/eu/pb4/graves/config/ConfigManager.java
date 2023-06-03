@@ -1,21 +1,27 @@
 package eu.pb4.graves.config;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParser;
 import eu.pb4.graves.GravesMod;
-import eu.pb4.graves.config.data.ConfigData;
-import eu.pb4.graves.config.data.VersionedConfigData;
+import eu.pb4.graves.config.data.LegacyConfigData;
+import eu.pb4.graves.model.GraveModel;
+import eu.pb4.graves.other.ImplementedInventory;
 import net.fabricmc.loader.api.FabricLoader;
-import org.apache.commons.io.IOUtils;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ConfigManager {
-    public static final int VERSION = 2;
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().setLenient().create();
+    public static final int VERSION = 3;
+    private static final Path BASE_CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("universal-graves/");
+    private static final Path CONFIG_PATH = BASE_CONFIG_PATH.resolve("config.json");
+    private static final Path MODELS_PATH = BASE_CONFIG_PATH.resolve("models/");
+    private static final Path OLD_CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("universal-graves.json");
+    private static final Map<String, GraveModel> MODELS = new HashMap<>();
 
-    private static Config CONFIG = new Config(new ConfigData());
+    private static Config CONFIG = new Config();
     private static boolean ENABLED = false;
 
     public static Config getConfig() {
@@ -34,28 +40,37 @@ public class ConfigManager {
 
         CONFIG = null;
         try {
-            ConfigData config;
-            File configFile = new File(FabricLoader.getInstance().getConfigDir().toFile(), "universal-graves.json");
-
-
-            if (configFile.exists()) {
-                String json = IOUtils.toString(new InputStreamReader(new FileInputStream(configFile), StandardCharsets.UTF_8));
-
-                config = switch (GSON.fromJson(json, VersionedConfigData.class).CONFIG_VERSION_DONT_TOUCH_THIS) {
-                    default -> GSON.fromJson(json, ConfigData.class);
-                };
-
-                config.CONFIG_VERSION_DONT_TOUCH_THIS = VERSION;
+            Config config;
+            MODELS.clear();
+            if (Files.exists(MODELS_PATH)) {
+                Files.newDirectoryStream(MODELS_PATH).forEach((path) -> {
+                    try {
+                        var name = MODELS_PATH.relativize(path).toString();
+                        MODELS.put(name.substring(0, name.length() - 5), BaseGson.GSON.fromJson(Files.readString(path), GraveModel.class));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
             } else {
-                config = new ConfigData();
+                Files.createDirectories(MODELS_PATH);
+                Files.writeString(MODELS_PATH.resolve("default.json"), BaseGson.GSON.toJson(GraveModel.DEFAULT_MODEL));
+                MODELS.put("default", GraveModel.DEFAULT_MODEL);
             }
 
-            config.fillMissing();
 
+            if (Files.exists(CONFIG_PATH)) {
+                config = BaseGson.GSON.fromJson(Files.readString(CONFIG_PATH), Config.class);
+            } else if (Files.exists(OLD_CONFIG_PATH)) {
+                config = BaseGson.GSON.fromJson(Files.readString(OLD_CONFIG_PATH), LegacyConfigData.class).convert();
+            } else {
+                config = new Config();
+            }
+            config.fillMissing();
             overrideConfig(config);
+            CONFIG = config;
             ENABLED = true;
         }
-        catch(IOException exception) {
+            catch(Throwable exception) {
             ENABLED = false;
             GravesMod.LOGGER.error("Something went wrong while reading config!");
             exception.printStackTrace();
@@ -64,16 +79,17 @@ public class ConfigManager {
         return ENABLED;
     }
 
-    public static void overrideConfig(ConfigData configData) {
-        File configFile = new File(FabricLoader.getInstance().getConfigDir().toFile(), "universal-graves.json");
+    public static void overrideConfig(Config configData) {
         try {
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(configFile), StandardCharsets.UTF_8));
-            writer.write(GSON.toJson(configData));
-            writer.close();
-            CONFIG = new Config(configData);
+            Files.writeString(CONFIG_PATH, BaseGson.GSON.toJson(configData));
+            CONFIG = configData;
         } catch (Exception e) {
             GravesMod.LOGGER.error("Something went wrong while saving config!");
             e.printStackTrace();
         }
+    }
+
+    public static GraveModel getModel(String model, GraveModel defaultModel) {
+        return MODELS.getOrDefault(model, defaultModel);
     }
 }

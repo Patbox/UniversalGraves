@@ -7,13 +7,13 @@ import eu.pb4.graves.grave.Grave;
 import eu.pb4.graves.grave.GraveHolder;
 import eu.pb4.graves.grave.GraveManager;
 import eu.pb4.graves.grave.PositionedItemStack;
-import eu.pb4.graves.other.Location;
+import eu.pb4.graves.model.GraveModel;
+import eu.pb4.graves.model.GraveModelHandler;
 import eu.pb4.graves.other.VanillaInventoryMask;
 import eu.pb4.graves.other.VisualGraveData;
-import eu.pb4.holograms.api.elements.SpacingHologramElement;
-import eu.pb4.holograms.api.holograms.WorldHologram;
 import eu.pb4.placeholders.api.Placeholders;
 import eu.pb4.placeholders.api.node.EmptyNode;
+import eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -42,12 +42,11 @@ import static eu.pb4.graves.registry.AbstractGraveBlock.IS_LOCKED;
 
 public class GraveBlockEntity extends AbstractGraveBlockEntity implements GraveHolder {
     public static BlockEntityType<GraveBlockEntity> BLOCK_ENTITY_TYPE;
-    public WorldHologram hologram = null;
     public BlockState replacedBlockState = Blocks.AIR.getDefaultState();
     private Grave data = null;
-    private int dataRetrieveTries = 0;
     private VisualGraveData visualData = VisualGraveData.DEFAULT;
     private long graveId = -1;
+    private GraveModelHandler model;
 
     public GraveBlockEntity(BlockPos pos, BlockState state) {
         super(BLOCK_ENTITY_TYPE, pos, state);
@@ -57,7 +56,6 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity implements GraveH
         this.replacedBlockState = oldBlockState;
         this.setGrave(grave);
     }
-
 
     public void setGrave(Grave grave) {
         this.data = grave;
@@ -126,36 +124,8 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity implements GraveH
 
     protected void updateForAllPlayers() {
         assert this.world != null;
-
-        var converter = ConfigManager.getConfig().style.converter;
-        var rotation = this.getCachedState().get(Properties.ROTATION);
-        var isProtected = this.data.isProtected();
-        for (var player : ((ServerWorld) this.world).getChunkManager().threadedAnvilChunkStorage.getPlayersWatchingChunk(new ChunkPos(this.pos), false)) {
-            if (!GraveNetworking.sendGrave(player.networkHandler, pos, isProtected, this.data.toVisualGraveData(), this.data.getPlaceholders(player.server), null)) {
-                converter.sendNbt(player, this.getCachedState(), pos.toImmutable(), rotation, isProtected, this.data.toVisualGraveData(), this.data, null);
-            }
-        }
     }
 
-    protected void updateForClientPlayers() {
-        assert this.world != null;
-
-        var isProtected = this.data.isProtected();
-        for (var player : ((ServerWorld) this.world).getChunkManager().threadedAnvilChunkStorage.getPlayersWatchingChunk(new ChunkPos(this.pos), false)) {
-            GraveNetworking.sendGrave(player.networkHandler, pos, isProtected, this.data.toVisualGraveData(), this.data.getPlaceholders(player.server), null);
-        }
-
-    }
-
-
-    @Override
-    public void markRemoved() {
-        if (this.hologram != null) {
-            this.hologram.hide();
-        }
-        this.hologram = null;
-        super.markRemoved();
-    }
 
     public static <T extends BlockEntity> void tick(World world, BlockPos pos, BlockState state, T t) {
         if (!(t instanceof GraveBlockEntity self) || world.isClient()) {
@@ -180,9 +150,8 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity implements GraveH
 
         Config config = ConfigManager.getConfig();
 
-        Map<String, Text> placeholders = self.data.getPlaceholders(self.world.getServer());
 
-        if (config.configData.breakingTime > -1 && self.data.shouldNaturallyBreak()) {
+        if (config.protection.breakingTime > -1 && self.data.shouldNaturallyBreak()) {
             world.setBlockState(pos, self.replacedBlockState, Block.NOTIFY_ALL);
             return;
         }
@@ -192,64 +161,27 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity implements GraveH
         if (isProtected && !self.data.isProtected()) {
             world.setBlockState(pos, state.with(IS_LOCKED, false));
             isProtected = false;
-            self.updateForAllPlayers();
+            if (self.model != null) {
+                self.model.setModel(self.getModelId(), false, false);
+            }
         }
 
-        var updateRate = config.style.converter.updateRate(state, pos, self.data.toVisualGraveData(), self.data);
-        if (updateRate > 0 && world.getTime() % updateRate == 0) {
-            self.updateForAllPlayers();
-        } else if (updateRate <= 0 && world.getTime() % 20 == 0) {
-            self.updateForClientPlayers();
+        if (self.model == null) {
+            self.model = (GraveModelHandler) BlockBoundAttachment.get(world, pos).holder();
+            self.model.setGrave(self.getModelId(), isProtected, false, self.getGrave().getProfile(), () -> self.getGrave().getPlaceholders(self.world.getServer()));
         }
 
-        if (config.configData.hologram) {
-            if (self.hologram == null) {
-                self.hologram = new WorldHologram((ServerWorld) world, new Vec3d(pos.getX(), pos.getY(), pos.getZ()).add(0.5, config.configData.hologramOffset, 0.5)) {
-                    @Override
-                    public boolean canAddPlayer(ServerPlayerEntity player) {
-                        return config.configData.hologramDisplayIfOnClient || !GraveNetworking.canReceive(player.networkHandler);
-                    }
-                };
-                self.hologram.show();
-            }
+        if (world.getTime() % 20 == 0) {
+            self.model.tick();
+        }
+    }
 
-            List<Text> texts = new ArrayList<>();
-
-            for (var text : isProtected ? config.hologramProtectedText : config.hologramText) {
-                if (text != EmptyNode.INSTANCE) {
-                    texts.add(Placeholders.parseText(text, Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, placeholders));
-                } else {
-                    texts.add(Text.empty());
-                }
-            }
-
-
-            if (texts.size() != self.hologram.getElements().size()) {
-                self.hologram.clearElements();
-                for (Text text : texts) {
-                    if (text.getContent() == TextContent.EMPTY && text.getSiblings().size() == 0) {
-                        self.hologram.addElement(new SpacingHologramElement(0.28));
-                    } else {
-                        self.hologram.addText(text);
-                    }
-                }
-            } else {
-                int x = 0;
-                for (Text text : texts) {
-                    if (text.getContent() == TextContent.EMPTY && text.getSiblings().size() == 0) {
-                        self.hologram.setElement(x, new SpacingHologramElement(0.28));
-                    } else {
-                        self.hologram.setText(x, text);
-                    }
-                    x++;
-                }
-            }
-
-
-        } else {
-            if (self.hologram != null) {
-                self.hologram.hide();
-                self.hologram = null;
+    @Override
+    public void setModelId(String model) {
+        if (!this.getModelId().equals(model)) {
+            super.setModelId(model);
+            if (this.model != null) {
+                this.model.setModel(model, this.getCachedState().get(IS_LOCKED), false);
             }
         }
     }
@@ -259,11 +191,12 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity implements GraveH
     }
 
     public void breakBlock(boolean canCreateVisual) {
-        if (canCreateVisual && ConfigManager.getConfig().configData.keepBlockAfterBreaking) {
+        if (canCreateVisual && ConfigManager.getConfig().placement.keepBlockAfterBreaking) {
             world.setBlockState(pos, VisualGraveBlock.INSTANCE.getStateWithProperties(this.getCachedState()), Block.NOTIFY_ALL | Block.FORCE_STATE);
 
             if (world.getBlockEntity(pos) instanceof VisualGraveBlockEntity blockEntity) {
                 blockEntity.setVisualData(this.getClientData(), this.replacedBlockState, false);
+                blockEntity.setModelId(this.getModelId());
             }
 
         } else {
@@ -280,13 +213,6 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity implements GraveH
 
         return this.data;
     }
-
-    @Override
-    public void setFromPacket(GraveNetworking.NetworkingGrave decoded) {
-        this.clientText = decoded.displayText();
-        this.visualData = decoded.data();
-    }
-
 
     public VisualGraveData getClientData() {
         return this.data != null ? this.data.toVisualGraveData() : this.visualData;

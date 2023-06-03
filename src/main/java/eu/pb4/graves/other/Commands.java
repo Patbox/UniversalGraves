@@ -59,7 +59,7 @@ public class Commands {
         var bl = pl.graves_getPrintNextDamageSource();
 
         pl.graves_setPrintNextDamageSource(!bl);
-        context.getSource().sendFeedback(Text.translatable("text.graves.damage_source_info." + (bl ? "disabled" : "enabled")), false);
+        context.getSource().sendFeedback(() -> Text.translatable("text.graves.damage_source_info." + (bl ? "disabled" : "enabled")), false);
         return 0;
     }
 
@@ -79,10 +79,10 @@ public class Commands {
         List<GameProfile> profiles = new ArrayList(context.getArgument("player", GameProfileArgumentType.GameProfileArgument.class).getNames(context.getSource()));
 
         if (profiles.size() == 0) {
-            context.getSource().sendFeedback(Text.literal("This player doesn't exist!"), false);
+            context.getSource().sendFeedback(() -> Text.literal("This player doesn't exist!"), false);
             return 0;
         } else if (profiles.size() > 1) {
-            context.getSource().sendFeedback(Text.literal("Only one player can be selected!"), false);
+            context.getSource().sendFeedback(() -> Text.literal("Only one player can be selected!"), false);
             return 0;
         }
         try {
@@ -96,21 +96,16 @@ public class Commands {
 
     private static int reloadConfig(CommandContext<ServerCommandSource> context) {
         if (ConfigManager.loadConfig()) {
-            context.getSource().sendFeedback(Text.literal("Reloaded config!"), false);
-            for (var player : context.getSource().getServer().getPlayerManager().getPlayerList()) {
-                GraveNetworking.sendConfig(player.networkHandler);
-            }
-
+            context.getSource().sendFeedback(() -> Text.literal("Reloaded config!"), false);
         } else {
-            context.getSource().sendError(Text.literal("Error accrued while reloading config!").formatted(Formatting.RED));
-
+            context.getSource().sendError(Text.literal("Error occurred while reloading config!").formatted(Formatting.RED));
         }
         return 1;
     }
 
     private static int about(CommandContext<ServerCommandSource> context) {
         for (var text : context.getSource().getEntity() instanceof ServerPlayerEntity ? GenericModInfo.getAboutFull() : GenericModInfo.getAboutConsole()) {
-            context.getSource().sendFeedback(text, false);
+            context.getSource().sendFeedback(() -> text, false);
         }
 
         return 1;

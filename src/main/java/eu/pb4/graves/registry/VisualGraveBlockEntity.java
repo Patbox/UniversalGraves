@@ -1,13 +1,13 @@
 package eu.pb4.graves.registry;
 
 import eu.pb4.graves.GraveNetworking;
-import eu.pb4.graves.config.Config;
 import eu.pb4.graves.config.ConfigManager;
+import eu.pb4.graves.model.GraveModel;
+import eu.pb4.graves.model.GraveModelHandler;
 import eu.pb4.graves.other.VisualGraveData;
-import eu.pb4.holograms.api.elements.SpacingHologramElement;
-import eu.pb4.holograms.api.holograms.WorldHologram;
 import eu.pb4.placeholders.api.Placeholders;
 import eu.pb4.placeholders.api.node.EmptyNode;
+import eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment;
 import eu.pb4.sgui.api.gui.SignGui;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -31,12 +31,11 @@ import static eu.pb4.graves.registry.AbstractGraveBlock.IS_LOCKED;
 
 public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
     public static BlockEntityType<VisualGraveBlockEntity> BLOCK_ENTITY_TYPE;
-    public WorldHologram hologram = null;
     public BlockState replacedBlockState = Blocks.AIR.getDefaultState();
     private VisualGraveData visualData = VisualGraveData.DEFAULT;
     protected boolean allowModification = true;
     protected Text[] textOverrides = null;
-    private Text[] deltaTextOverride = null;
+    private GraveModelHandler model;
 
     public VisualGraveBlockEntity(BlockPos pos, BlockState state) {
         super(BLOCK_ENTITY_TYPE, pos, state);
@@ -90,106 +89,40 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
         }
     }
 
-    protected void updateForAllPlayers() {
-        assert this.world != null;
-
-        var converter = ConfigManager.getConfig().style.converter;
-        var rotation = this.getCachedState().get(Properties.ROTATION);
-        var isProtected = this.getCachedState().get(IS_LOCKED);
-        for (var player : ((ServerWorld) this.world).getChunkManager().threadedAnvilChunkStorage.getPlayersWatchingChunk(new ChunkPos(this.pos), false)) {
-            if (!GraveNetworking.sendGrave(player.networkHandler, pos, isProtected, this.visualData, this.visualData.getPlaceholders(player.server), this.textOverrides)) {
-                converter.sendNbt(player, this.getCachedState(), pos.toImmutable(), rotation, isProtected, this.visualData, null, this.textOverrides);
-            }
-        }
-    }
-
-    @Override
-    public void markRemoved() {
-        if (this.hologram != null) {
-            this.hologram.hide();
-        }
-        this.hologram = null;
-        super.markRemoved();
-    }
-
     public static <T extends BlockEntity> void tick(World world, BlockPos pos, BlockState state, T t) {
         if (!(t instanceof VisualGraveBlockEntity self) || world.isClient() || world.getTime() % 10 != 0) {
             return;
         }
 
-        Config config = ConfigManager.getConfig();
-
-        if (config.configData.hologram) {
-            if (self.hologram == null) {
-                self.hologram = new WorldHologram((ServerWorld) world, new Vec3d(pos.getX(), pos.getY(), pos.getZ()).add(0.5, config.configData.hologramOffset, 0.5)) {
-                    @Override
-                    public boolean canAddPlayer(ServerPlayerEntity player) {
-                        return config.configData.hologramDisplayIfOnClient || !GraveNetworking.canReceive(player.networkHandler);
-                    }
-                };
-                self.hologram.show();
-            }
-
-            boolean dirty = false;
-            List<Text> texts = new ArrayList<>();
-
-            if (self.textOverrides != null) {
-                if ((self.deltaTextOverride == null || !Arrays.equals(self.textOverrides, self.deltaTextOverride))) {
-                    for (Text text : self.textOverrides) {
-                        texts.add(text.copy());
-                    }
-
-                    self.updateForAllPlayers();
-                    self.deltaTextOverride = new Text[self.textOverrides.length];
-                    for (int i = 0; i < self.textOverrides.length; i++) {
-                        self.deltaTextOverride[i] = self.textOverrides[i].copy();
-                    }
-                    dirty = true;
-                }
-            } else {
-                Map<String, Text> placeholders = self.visualData.getPlaceholders(self.world.getServer());
-
-                for (var text : config.hologramVisualText) {
-                    if (!text.equals(EmptyNode.INSTANCE)) {
-                        texts.add(Placeholders.parseText(text, Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, placeholders));
-                    } else {
-                        texts.add(Text.empty());
-                    }
-                }
-                dirty = true;
-            }
-
-
-            if (dirty) {
-                if (texts.size() != self.hologram.getElements().size()) {
-                    self.hologram.clearElements();
-                }
-
-                int x = 0;
-                for (Text text : texts) {
-                    if (text.getContent() == TextContent.EMPTY && text.getSiblings().size() == 00) {
-                        self.hologram.setElement(x, new SpacingHologramElement(0.28));
-                    } else {
-                        self.hologram.setText(x, text);
-                    }
-                    x++;
-                }
-            }
-        } else {
-            if (self.hologram != null) {
-                self.hologram.hide();
-                self.hologram = null;
-            }
+        if (self.model == null) {
+            self.model = (GraveModelHandler) BlockBoundAttachment.get(world, pos).holder();
+            self.model.setGrave(self.getModelId(), state.get(IS_LOCKED), self.allowModification, self.getGrave().gameProfile(), self::createPlaceholders);
         }
+
+        if (world.getTime() % 20 == 0) {
+            self.model.tick();
+        }
+    }
+
+    private Map<String, Text> createPlaceholders() {
+        var placeholder = this.getGrave().getPlaceholders(this.world.getServer());
+
+        if (this.textOverrides != null) {
+            placeholder.put("text_1", this.textOverrides[0]);
+            placeholder.put("text_2", this.textOverrides[1]);
+            placeholder.put("text_3", this.textOverrides[2]);
+            placeholder.put("text_4", this.textOverrides[3]);
+        } else {
+            placeholder.put("text_1", Text.empty());
+            placeholder.put("text_2", Text.empty());
+            placeholder.put("text_3", Text.empty());
+            placeholder.put("text_4", Text.empty());
+        }
+        return placeholder;
     }
 
     public VisualGraveData getGrave() {
         return this.visualData;
-    }
-
-    public void setFromPacket(GraveNetworking.NetworkingGrave decoded) {
-        this.visualData = decoded.data();
-        this.clientText = decoded.displayText();
     }
 
     @Override
@@ -197,8 +130,14 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
         return this.visualData;
     }
 
-    public Text[] getTextOverrides() {
-        return this.textOverrides;
+    @Override
+    public void setModelId(String model) {
+        if (!this.getModelId().equals(model)) {
+            super.setModelId(model);
+            if (this.model != null) {
+                this.model.setModel(model, this.getCachedState().get(IS_LOCKED), this.allowModification);
+            }
+        }
     }
 
     public void openEditScreen(ServerPlayerEntity player) {

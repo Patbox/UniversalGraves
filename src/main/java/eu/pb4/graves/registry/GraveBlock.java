@@ -6,7 +6,6 @@ import eu.pb4.graves.other.VisualGraveData;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Material;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
@@ -29,7 +28,7 @@ public class GraveBlock extends AbstractGraveBlock implements BlockEntityProvide
     public static GraveBlock INSTANCE = new GraveBlock();
 
     private GraveBlock() {
-        super(AbstractBlock.Settings.of(Material.METAL).dropsNothing().dynamicBounds().strength(2, 999));
+        super(AbstractBlock.Settings.create().dropsNothing().nonOpaque().dynamicBounds().strength(2, 999));
         this.setDefaultState(this.getStateManager().getDefaultState().with(Properties.WATERLOGGED, false));
     }
 
@@ -59,7 +58,7 @@ public class GraveBlock extends AbstractGraveBlock implements BlockEntityProvide
             try {
                 var grave = graveBlockEntity.getGrave();
                 grave.destroyGrave(player.getServer(), player);
-                if (ConfigManager.getConfig().configData.restoreBlockAfterPlayerBreaking) {
+                if (ConfigManager.getConfig().placement.restoreBlockAfterPlayerBreaking) {
                     graveBlockEntity.breakBlock();
                 }
             } catch (Exception e) {
@@ -83,7 +82,7 @@ public class GraveBlock extends AbstractGraveBlock implements BlockEntityProvide
                 grave.updateSelf(world.getServer());
 
                 if (!grave.isRemoved()) {
-                    if (ConfigManager.getConfig().configData.shiftClickTakesItems && (player.isSneaking() || !ConfigManager.getConfig().configData.clickGraveToOpenGui)) {
+                    if (ConfigManager.getConfig().interactions.shiftClickTakesItems && (player.isSneaking() || !ConfigManager.getConfig().interactions.clickGraveToOpenGui)) {
                         grave.quickEquip(player);
                     } else {
                         grave.openUi(player, true, false);

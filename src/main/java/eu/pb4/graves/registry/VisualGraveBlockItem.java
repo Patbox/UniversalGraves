@@ -42,15 +42,6 @@ public class VisualGraveBlockItem extends BlockItem implements PolymerItem, Poly
 
     @Override
     public Item getPolymerItem(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
-        return player != null && GraveNetworking.canReceive(player.networkHandler) ? this : Items.STONE_BRICK_WALL;
-    }
-
-    @Override
-    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipContext context, @Nullable ServerPlayerEntity player) {
-        if (player != null && GraveNetworking.canReceive(player.networkHandler)) {
-            return itemStack;
-        }
-
-        return PolymerItem.super.getPolymerItemStack(itemStack, context, player);
+        return Items.STONE_BRICK_WALL;
     }
 }

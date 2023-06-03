@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import eu.pb4.graves.client.ClientGraveUi;
 import eu.pb4.graves.client.GravesModClient;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.item.TooltipContext;
@@ -29,18 +30,19 @@ public abstract class GenericContainerScreenMixin extends HandledScreen<GenericC
     }
 
     @Inject(method = "render", at = @At("HEAD"), cancellable = true)
-    private void graves_customUiTexture(MatrixStack matrices, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+    private void graves_customUiTexture(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         if (this.grave_enableTexture) {
-            this.renderBackground(matrices);
+            this.renderBackground(context);
 
-            super.render(matrices, mouseX, mouseY, delta);
+            super.render(context, mouseX, mouseY, delta);
 
             { // Mouse
                 if (this.handler.getCursorStack().isEmpty() && this.focusedSlot != null && this.focusedSlot.hasStack()) {
                     if (this.focusedSlot.inventory == this.handler.getInventory() && this.focusedSlot.id > 35 && this.focusedSlot.id < 47) {
-                        this.renderTooltip(matrices, this.focusedSlot.getStack().getTooltip(MinecraftClient.getInstance().player, TooltipContext.Default.BASIC), mouseX, mouseY);
+
+                        context.drawTooltip(this.client.textRenderer, this.focusedSlot.getStack().getTooltip(MinecraftClient.getInstance().player, TooltipContext.Default.BASIC), mouseX, mouseY);
                     } else {
-                        this.renderTooltip(matrices, this.focusedSlot.getStack(), mouseX, mouseY);
+                        context.drawItemTooltip(this.client.textRenderer, this.focusedSlot.getStack(), mouseX, mouseY);
                     }
                 }
             }
@@ -50,14 +52,14 @@ public abstract class GenericContainerScreenMixin extends HandledScreen<GenericC
     }
 
     @Inject(method = "drawBackground", at = @At("HEAD"), cancellable = true)
-    private void graves_customUiTexture(MatrixStack matrices, float delta, int mouseX, int mouseY, CallbackInfo ci) {
+    private void graves_customUiTexture(DrawContext context, float delta, int mouseX, int mouseY, CallbackInfo ci) {
         if (this.grave_enableTexture) {
             RenderSystem.setShader(GameRenderer::getPositionTexProgram);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             RenderSystem.setShaderTexture(0, GravesModClient.UI_TEXTURE);
             int i = (this.width - this.backgroundWidth) / 2;
             int j = (this.height - this.backgroundHeight) / 2;
-            this.drawTexture(matrices, i, j, 0, 0, this.backgroundWidth, this.backgroundHeight);
+            context.drawTexture(GravesModClient.UI_TEXTURE, i, j, 0, 0, this.backgroundWidth, this.backgroundHeight);
 
             ci.cancel();
         }

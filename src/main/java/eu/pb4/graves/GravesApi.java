@@ -10,7 +10,6 @@ import eu.pb4.graves.event.PlayerGraveCreationEvent;
 import eu.pb4.graves.event.PlayerGraveItemAddedEvent;
 import eu.pb4.graves.grave.*;
 import eu.pb4.graves.other.GraveUtils;
-import eu.pb4.graves.other.GravesLookType;
 import eu.pb4.graves.other.Location;
 import eu.pb4.graves.other.VanillaInventoryMask;
 import net.fabricmc.fabric.api.event.Event;
@@ -42,10 +41,6 @@ public final class GravesApi {
 
     public static Collection<Grave> getAllGraves() {
         return ImmutableList.copyOf(GraveManager.INSTANCE.getAll());
-    }
-
-    public static void createStyle(Identifier identifier, GravesLookType.Converter converter) {
-        GravesLookType.create(identifier, converter);
     }
 
     public static boolean canAddItem(ServerPlayerEntity player, ItemStack itemStack) {

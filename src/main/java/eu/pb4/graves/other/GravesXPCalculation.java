@@ -19,12 +19,12 @@ public enum GravesXPCalculation {
         }
 
         points += p.experienceProgress * p.getNextLevelExperience();
-        return (int) (points * ConfigManager.getConfig().configData.xpPercentTypeValue / 100);
+        return (int) (points * ConfigManager.getConfig().storage.xpPercentTypeValue / 100);
     }),
 
     PERCENT_LEVELS("percent_levels", (p) -> {
         int points = 0;
-        double percent = ConfigManager.getConfig().configData.xpPercentTypeValue / 100;
+        double percent = ConfigManager.getConfig().storage.xpPercentTypeValue / 100;
 
         for (int i = 0; i < p.experienceLevel * percent; i++) {
             if (i >= 30) {
@@ -44,6 +44,10 @@ public enum GravesXPCalculation {
     GravesXPCalculation(String name, Player2XP converter) {
         this.name = name;
         this.converter = converter;
+    }
+
+    public String configName() {
+        return this.name;
     }
 
     public static GravesXPCalculation byName(String name) {

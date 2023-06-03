@@ -31,20 +31,14 @@ public record DisplayElement(@Nullable GuiElementInterface element, @Nullable Sl
         var config = ConfigManager.getConfig();
         if (gui.canNextPage()) {
             return DisplayElement.of(
-                    GuiElementBuilder.from(config.guiNextPageIcon)
-                            .setName(config.guiNextPageText)
-                            .hideFlags()
+                    config.ui.nextButton.get(true).builder()
                             .setCallback((x, y, z) -> {
                                 PagedGui.playClickSound(gui.getPlayer());
                                 gui.nextPage();
                             })
             );
         } else {
-            return DisplayElement.of(
-                    GuiElementBuilder.from(config.guiNextPageBlockedIcon)
-                            .setName(config.guiNextPageBlockedText)
-                            .hideFlags()
-            );
+            return DisplayElement.of(config.ui.nextButton.get(false).builder());
         }
     }
 
@@ -53,28 +47,21 @@ public record DisplayElement(@Nullable GuiElementInterface element, @Nullable Sl
 
         if (gui.canPreviousPage()) {
             return DisplayElement.of(
-                    GuiElementBuilder.from(config.guiPreviousPageIcon)
-                            .setName(config.guiPreviousPageText)
-                            .hideFlags()
+                    config.ui.previousButton.get(true).builder()
                             .setCallback((x, y, z) -> {
                                 PagedGui.playClickSound(gui.getPlayer());
                                 gui.previousPage();
                             })
             );
         } else {
-            return DisplayElement.of(
-                    GuiElementBuilder.from(config.guiPreviousPageBlockedIcon)
-                            .setName(config.guiPreviousPageBlockedText)
-                            .hideFlags()
+            return DisplayElement.of(config.ui.previousButton.get(false).builder()
             );
         }
     }
 
     public static DisplayElement filler() {
         return DisplayElement.of(
-                GuiElementBuilder.from(ConfigManager.getConfig().guiBarItem)
-                        .setName(Text.empty())
-                        .hideFlags()
+                ConfigManager.getConfig().ui.barButton.builder()
         );
     }
 
@@ -89,9 +76,7 @@ public record DisplayElement(@Nullable GuiElementInterface element, @Nullable Sl
     public static DisplayElement back(Runnable back) {
         var config = ConfigManager.getConfig();
         return DisplayElement.of(
-                GuiElementBuilder.from(config.guiBackIcon)
-                        .setName(config.guiBackText)
-                        .hideFlags()
+                config.ui.backButton.builder()
                         .setCallback((x, y, z, d) -> {
                             PagedGui.playClickSound(d.getPlayer());
                             back.run();

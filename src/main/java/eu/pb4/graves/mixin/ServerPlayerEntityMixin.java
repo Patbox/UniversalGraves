@@ -74,7 +74,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Pl
 
     @Inject(method = "onSpawn", at = @At("TAIL"))
     private void grave_onSpawn(CallbackInfo ci) {
-        if (this.graves_location != -1 && !this.graves_hasCompass && ConfigManager.getConfig().configData.giveGraveCompass) {
+        if (this.graves_location != -1 && !this.graves_hasCompass && ConfigManager.getConfig().interactions.giveGraveCompass) {
             this.getInventory().offerOrDrop(GraveCompassItem.create(this.graves_location, false));
             this.graves_hasCompass = true;
         }

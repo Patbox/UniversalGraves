@@ -1,8 +1,8 @@
 package eu.pb4.graves.other;
 
-import eu.pb4.graves.config.Config;
-import eu.pb4.graves.config.ConfigManager;
-import eu.pb4.placeholders.api.Placeholders;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import eu.pb4.graves.config.BaseGson;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -28,23 +28,8 @@ public record TeleportationCost<T>(Type<T> type, T object, int count) {
         }
     }
 
-    public Text getText(ServerPlayerEntity player) {
-        var config = ConfigManager.getConfig();
-
-        var text = this.checkCost(player) ? config.guiTeleportCostActiveText : config.guiTeleportCostNotEnoughText;
-
-        var out = Placeholders.parseText(text, Placeholders.PREDEFINED_PLACEHOLDER_PATTERN,
-                Map.of("item", this.type.textify(this.object), "count", Text.literal(""+ this.count)));
-
-
-        return out;
-    }
-
-    public static TeleportationCost<Object> decode(String typeString, String objectString, int count) {
-        var type = Type.BY_TYPE.getOrDefault(typeString, Type.CREATIVE);
-        var obj = type.convert(objectString);
-
-        return new TeleportationCost(type, obj, count);
+    public Map<String, Text> getPlaceholders(ServerPlayerEntity player) {
+        return Map.of("item", this.type.textify(this.object), "count", Text.literal("" + this.count));
     }
 
     public interface Type<T> extends CostFunc<T> {
@@ -92,8 +77,13 @@ public record TeleportationCost<T>(Type<T> type, T object, int count) {
             }
 
             @Override
-            public ItemStack convert(String object) {
-                return Config.parseItem(object);
+            public ItemStack decodeConfig(JsonElement object) {
+                return BaseGson.GSON.fromJson(object, ItemStack.class);
+            }
+
+            @Override
+            public JsonElement encodeConfig(ItemStack object) {
+                return BaseGson.GSON.toJsonTree(object);
             }
 
             @Override
@@ -122,8 +112,14 @@ public record TeleportationCost<T>(Type<T> type, T object, int count) {
 
         static Type<Object> of(Item icon, ContextlessCost takeCost, ReturnCostFunc returnCostFunc) {
             return new Type<>() {
+
                 @Override
-                public Object convert(String object) {
+                public Object decodeConfig(JsonElement object) {
+                    return null;
+                }
+
+                @Override
+                public JsonElement encodeConfig(Object object) {
                     return null;
                 }
 
@@ -148,7 +144,8 @@ public record TeleportationCost<T>(Type<T> type, T object, int count) {
             };
         }
 
-        T convert(String object);
+        T decodeConfig(JsonElement object);
+        JsonElement encodeConfig(T object);
         ItemStack getIcon(T object, int count);
         Text textify(T object);
 

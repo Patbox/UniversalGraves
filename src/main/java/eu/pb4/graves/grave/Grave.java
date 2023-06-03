@@ -3,6 +3,7 @@ package eu.pb4.graves.grave;
 import com.mojang.authlib.GameProfile;
 import eu.pb4.graves.config.Config;
 import eu.pb4.graves.config.ConfigManager;
+import eu.pb4.graves.config.data.WrappedText;
 import eu.pb4.graves.other.*;
 import eu.pb4.graves.registry.GraveBlock;
 import eu.pb4.graves.registry.GraveBlockEntity;
@@ -17,7 +18,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -29,7 +29,6 @@ import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
@@ -188,20 +187,20 @@ public final class Grave {
     public Map<String, Text> getPlaceholders(MinecraftServer server) {
         Config config = ConfigManager.getConfig();
 
-        long protectionTime = GraveManager.INSTANCE.getProtectionTime() > -1 ? getTimeLeft(GraveManager.INSTANCE.getProtectionTime(), config.configData.useRealTime) : Long.MAX_VALUE;
-        long breakTime = GraveManager.INSTANCE.getBreakingTime() > -1 ? getTimeLeft(GraveManager.INSTANCE.getBreakingTime(), config.configData.useRealTime) : Long.MAX_VALUE;
+        long protectionTime = GraveManager.INSTANCE.getProtectionTime() > -1 ? getTimeLeft(GraveManager.INSTANCE.getProtectionTime(), config.protection.useRealTime) : Long.MAX_VALUE;
+        long breakTime = GraveManager.INSTANCE.getBreakingTime() > -1 ? getTimeLeft(GraveManager.INSTANCE.getBreakingTime(), config.protection.useRealTime) : Long.MAX_VALUE;
 
         Map<String, Text> values = new HashMap<>();
         values.put("player", Text.literal(this.gameProfile != null ? this.gameProfile.getName() : "<No player!>"));
-        values.put("protection_time", Text.literal("" + (GraveManager.INSTANCE.getProtectionTime() > -1 ? config.getFormattedTime(protectionTime) : config.configData.infinityText)));
-        values.put("break_time", Text.literal("" + (GraveManager.INSTANCE.getBreakingTime() > -1 ? config.getFormattedTime(breakTime) : config.configData.infinityText)));
+        values.put("protection_time", Text.literal("" + (GraveManager.INSTANCE.getProtectionTime() > -1 ? config.getFormattedTime(protectionTime) : config.texts.infinityText)));
+        values.put("break_time", Text.literal("" + (GraveManager.INSTANCE.getBreakingTime() > -1 ? config.getFormattedTime(breakTime) : config.texts.infinityText)));
         values.put("xp", Text.literal("" + this.xp));
         values.put("item_count", Text.literal("" + this.itemCount));
         values.put("position", Text.literal("" + this.location.blockPos().toShortString()));
         values.put("world", GraveUtils.toWorldName(this.location.world()));
         values.put("death_cause", this.deathCause);
         values.put("minecraft_day", Text.literal("" + this.minecraftDay));
-        values.put("creation_date", Text.literal(config.fullDateFormat.format(new Date(this.creationTime * 1000))));
+        values.put("creation_date", Text.literal(config.texts.fullDateFormat.format().format(new Date(this.creationTime * 1000))));
         values.put("since_creation", Text.literal(config.getFormattedTime(System.currentTimeMillis() / 1000 - this.creationTime)));
         values.put("id", Text.literal("" + this.id));
         return values;
@@ -211,7 +210,7 @@ public final class Grave {
         var time = GraveManager.INSTANCE.getBreakingTime();
 
         if (time > -1) {
-            long breakTime = getTimeLeft(time, ConfigManager.getConfig().configData.useRealTime);
+            long breakTime = getTimeLeft(time, ConfigManager.getConfig().protection.useRealTime);
 
             return breakTime <= 0;
         } else {
@@ -227,7 +226,7 @@ public final class Grave {
         var time = GraveManager.INSTANCE.getProtectionTime();
 
         if (time > -1 && GraveManager.INSTANCE.isProtectionEnabled()) {
-            long protectionTime = getTimeLeft(time, ConfigManager.getConfig().configData.useRealTime);
+            long protectionTime = getTimeLeft(time, ConfigManager.getConfig().protection.useRealTime);
 
             return protectionTime > 0;
         } else {
@@ -288,7 +287,7 @@ public final class Grave {
         if (world != null) {
             var state = world.getBlockState(location.blockPos());
 
-            if (GraveUtils.canReplaceState(state, ConfigManager.getConfig().configData.replaceAnyBlock)
+            if (GraveUtils.canReplaceState(state, ConfigManager.getConfig().placement.replaceAnyBlock)
                     && world.getWorldBorder().contains(location.blockPos()) && location.y() >= world.getBottomY() && location.y() < world.getTopY()) {
 
                 var old = this.location;
@@ -328,7 +327,7 @@ public final class Grave {
 
     public void openUi(ServerPlayerEntity player, boolean canTake, boolean canFetch) {
         new GraveGui(player, this, canTake, this.canTakeFrom(player)
-                && (ConfigManager.getConfig().teleportationCost.type() != TeleportationCost.Type.CREATIVE || player.isCreative()), canFetch).open();
+                && (ConfigManager.getConfig().teleportation.teleportationCostType.type() != TeleportationCost.Type.CREATIVE || player.isCreative()), canFetch).open();
     }
 
     public Inventory asInventory() {
@@ -398,16 +397,16 @@ public final class Grave {
         boolean shouldBreak = this.shouldNaturallyBreak();
 
         if (owner != breaker && owner != null) {
-            TextNode text;
+            WrappedText text;
 
             if (!shouldBreak) {
-                text = config.graveBrokenMessage;
+                text = config.texts.messageGraveBroken;
             } else {
-                text = config.graveExpiredMessage;
+                text = config.texts.messageGraveExpired;
             }
 
-            if (text != null) {
-                owner.sendMessage(Placeholders.parseText(text, Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, this.getPlaceholders(server)));
+            if (text.textNode() != TextNode.empty()) {
+                owner.sendMessage(text.with(this.getPlaceholders(server)));
             }
         }
 
@@ -416,7 +415,7 @@ public final class Grave {
         if (world != null) {
             var chunk = world.getChunk(ChunkSectionPos.getSectionCoord(this.location.x()), ChunkSectionPos.getSectionCoord(this.location.z()));
 
-            if (config.configData.dropItemsAfterExpiring || !shouldBreak) {
+            if (config.protection.dropItemsAfterExpiring || !shouldBreak) {
                 ItemScatterer.spawn(world, this.location.blockPos(), this.asInventory());
                 GraveUtils.spawnExp(world, Vec3d.ofCenter(this.location.blockPos()), this.xp);
             }
@@ -440,10 +439,10 @@ public final class Grave {
 
         if (!this.utilProtectionChangeMessage && !this.isProtected()) {
             this.utilProtectionChangeMessage = true;
-            if (config.noLongerProtectedMessage != null) {
+            if (config.texts.messageProtectionEnded.textNode() != TextNode.empty()) {
                 ServerPlayerEntity player = this.gameProfile != null ? server.getPlayerManager().getPlayer(this.gameProfile.getId()) : null;
                 if (player != null) {
-                    player.sendMessage(Placeholders.parseText(config.noLongerProtectedMessage, Placeholders.PREDEFINED_PLACEHOLDER_PATTERN, this.getPlaceholders(server)));
+                    player.sendMessage(config.texts.messageProtectionEnded.with(this.getPlaceholders(server)));
                 }
             }
         }

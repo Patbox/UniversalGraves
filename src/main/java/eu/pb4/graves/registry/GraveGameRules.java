@@ -17,7 +17,7 @@ public class GraveGameRules {
         var rule = server.getOverworld().getGameRules().get(PROTECTION_TIME).get();
 
         if (rule == -2) {
-            return ConfigManager.getConfig().configData.protectionTime;
+            return ConfigManager.getConfig().protection.protectionTime;
         } else {
             return rule;
         }
@@ -27,7 +27,7 @@ public class GraveGameRules {
         var rule = server.getOverworld().getGameRules().get(BREAKING_TIME).get();
 
         if (rule == -2) {
-            return ConfigManager.getConfig().configData.breakingTime;
+            return ConfigManager.getConfig().protection.breakingTime;
         } else {
             return rule;
         }

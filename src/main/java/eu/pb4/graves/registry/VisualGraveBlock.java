@@ -1,15 +1,11 @@
 package eu.pb4.graves.registry;
 
 import com.mojang.authlib.GameProfile;
-import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.grave.Grave;
-import eu.pb4.graves.other.GravesLookType;
 import eu.pb4.graves.other.VisualGraveData;
-import eu.pb4.sgui.api.gui.SignGui;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;

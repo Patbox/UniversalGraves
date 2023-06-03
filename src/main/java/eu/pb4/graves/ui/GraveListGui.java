@@ -30,15 +30,7 @@ public class GraveListGui extends PagedGui {
         super(player);
         this.targetUUID = profile.getId();
 
-        if (player.getUuid().equals(this.targetUUID)) {
-            this.setTitle(ConfigManager.getConfig().guiTitle);
-        } else {
-            this.setTitle(Placeholders.parseText(
-                    ConfigManager.getConfig().graveTitle,
-                    PREDEFINED_PLACEHOLDER_PATTERN,
-                    Map.of("player", Text.literal(profile.getName()))
-            ));
-        }
+        this.setTitle(ConfigManager.getConfig().ui.graveTitle.with(Map.of("player", Text.literal(profile.getName()))));
         this.graves = new ArrayList<>(GraveManager.INSTANCE.getByUuid(this.targetUUID));
         this.canModify = canModify;
         this.canFetch = canFetch;
@@ -59,19 +51,7 @@ public class GraveListGui extends PagedGui {
 
             var placeholders = grave.getPlaceholders(this.player.getServer());
 
-            List<Text> parsed = new ArrayList<>();
-            for (var text : grave.isProtected() ? ConfigManager.getConfig().guiProtectedText : ConfigManager.getConfig().guiText) {
-                MutableText out = (MutableText) Placeholders.parseText(text, PREDEFINED_PLACEHOLDER_PATTERN, placeholders);
-                if (out.getStyle().getColor() == null) {
-                    out.setStyle(out.getStyle().withColor(Formatting.WHITE));
-                }
-                parsed.add(out);
-            }
-
-            var list = grave.isProtected() ? config.guiProtectedItem : config.guiItem;
-            var element = GuiElementBuilder.from(list[Math.abs(grave.hashCode() % list.length)])
-                    .setName(parsed.remove(0))
-                    .setLore(parsed)
+            var element = config.ui.listGraveIcon.get(grave.isProtected()).builder(placeholders)
                     .setCallback((index, type, action) -> {
                         grave.openUi(player, this.canModify, this.canFetch);
                     });
