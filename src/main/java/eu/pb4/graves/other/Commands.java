@@ -5,7 +5,6 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import eu.pb4.graves.GenericModInfo;
-import eu.pb4.graves.GraveNetworking;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.ui.GraveListGui;
 import me.lucko.fabric.api.permissions.v0.Permissions;

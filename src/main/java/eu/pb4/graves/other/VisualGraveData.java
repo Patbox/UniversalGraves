@@ -32,7 +32,7 @@ public record VisualGraveData(GameProfile gameProfile, Text deathCause, long cre
         Config config = ConfigManager.getConfig();
 
         Map<String, Text> values = new HashMap<>();
-        values.put("player", Text.literal(this.gameProfile != null ? this.gameProfile.getName() : "<No player!>"));
+        values.put("player", Text.literal(this.gameProfile != null && this.gameProfile.getName() != null ? this.gameProfile.getName() : "<No player!>"));
         values.put("protection_time", Text.literal("" + (config.protection.protectionTime > -1 ? config.getFormattedTime(0) : config.texts.infinityText)));
         values.put("break_time", Text.literal("" + (config.protection.breakingTime > -1 ? config.getFormattedTime(0) : config.texts.infinityText)));
         values.put("xp", Text.literal("0"));

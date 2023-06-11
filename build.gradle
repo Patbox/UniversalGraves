@@ -58,9 +58,10 @@ dependencies {
 
 	modImplementation include("eu.pb4:sgui:1.2.2+1.20")
 	modImplementation include("eu.pb4:placeholder-api:2.1.1+1.20")
-	modImplementation include('xyz.nucleoid:server-translations-api:2.0.0-beta.2+1.19.4-pre2')
-	modImplementation include('eu.pb4:polymer-core:0.5.0-rc.2+1.20-rc1')
-	modImplementation include('eu.pb4:polymer-virtual-entity:0.5.0-rc.2+1.20-rc1')
+	modImplementation include('xyz.nucleoid:server-translations-api:2.0.0+1.20')
+	modImplementation include('eu.pb4:polymer-core:0.5.0+1.20')
+	modImplementation include('eu.pb4:polymer-resource-pack:0.5.0+1.20')
+	modImplementation include('eu.pb4:polymer-virtual-entity:0.5.0+1.20')
 	modImplementation include('eu.pb4:predicate-api:0.1.2+1.20')
 	modImplementation include("eu.pb4:common-protection-api:1.0.0")
 

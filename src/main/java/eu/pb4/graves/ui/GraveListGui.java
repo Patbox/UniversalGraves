@@ -1,23 +1,17 @@
 package eu.pb4.graves.ui;
 
 import com.mojang.authlib.GameProfile;
-import eu.pb4.graves.GraveNetworking;
+import eu.pb4.graves.GraveTextures;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.grave.Grave;
 import eu.pb4.graves.grave.GraveManager;
-import eu.pb4.placeholders.api.Placeholders;
-import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import static eu.pb4.placeholders.api.Placeholders.PREDEFINED_PLACEHOLDER_PATTERN;
 
 public class GraveListGui extends PagedGui {
     private final UUID targetUUID;
@@ -67,7 +61,7 @@ public class GraveListGui extends PagedGui {
         return switch (id) {
             case 2 -> DisplayElement.previousPage(this);
             case 6 -> DisplayElement.nextPage(this);
-            default -> GraveNetworking.canReceiveGui(this.player.networkHandler) ? DisplayElement.empty() : DisplayElement.filler();
+            default -> GraveTextures.hasGuiTexture(this.player) ? DisplayElement.empty() : DisplayElement.filler();
         };
     }
 

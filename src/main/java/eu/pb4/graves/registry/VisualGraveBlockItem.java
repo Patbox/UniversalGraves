@@ -1,14 +1,11 @@
 package eu.pb4.graves.registry;
 
 import com.mojang.authlib.GameProfile;
-import eu.pb4.graves.GraveNetworking;
 import eu.pb4.graves.other.VisualGraveData;
 import eu.pb4.polymer.core.api.item.PolymerItem;
 import eu.pb4.polymer.core.api.utils.PolymerClientDecoded;
 import eu.pb4.polymer.core.api.utils.PolymerKeepModel;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.SignBlockEntity;
-import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 import net.minecraft.server.network.ServerPlayerEntity;

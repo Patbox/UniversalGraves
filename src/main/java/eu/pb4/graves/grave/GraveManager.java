@@ -21,10 +21,10 @@ import java.util.*;
 public final class GraveManager extends PersistentState {
     public static GraveManager INSTANCE;
 
-    private HashMap<UUID, Set<Grave>> byUuid = new HashMap<>();
-    private HashMap<Location, Grave> byLocation = new HashMap<>();
-    private Long2ObjectMap<Grave> byId = new Long2ObjectOpenHashMap<>();
-    private HashSet<Grave> graves = new HashSet<>();
+    private final HashMap<UUID, Set<Grave>> byUuid = new HashMap<>();
+    private final HashMap<Location, Grave> byLocation = new HashMap<>();
+    private final Long2ObjectMap<Grave> byId = new Long2ObjectOpenHashMap<>();
+    private final HashSet<Grave> graves = new HashSet<>();
     private long ticker;
     private long currentGameTime;
     private long currentGraveId = 0;
@@ -32,22 +32,22 @@ public final class GraveManager extends PersistentState {
     private int breakingTime;
 
     public void add(Grave grave) {
-        if (grave.id == -1) {
-            grave.id = this.requestId();
+        if (grave.getId() == -1) {
+            grave.setId(this.requestId());
         }
 
         this.byUuid.computeIfAbsent(grave.getProfile().getId(), (v) -> new HashSet<>()).add(grave);
-        this.byLocation.put(grave.location, grave);
-        this.byId.put(grave.id, grave);
+        this.byLocation.put(grave.getLocation(), grave);
+        this.byId.put(grave.getId(), grave);
         this.graves.add(grave);
         this.markDirty();
     }
 
     public void remove(Grave info) {
         if (this.graves.remove(info)) {
-            var graveInfoList = this.byUuid.get(info.gameProfile.getId());
-            this.byLocation.remove(info.location);
-            this.byId.remove(info.id);
+            var graveInfoList = this.byUuid.get(info.getProfile().getId());
+            this.byLocation.remove(info.getLocation());
+            this.byId.remove(info.getId());
             if (graveInfoList != null) {
                 graveInfoList.remove(info);
                 if (graveInfoList.isEmpty()) {
@@ -113,7 +113,7 @@ public final class GraveManager extends PersistentState {
 
     @ApiStatus.Internal
     public void moveToLocation(Grave grave, Location location) {
-        this.byLocation.remove(grave.location);
+        this.byLocation.remove(grave.getLocation());
         this.byLocation.put(location, grave);
     }
 

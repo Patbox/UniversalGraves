@@ -1,8 +1,10 @@
 package eu.pb4.graves.model;
 
 import com.mojang.authlib.GameProfile;
+import eu.pb4.graves.config.Config;
 import eu.pb4.graves.other.DynamicNode;
 import eu.pb4.graves.registry.AbstractGraveBlock;
+import eu.pb4.graves.registry.GraveBlock;
 import eu.pb4.placeholders.api.ParserContext;
 import eu.pb4.placeholders.api.node.TextNode;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
@@ -21,6 +23,7 @@ import net.minecraft.util.math.RotationPropertyHelper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -34,6 +37,7 @@ public class GraveModelHandler extends ElementHolder {
     private String model;
     private boolean isProtected;
     private boolean isPlayerMade;
+    private boolean isPaymentRequired;
 
     public GraveModelHandler(BlockState state) {
         this.blockState = state;
@@ -44,16 +48,17 @@ public class GraveModelHandler extends ElementHolder {
         this.setYaw(RotationPropertyHelper.toDegrees(blockState.get(AbstractGraveBlock.ROTATION)));
     }
 
-    public void setGrave(String model, boolean isProtected, boolean isPlayerMade, GameProfile profile, Supplier<Map<String, Text>> placeholderSupplier) {
+    public void setGrave(String model, boolean isProtected, boolean isPlayerMade, boolean isPaymentRequired, GameProfile profile, Supplier<Map<String, Text>> placeholderSupplier) {
         this.gameProfile = profile;
         this.placeholderSupplier = placeholderSupplier;
-        this.setModel(model, isProtected, isPlayerMade);
+        this.setModel(model, isProtected, isPlayerMade, isPaymentRequired);
     }
 
-    public void setModel(String model, boolean isProtected, boolean isPlayerMade) {
+    public void setModel(String model, boolean isProtected, boolean isPlayerMade, boolean isPaymentRequired) {
         this.model = model;
         this.isPlayerMade = isPlayerMade;
         this.isProtected = isProtected;
+        this.isPaymentRequired = isPaymentRequired;
         this.updateModel();
     }
 
@@ -67,7 +72,14 @@ public class GraveModelHandler extends ElementHolder {
         }
 
         if (this.model != null) {
-            GraveModel.setup(this.model, this.isProtected, this.isPlayerMade, this::addPart);
+            var flags = Set.of(
+                    this.isProtected ? ModelPart.Tags.IF_UNPROTECTED : ModelPart.Tags.IF_PROTECTED,
+                    this.isPlayerMade ? ModelPart.Tags.IF_NOT_PLAYER_MADE : ModelPart.Tags.IF_PLAYER_MADE,
+                    this.isPaymentRequired ? ModelPart.Tags.IF_NOT_REQUIRE_PAYMENT : ModelPart.Tags.IF_REQUIRE_PAYMENT,
+                    this.blockState.isOf(GraveBlock.INSTANCE) ? ModelPart.Tags.IF_VISUAL : ModelPart.Tags.IF_NOT_VISUAL
+            );
+
+            GraveModel.setup(this.model, flags, this::addPart);
         }
     }
 

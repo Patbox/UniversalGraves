@@ -9,7 +9,9 @@ import eu.pb4.placeholders.api.parsers.NodeParser;
 import eu.pb4.placeholders.api.parsers.PatternPlaceholderParser;
 import eu.pb4.placeholders.api.parsers.StaticPreParser;
 import eu.pb4.placeholders.api.parsers.TextParserV1;
+import net.minecraft.text.LiteralTextContent;
 import net.minecraft.text.Text;
+import net.minecraft.text.TextContent;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -27,9 +29,14 @@ public record WrappedText(String input, TextNode textNode, Text text) {
             new PatternPlaceholderParser(PatternPlaceholderParser.PREDEFINED_PLACEHOLDER_PATTERN, DynamicNode::of),
             StaticPreParser.INSTANCE
     );
+
     public static final WrappedText EMPTY = new WrappedText("", TextNode.empty(), Text.empty());
 
     public static WrappedText of(String input) {
+        if (input.isEmpty()) {
+            return EMPTY;
+        }
+
         return new WrappedText(input, CONTEXTLESS.parseNode(input), CONTEXTLESS.parseNode(input).toText());
     }
 
@@ -44,5 +51,9 @@ public record WrappedText(String input, TextNode textNode, Text text) {
     }
     public Text with(PlaceholderContext context, Function<String, Text> textMap) {
         return this.textNode.toText(ParserContext.of(DynamicNode.NODES, textMap).with(PlaceholderContext.KEY, context));
+    }
+
+    public boolean isEmpty() {
+        return this.input.isEmpty();
     }
 }

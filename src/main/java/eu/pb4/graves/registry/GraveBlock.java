@@ -18,6 +18,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,6 +31,15 @@ public class GraveBlock extends AbstractGraveBlock implements BlockEntityProvide
     private GraveBlock() {
         super(AbstractBlock.Settings.create().dropsNothing().nonOpaque().dynamicBounds().strength(2, 999));
         this.setDefaultState(this.getStateManager().getDefaultState().with(Properties.WATERLOGGED, false));
+    }
+
+    @Override
+    public float calcBlockBreakingDelta(BlockState state, PlayerEntity player, BlockView world, BlockPos pos) {
+        if (world.getBlockEntity(pos) instanceof GraveBlockEntity be && be.getGrave().canTakeFrom(player)) {
+            return super.calcBlockBreakingDelta(state, player, world, pos);
+        }
+
+        return -1;
     }
 
     public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
@@ -75,7 +85,7 @@ public class GraveBlock extends AbstractGraveBlock implements BlockEntityProvide
         }
         BlockEntity blockEntity = world.getBlockEntity(pos);
 
-        if (blockEntity instanceof GraveBlockEntity graveBlockEntity && graveBlockEntity.getGrave() != null && graveBlockEntity.getGrave().canTakeFrom(player)) {
+        if (blockEntity instanceof GraveBlockEntity graveBlockEntity && graveBlockEntity.getGrave() != null && graveBlockEntity.getGrave().hasAccess(player)) {
             try {
                 var grave = graveBlockEntity.getGrave();
 

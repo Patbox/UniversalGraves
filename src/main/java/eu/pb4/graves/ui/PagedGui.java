@@ -1,12 +1,13 @@
 package eu.pb4.graves.ui;
 
-import eu.pb4.graves.GraveNetworking;
+import eu.pb4.graves.GraveTextures;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Text;
 
 public abstract class PagedGui extends SimpleGui {
     public static final int PAGE_SIZE = 9 * 4;
@@ -14,6 +15,11 @@ public abstract class PagedGui extends SimpleGui {
 
     public PagedGui(ServerPlayerEntity player) {
         super(ScreenHandlerType.GENERIC_9X5, player, false);
+    }
+
+    @Override
+    public void setTitle(Text title) {
+        super.setTitle(GraveTextures.get(this.getPlayer(), title));
     }
 
     protected void nextPage() {
@@ -75,13 +81,6 @@ public abstract class PagedGui extends SimpleGui {
     protected abstract DisplayElement getElement(int id);
 
     protected abstract DisplayElement getNavElement(int id);
-
-    @Override
-    protected boolean sendGui() {
-        var value = super.sendGui();
-        GraveNetworking.sendGraveUi(this.player.networkHandler);
-        return value;
-    }
 
     public static final void playClickSound(ServerPlayerEntity player) {
         player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), SoundCategory.MASTER, 1, 1);

@@ -33,7 +33,7 @@
   "text.graves.gui.quick_pickup": "Coger Todos los Ítems",
   "text.graves.gui.teleport": "Teletransportar hacia la tumba",
   "text.graves.gui.teleport.not_enough": "Recursos insuficientes!",
-  "text.graves.gui.teleport.cost": "Costo:",
+  "text.graves.gui.cost": "Costo:",
   "text.graves.gui.fetch": "Mover tumba hacia tu posición",
   "text.graves.gui.fetch_failed": "No se pudo mover la tumba hacia tu posición!",
 
@@ -52,8 +52,8 @@
   "gamerule.universal_graves:protection_time": "Tiempo de protección de la tumba contra otros jugadores",
   "gamerule.universal_graves:breaking_time": "Tiempo de expiración de la tumba",
 
-  "text.graves.teleportation_cost.level": "Niveles de Experiencia",
-  "text.graves.teleportation_cost.creative": "Creativo",
-  "text.graves.teleportation_cost.free": "Gratis",
-  "text.graves.teleportation_cost.item": "Ítems"
+  "text.graves.cost.level": "Niveles de Experiencia",
+  "text.graves.cost.creative": "Creativo",
+  "text.graves.cost.free": "Gratis",
+  "text.graves.cost.item": "Ítems"
 }

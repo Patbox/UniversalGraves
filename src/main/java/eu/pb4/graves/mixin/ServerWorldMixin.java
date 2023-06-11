@@ -29,7 +29,7 @@ public abstract class ServerWorldMixin extends World {
     @Inject(method = "canPlayerModifyAt", at = @At("HEAD"), cancellable = true)
     private void grave_disallowGraveBreaking(PlayerEntity player, BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
         if (this.getBlockEntity(pos) instanceof GraveBlockEntity grave && grave.getGrave() != null) {
-            cir.setReturnValue(grave.getGrave().canTakeFrom(player));
+            cir.setReturnValue(grave.getGrave().hasAccess(player));
         }
     }
 

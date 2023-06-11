@@ -6,15 +6,15 @@ import eu.pb4.graves.config.data.IconData;
 import eu.pb4.graves.config.data.Variant;
 import eu.pb4.graves.config.data.WrappedDateFormat;
 import eu.pb4.graves.config.data.WrappedText;
+import eu.pb4.graves.grave.Grave;
+import eu.pb4.graves.other.GenericCost;
 import eu.pb4.graves.other.GravesXPCalculation;
-import eu.pb4.graves.other.TeleportationCost;
 import eu.pb4.graves.registry.IconItem;
 import eu.pb4.predicate.api.BuiltinPredicates;
 import eu.pb4.predicate.api.MinecraftPredicate;
 import eu.pb4.predicate.api.PredicateContext;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.EntityType;
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
@@ -41,7 +41,7 @@ public class Config {
         return this.model.defaultModelId;
     }
 
-    public class Protection {
+    public static class Protection {
         @SerializedName("non_owner_protection_time")
         public int protectionTime = 900;
         @SerializedName("self_destruction_time")
@@ -58,6 +58,8 @@ public class Config {
     public Interactions interactions = new Interactions();
 
     public static class Interactions {
+        @SerializedName("unlocking_cost")
+        public GenericCost<?> cost = new GenericCost<>(GenericCost.Type.FREE, null, 0);
         @SerializedName("give_death_compass")
         public boolean giveGraveCompass = true;
         @SerializedName("enable_click_to_open_gui")
@@ -68,12 +70,14 @@ public class Config {
         public boolean allowRemoteProtectionRemoval = true;
         @SerializedName("allow_remote_breaking")
         public boolean allowRemoteGraveBreaking = true;
+        @SerializedName("allow_remote_unlocking")
+        public boolean allowRemoteGraveUnlocking;
     }
 
     @SerializedName("storage")
     public Storage storage = new Storage();
 
-    public class Storage {
+    public static class Storage {
         @SerializedName("experience_type")
         public GravesXPCalculation xpStorageType = GravesXPCalculation.PERCENT_POINTS;
         @SerializedName("experience_percent:setting_value")
@@ -88,7 +92,7 @@ public class Config {
     @SerializedName("placement")
     public Placement placement = new Placement();
 
-    public class Placement {
+    public static class Placement {
         @SerializedName("player_grave_limit")
         public int maxGraveCount = -1;
 
@@ -112,6 +116,9 @@ public class Config {
         public HashMap<Identifier, WrappedText> ignoredDamageTypes = new HashMap<>();
         @SerializedName("cancel_creation_for_ignored_attacker_types")
         public HashMap<EntityType<?>, WrappedText> ignoredAttackers = new HashMap<>();
+        @SerializedName("blocking_predicates")
+        public ArrayList<PredicateBlocker> predicates = new ArrayList<>();
+
         @SerializedName("block_in_protected_area")
         public Map<Identifier, Boolean> blockInProtection = new HashMap<>();
         @SerializedName("blacklisted_worlds")
@@ -124,14 +131,21 @@ public class Config {
         public WrappedText messageCreationFailed = ofText("<red><lang:'text.graves.creation_failed':'<gold>${position}':'<yellow>${world}'>");
         @SerializedName("creation_claim_failure_text")
         public WrappedText messageCreationFailedClaim = ofText("<red><lang:'text.graves.creation_failed_claim':'<gold>${position}':'<yellow>${world}'>");
+
+        public static class PredicateBlocker {
+            @SerializedName("require")
+            public MinecraftPredicate predicate;
+            @SerializedName("message")
+            public WrappedText text;
+        }
     }
 
 
     @SerializedName("teleportation")
     public Teleportation teleportation = new Teleportation();
-    public class Teleportation {
+    public static class Teleportation {
         @SerializedName("cost")
-        public TeleportationCost<?> teleportationCostType = new TeleportationCost<>(TeleportationCost.Type.CREATIVE, null, -1);
+        public GenericCost<?> cost = new GenericCost<>(GenericCost.Type.CREATIVE, null, 1);
         @SerializedName("required_time")
         public int teleportTime = 5;
         @SerializedName("y_offset")
@@ -146,7 +160,7 @@ public class Config {
         @SerializedName("text")
         public Texts text = new Texts();
 
-        public class Texts {
+        public static class Texts {
             @SerializedName("timer")
             public WrappedText teleportTimerText = ofText("<lang:'text.graves.teleport.teleport_timer':'${time}'>");
             @SerializedName("timer_allow_moving")
@@ -160,7 +174,7 @@ public class Config {
 
     @SerializedName("model")
     public Model model = new Model();
-    public class Model {
+    public static class Model {
         @SerializedName("default")
         public String defaultModelId = "default";
         @SerializedName("alternative")
@@ -187,6 +201,12 @@ public class Config {
         @SerializedName("grave_info")
         public Variant<IconData> graveInfoIcon = Variant.of(IconData.of(Items.OAK_SIGN, getDefaultProtectedGui()), IconData.of(Items.OAK_SIGN, getDefaultGui()));
 
+        @SerializedName("unlock_grave")
+        public Variant<IconData> unlockButton = Variant.of(
+                IconData.of(Items.GOLD_INGOT, "<#ffd257><lang:'text.graves.gui.unlock_grave'>", "<white><lang:'text.graves.gui.cost'> <#cfcfcf>${cost}"),
+                IconData.of(Items.GOLD_INGOT, "<dark_gray><lang:'text.graves.gui.unlock_grave'>", "<white><lang:'text.graves.gui.cost'> <#cfcfcf>${cost} <gray>(<red><lang:'text.graves.gui.cost.not_enough'></red>)")
+        );
+        
         @SerializedName("previous_button")
         public Variant<IconData> previousButton = Variant.of(
                 IconData.of(IconItem.Texture.PREVIOUS_PAGE, "<lang:'text.graves.gui.previous_page'>"),
@@ -235,8 +255,8 @@ public class Config {
 
         @SerializedName("teleport_button")
         public Variant<IconData> teleportButton = Variant.of(
-                IconData.of(Items.ENDER_PEARL, "<#a52dfa><lang:'text.graves.gui.teleport'>", "<white><lang:'text.graves.gui.teleport.cost'> <#cfcfcf>${item} × ${count}"),
-                IconData.of(Items.ENDER_PEARL, "<dark_gray><lang:'text.graves.gui.teleport'>", "<white><lang:'text.graves.gui.teleport.cost'> <#cfcfcf>${item} × ${count} <gray>(<red><lang:'text.graves.gui.teleport.not_enough'></red>)")
+                IconData.of(Items.ENDER_PEARL, "<#a52dfa><lang:'text.graves.gui.teleport'>", "<white><lang:'text.graves.gui.cost'> <#cfcfcf>${cost}"),
+                IconData.of(Items.ENDER_PEARL, "<dark_gray><lang:'text.graves.gui.teleport'>", "<white><lang:'text.graves.gui.cost'> <#cfcfcf>${cost} <gray>(<red><lang:'text.graves.gui.cost.not_enough'></red>)")
         );
 
         @SerializedName("back_button")
@@ -258,6 +278,13 @@ public class Config {
         public WrappedText messageGraveExpired = ofText( "<red><lang:'text.graves.expired':'<gold>${position}':'<white>${world}':'<yellow>${item_count}'>");
         @SerializedName("grave_broken")
         public WrappedText messageGraveBroken = ofText("<gray><lang:'text.graves.somebody_broke':'<white>${position}':'<white>${world}':'<white>${item_count}'>");
+
+        @SerializedName("grave_access_payment_no_access")
+        public WrappedText cantPayForThisGrave = ofText("<red><lang:'text.graves.grave_unlock_payment.no_access'>");
+        @SerializedName("grave_payment_accepted")
+        public WrappedText graveUnlocked = ofText("<white><lang:'text.graves.grave_unlock_payment.accepted'>");
+        @SerializedName("grave_payment_failed")
+        public WrappedText graveNotEnoughCost = ofText("<red><lang:'text.graves.grave_unlock_payment.failed':'<yellow>${cost}'>");
 
         @SerializedName("years_suffix")
         public String yearsText = "y";

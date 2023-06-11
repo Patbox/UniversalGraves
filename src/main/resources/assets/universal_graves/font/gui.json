@@ -1,0 +1,21 @@
+{
+    "providers": [
+        {
+            "type": "space",
+            "advances": {
+                ".": -168,
+                "_": -98,
+                "-": -8
+            }
+        },
+        {
+            "type": "bitmap",
+            "file": "universal_graves:gui/default_ui.png",
+            "ascent": 13,
+            "height": 256,
+            "chars": [
+                "1"
+            ]
+        }
+    ]
+}

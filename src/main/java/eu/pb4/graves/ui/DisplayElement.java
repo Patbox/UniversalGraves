@@ -1,15 +1,13 @@
 package eu.pb4.graves.ui;
 
-import eu.pb4.graves.GraveNetworking;
+import eu.pb4.graves.GraveTextures;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.sgui.api.elements.GuiElement;
-import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.elements.GuiElementBuilderInterface;
 import eu.pb4.sgui.api.elements.GuiElementInterface;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
 public record DisplayElement(@Nullable GuiElementInterface element, @Nullable Slot slot) {
@@ -70,7 +68,7 @@ public record DisplayElement(@Nullable GuiElementInterface element, @Nullable Sl
     }
 
     public static DisplayElement lowerBar(ServerPlayerEntity player) {
-        return GraveNetworking.canReceiveGui(player.networkHandler) ? DisplayElement.empty() : DisplayElement.filler();
+        return GraveTextures.hasGuiTexture(player) ? DisplayElement.empty() : DisplayElement.filler();
     }
 
     public static DisplayElement back(Runnable back) {

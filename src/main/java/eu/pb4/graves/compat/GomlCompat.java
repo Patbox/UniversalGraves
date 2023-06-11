@@ -8,7 +8,7 @@ import net.minecraft.util.ActionResult;
 public class GomlCompat {
     public static void register() {
         ClaimEvents.PERMISSION_DENIED.register((player, world, hand, pos, reason) -> {
-            if (world.getBlockEntity(pos) instanceof GraveBlockEntity grave && grave.getGrave() != null && grave.getGrave().canTakeFrom(player)) {
+            if (world.getBlockEntity(pos) instanceof GraveBlockEntity grave && grave.getGrave() != null && grave.getGrave().hasAccess(player)) {
                 return ActionResult.FAIL;
             }
 

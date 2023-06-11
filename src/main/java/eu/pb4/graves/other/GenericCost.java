@@ -1,7 +1,6 @@
 package eu.pb4.graves.other;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import eu.pb4.graves.config.BaseGson;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -13,7 +12,7 @@ import net.minecraft.text.Text;
 import java.util.HashMap;
 import java.util.Map;
 
-public record TeleportationCost<T>(Type<T> type, T object, int count) {
+public record GenericCost<T>(Type<T> type, T object, int count) {
     public boolean takeCost(ServerPlayerEntity player) {
         return player.isCreative() || this.type.checkCost(player, object, count, true);
     }
@@ -28,18 +27,35 @@ public record TeleportationCost<T>(Type<T> type, T object, int count) {
         }
     }
 
-    public Map<String, Text> getPlaceholders(ServerPlayerEntity player) {
-        return Map.of("item", this.type.textify(this.object), "count", Text.literal("" + this.count));
+    public Map<String, Text> getPlaceholders() {
+        return Map.of("cost", this.type.toText(this.object, this.count), "item", this.type.toName(this.object), "count", Text.literal("" + this.count));
+    }
+
+    public boolean isFree() {
+        return type == Type.FREE;
+    }
+
+    @Override
+    public String toString() {
+        return "GenericCost{" +
+                "type=" + Type.TYPE_NAME.get(type) +
+                ", object=" + object +
+                ", count=" + count +
+                '}';
+    }
+
+    public Text toText() {
+        return this.type.toText(this.object, this.count);
     }
 
     public interface Type<T> extends CostFunc<T> {
         Map<String, Type<?>> BY_TYPE = new HashMap<>();
         Map<Type<?>, String> TYPE_NAME = new HashMap<>();
 
-        Type<Object> CREATIVE = reg("creative", of(Items.COMMAND_BLOCK, (p, c, x) -> p.isCreative(), (p, c) -> {}));
-        Type<Object> FREE = reg("free", of(Items.COMMAND_BLOCK, (p, c, x) -> true, (p, c) -> {}));
+        Type<Object> CREATIVE = reg("creative", of(Items.COMMAND_BLOCK, true, (p, c, x) -> p.isCreative(), (p, c) -> {}));
+        Type<Object> FREE = reg("free", of(Items.COMMAND_BLOCK, true, (p, c, x) -> true, (p, c) -> {}));
 
-        Type<Object> LEVEL = reg("level", of(Items.EXPERIENCE_BOTTLE, (p, c, x) -> {
+        Type<Object> LEVEL = reg("level", of(Items.EXPERIENCE_BOTTLE, false, (p, c, x) -> {
             if (p.experienceLevel >= c) {
                 if (x) {
                     p.experienceLevel -= c;
@@ -92,7 +108,7 @@ public record TeleportationCost<T>(Type<T> type, T object, int count) {
             }
 
             @Override
-            public Text textify(ItemStack object) {
+            public Text toName(ItemStack object) {
                 return object.getName();
             }
 
@@ -110,7 +126,7 @@ public record TeleportationCost<T>(Type<T> type, T object, int count) {
             return type;
         }
 
-        static Type<Object> of(Item icon, ContextlessCost takeCost, ReturnCostFunc returnCostFunc) {
+        static Type<Object> of(Item icon, boolean singular, ContextlessCost takeCost, ReturnCostFunc returnCostFunc) {
             return new Type<>() {
 
                 @Override
@@ -129,8 +145,13 @@ public record TeleportationCost<T>(Type<T> type, T object, int count) {
                 }
 
                 @Override
-                public Text textify(Object object) {
-                    return Text.translatable("text.graves.teleportation_cost." + TYPE_NAME.get(this));
+                public Text toName(Object object) {
+                    return Text.translatable("text.graves.cost." + TYPE_NAME.get(this));
+                }
+
+                @Override
+                public Text toText(Object object, int i) {
+                    return singular ? toName(object) : Type.super.toText(object, i);
                 }
 
                 public boolean checkCost(ServerPlayerEntity player, Object object, int count, boolean take) {
@@ -147,7 +168,10 @@ public record TeleportationCost<T>(Type<T> type, T object, int count) {
         T decodeConfig(JsonElement object);
         JsonElement encodeConfig(T object);
         ItemStack getIcon(T object, int count);
-        Text textify(T object);
+        default Text toText(T object, int i) {
+            return Text.empty().append(toName(object)).append(" × ").append("" + i);
+        }
+        Text toName(T object);
 
         void returnCost(ServerPlayerEntity player, T object, int count);
 

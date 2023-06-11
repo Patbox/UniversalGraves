@@ -8,8 +8,6 @@ import eu.pb4.graves.other.*;
 import eu.pb4.graves.registry.GraveBlock;
 import eu.pb4.graves.registry.GraveBlockEntity;
 import eu.pb4.graves.ui.GraveGui;
-import eu.pb4.placeholders.api.Placeholders;
-import eu.pb4.placeholders.api.node.TextNode;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
@@ -43,25 +41,28 @@ public final class Grave {
     public static final Grave SOMETHING_BROKE_AGAIN = new Grave();
 
     @Nullable
-    protected GameProfile gameProfile;
-    protected int xp;
-    protected long creationTime;
-    protected long gameCreationTime;
-    protected int itemCount;
-    protected Text deathCause;
-    protected Set<UUID> allowedUUIDs;
-    protected DefaultedList<PositionedItemStack> items;
-    protected Location location;
-    protected GraveType type;
-    protected boolean isRemoved;
-    protected long id = -1;
+    private GameProfile gameProfile;
+    private int xp;
+    private long creationTime;
+    private long gameCreationTime;
+    private int itemCount;
+    private Text deathCause;
+    private final Set<UUID> allowedUUIDs;
+    private final DefaultedList<PositionedItemStack> items;
+    private Location location;
+    private GraveType type;
+    private boolean isRemoved;
+    private long id = -1;
 
-    protected boolean utilProtectionChangeMessage;
-    protected boolean isProtectionEnabled;
-    protected VisualGraveData visualData;
-    protected int minecraftDay;
+    private boolean requirePayment;
+
+    private boolean utilProtectionChangeMessage;
+    private boolean isProtectionEnabled;
+    private VisualGraveData visualData;
+    private int minecraftDay;
 
     public Grave() {
+        this.requirePayment = !ConfigManager.getConfig().interactions.cost.isFree();
         this.gameProfile = DEFAULT_GAME_PROFILE;
         this.creationTime = Long.MAX_VALUE;
         this.xp = 0;
@@ -78,6 +79,7 @@ public final class Grave {
     }
 
     public Grave(long id, @Nullable GameProfile profile, BlockPos position, Identifier world, GraveType type, long creationTime, long gameCreationTime, int xp, Text deathCause, Collection<UUID> allowedUUIDs, Collection<PositionedItemStack> itemStacks, boolean isProtectionEnabled, int minecraftDay) {
+        this.requirePayment = !ConfigManager.getConfig().interactions.cost.isFree();
         this.gameProfile = profile;
         this.creationTime = creationTime;
         this.gameCreationTime = gameCreationTime;
@@ -110,6 +112,8 @@ public final class Grave {
         nbt.putString("DeathCause", Text.Serializer.toJson(this.deathCause));
         nbt.putString("Type", this.type.name());
         nbt.putBoolean("IsProtectionEnabled", this.isProtectionEnabled);
+        nbt.putBoolean("RequirePayment", this.requirePayment);
+
         this.location.writeNbt(nbt);
 
         var allowedUUIDs = new NbtList();
@@ -144,6 +148,7 @@ public final class Grave {
             this.deathCause = Text.Serializer.fromLenientJson(nbt.getString("DeathCause"));
             this.location = Location.fromNbt(nbt);
             this.allowedUUIDs.clear();
+            this.requirePayment = nbt.getBoolean("RequirePayment");
 
             if (nbt.contains("Type", NbtElement.STRING_TYPE)) {
                 this.type = GraveType.byName(nbt.getString("Type"));
@@ -191,7 +196,7 @@ public final class Grave {
         long breakTime = GraveManager.INSTANCE.getBreakingTime() > -1 ? getTimeLeft(GraveManager.INSTANCE.getBreakingTime(), config.protection.useRealTime) : Long.MAX_VALUE;
 
         Map<String, Text> values = new HashMap<>();
-        values.put("player", Text.literal(this.gameProfile != null ? this.gameProfile.getName() : "<No player!>"));
+        values.put("player", Text.literal(this.gameProfile != null && this.gameProfile.getName() != null ? this.gameProfile.getName() : "<No player!>"));
         values.put("protection_time", Text.literal("" + (GraveManager.INSTANCE.getProtectionTime() > -1 ? config.getFormattedTime(protectionTime) : config.texts.infinityText)));
         values.put("break_time", Text.literal("" + (GraveManager.INSTANCE.getBreakingTime() > -1 ? config.getFormattedTime(breakTime) : config.texts.infinityText)));
         values.put("xp", Text.literal("" + this.xp));
@@ -203,6 +208,7 @@ public final class Grave {
         values.put("creation_date", Text.literal(config.texts.fullDateFormat.format().format(new Date(this.creationTime * 1000))));
         values.put("since_creation", Text.literal(config.getFormattedTime(System.currentTimeMillis() / 1000 - this.creationTime)));
         values.put("id", Text.literal("" + this.id));
+        values.put("cost", config.interactions.cost.toText());
         return values;
     }
 
@@ -245,11 +251,45 @@ public final class Grave {
     }
 
     public boolean canTakeFrom(GameProfile profile) {
-        return !this.isProtected() || (this.gameProfile != null && this.gameProfile.getId().equals(profile.getId())) || this.allowedUUIDs.contains(profile.getId());
+        return !this.requirePayment && this.hasAccess(profile);
     }
 
     public boolean canTakeFrom(PlayerEntity entity) {
-        return this.canTakeFrom(entity.getGameProfile()) || Permissions.check(entity, "graves.can_open_others", 3);
+        return this.canTakeFrom(entity.getGameProfile()) || (entity.isCreative() && Permissions.check(entity, "graves.can_open_others", 3));
+    }
+
+    public boolean hasAccess(PlayerEntity entity) {
+        return hasAccess(entity.getGameProfile()) || (entity.isCreative() && Permissions.check(entity, "graves.can_open_others", 3));
+    }
+
+    public boolean hasAccess(GameProfile profile) {
+        return !this.isProtected() || (this.gameProfile != null && this.gameProfile.getId().equals(profile.getId())) || this.allowedUUIDs.contains(profile.getId());
+    }
+
+    public boolean payForUnlock(ServerPlayerEntity player) {
+        var cfg = ConfigManager.getConfig();
+        if (!hasAccess(player.getGameProfile())) {
+            if (!cfg.texts.cantPayForThisGrave.isEmpty()) {
+                player.sendMessage(cfg.texts.cantPayForThisGrave.text());
+            }
+            return false;
+        }
+
+        if (cfg.interactions.cost.checkCost(player)) {
+            cfg.interactions.cost.takeCost(player);
+            if (!cfg.texts.graveUnlocked.isEmpty()) {
+                player.sendMessage(cfg.texts.graveUnlocked.with(cfg.interactions.cost.getPlaceholders()));
+            }
+            this.requirePayment = false;
+            if (player.server.getWorld(RegistryKey.of(RegistryKeys.WORLD, this.location.world())).getBlockEntity(location.blockPos()) instanceof GraveBlockEntity entity) {
+                entity.setModelId(entity.getModelId());
+            }
+
+            return true;
+        }
+        player.sendMessage(cfg.texts.graveNotEnoughCost.with(cfg.interactions.cost.getPlaceholders()));
+
+        return false;
     }
 
     public GameProfile getProfile() {
@@ -325,9 +365,8 @@ public final class Grave {
         return this.items;
     }
 
-    public void openUi(ServerPlayerEntity player, boolean canTake, boolean canFetch) {
-        new GraveGui(player, this, canTake, this.canTakeFrom(player)
-                && (ConfigManager.getConfig().teleportation.teleportationCostType.type() != TeleportationCost.Type.CREATIVE || player.isCreative()), canFetch).open();
+    public void openUi(ServerPlayerEntity player, boolean canModify, boolean canFetch) {
+        new GraveGui(player, this, canModify, canFetch).open();
     }
 
     public Inventory asInventory() {
@@ -383,6 +422,10 @@ public final class Grave {
         return this.isRemoved;
     }
 
+    public boolean isPaymentRequired() {
+        return this.requirePayment;
+    }
+
     public void destroyGrave(MinecraftServer server, @Nullable PlayerEntity breaker) {
         if (this.isRemoved) {
             return;
@@ -405,7 +448,7 @@ public final class Grave {
                 text = config.texts.messageGraveExpired;
             }
 
-            if (text.textNode() != TextNode.empty()) {
+            if (!text.isEmpty()) {
                 owner.sendMessage(text.with(this.getPlaceholders(server)));
             }
         }
@@ -439,7 +482,7 @@ public final class Grave {
 
         if (!this.utilProtectionChangeMessage && !this.isProtected()) {
             this.utilProtectionChangeMessage = true;
-            if (config.texts.messageProtectionEnded.textNode() != TextNode.empty()) {
+            if (!config.texts.messageProtectionEnded.isEmpty()) {
                 ServerPlayerEntity player = this.gameProfile != null ? server.getPlayerManager().getPlayer(this.gameProfile.getId()) : null;
                 if (player != null) {
                     player.sendMessage(config.texts.messageProtectionEnded.with(this.getPlaceholders(server)));
@@ -467,7 +510,11 @@ public final class Grave {
 
     public void quickEquip(ServerPlayerEntity player) {
         try {
-            if (player.isAlive() && this.canTakeFrom(player)) {
+            if (player.isAlive() && this.hasAccess(player)) {
+                if (this.requirePayment && !this.payForUnlock(player)) {
+                    return;
+                }
+
                 for (var item : this.items) {
                     if (!item.isEmpty() && item.inventoryMask() != null) {
                         item.inventoryMask().moveToPlayerExactly(player, item.stack(), item.slot(), item.optionalData());
@@ -505,5 +552,9 @@ public final class Grave {
 
     public long getId() {
         return this.id;
+    }
+
+    void setId(long requestId) {
+        this.id = requestId;
     }
 }

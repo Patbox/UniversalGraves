@@ -53,8 +53,8 @@ public class ConfigManager {
                 });
             } else {
                 Files.createDirectories(MODELS_PATH);
-                Files.writeString(MODELS_PATH.resolve("default.json"), BaseGson.GSON.toJson(GraveModel.DEFAULT_MODEL));
-                MODELS.put("default", GraveModel.DEFAULT_MODEL);
+                Files.writeString(MODELS_PATH.resolve("example.json"), BaseGson.GSON.toJson(GraveModel.DEFAULT_MODEL));
+                MODELS.put("example", GraveModel.DEFAULT_MODEL.get());
             }
 
 

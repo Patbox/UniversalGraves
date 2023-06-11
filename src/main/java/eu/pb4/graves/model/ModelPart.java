@@ -140,5 +140,9 @@ public class ModelPart {
         Identifier IF_UNPROTECTED = new Identifier("graves", "if_unprotected");
         Identifier IF_PLAYER_MADE = new Identifier("graves", "if_player_made");
         Identifier IF_NOT_PLAYER_MADE = new Identifier("graves", "if_not_player_made");
+        Identifier IF_REQUIRE_PAYMENT = new Identifier("graves", "payment_required");
+        Identifier IF_NOT_REQUIRE_PAYMENT = new Identifier("graves", "payment_not_required");
+        Identifier IF_VISUAL = new Identifier("graves", "if_visual");
+        Identifier IF_NOT_VISUAL = new Identifier("graves", "if_not_visual");
     }
 }

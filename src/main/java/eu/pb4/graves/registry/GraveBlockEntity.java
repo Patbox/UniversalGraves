@@ -1,18 +1,14 @@
 package eu.pb4.graves.registry;
 
-import eu.pb4.graves.GraveNetworking;
 import eu.pb4.graves.config.Config;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.grave.Grave;
 import eu.pb4.graves.grave.GraveHolder;
 import eu.pb4.graves.grave.GraveManager;
 import eu.pb4.graves.grave.PositionedItemStack;
-import eu.pb4.graves.model.GraveModel;
 import eu.pb4.graves.model.GraveModelHandler;
 import eu.pb4.graves.other.VanillaInventoryMask;
 import eu.pb4.graves.other.VisualGraveData;
-import eu.pb4.placeholders.api.Placeholders;
-import eu.pb4.placeholders.api.node.EmptyNode;
 import eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -25,14 +21,7 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.registry.Registries;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.property.Properties;
-import net.minecraft.text.Text;
-import net.minecraft.text.TextContent;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
@@ -162,13 +151,13 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity implements GraveH
             world.setBlockState(pos, state.with(IS_LOCKED, false));
             isProtected = false;
             if (self.model != null) {
-                self.model.setModel(self.getModelId(), false, false);
+                self.model.setModel(self.getModelId(), false, false, self.getGrave().isPaymentRequired());
             }
         }
 
         if (self.model == null) {
             self.model = (GraveModelHandler) BlockBoundAttachment.get(world, pos).holder();
-            self.model.setGrave(self.getModelId(), isProtected, false, self.getGrave().getProfile(), () -> self.getGrave().getPlaceholders(self.world.getServer()));
+            self.model.setGrave(self.getModelId(), isProtected, false, self.getGrave().isPaymentRequired(), self.getGrave().getProfile(),  () -> self.getGrave().getPlaceholders(self.world.getServer()));
         }
 
         if (world.getTime() % 20 == 0) {
@@ -181,7 +170,7 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity implements GraveH
         if (!this.getModelId().equals(model)) {
             super.setModelId(model);
             if (this.model != null) {
-                this.model.setModel(model, this.getCachedState().get(IS_LOCKED), false);
+                this.model.setModel(model, this.getCachedState().get(IS_LOCKED), false, this.getGrave().isPaymentRequired());
             }
         }
     }

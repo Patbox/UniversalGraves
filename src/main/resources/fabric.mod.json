@@ -21,7 +21,6 @@
       "eu.pb4.graves.GravesMod"
     ],
     "client": [
-      "eu.pb4.graves.client.GravesModClient"
     ],
     "preLaunch": ["eu.pb4.graves.CardboardWarning"]
   },

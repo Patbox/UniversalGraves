@@ -13,18 +13,17 @@ import eu.pb4.graves.other.VanillaInventoryMask;
 import eu.pb4.graves.registry.*;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
+import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
+import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
-import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.item.ItemGroups;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
@@ -36,8 +35,8 @@ import java.util.List;
 
 public class GravesMod implements ModInitializer {
     public static final Logger LOGGER = LogManager.getLogger("Universal Graves");
+    public static final boolean DEV = FabricLoader.getInstance().isDevelopmentEnvironment();
     public static ModContainer CONTAINER = FabricLoader.getInstance().getModContainer("universal-graves").get();
-    public static String VERSION = CONTAINER.getMetadata().getVersion().getFriendlyString();
 
     public static final List<Runnable> DO_ON_NEXT_TICK = new ArrayList<>();
 
@@ -64,8 +63,12 @@ public class GravesMod implements ModInitializer {
             e.add(VisualGraveBlockItem.INSTANCE);
         });
 
-        GraveNetworking.initialize();
+        GraveTextures.initialize();
         new GraveGameRules();
+
+        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) {
+            PolymerResourcePackUtils.addModAssets("universal-graves");
+        }
 
         CommonProtection.register(new Identifier("universal_graves", "graves"), GraveProtectionProvider.INSTANCE);
 

@@ -18,6 +18,7 @@ import eu.pb4.graves.registry.SafeXPEntity;
 import eu.pb4.graves.registry.TempBlock;
 import eu.pb4.placeholders.api.Placeholders;
 import eu.pb4.placeholders.api.node.TextNode;
+import eu.pb4.predicate.api.PredicateContext;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -302,6 +303,15 @@ public class GraveUtils {
         }
 
         if (text == null) {
+            var ctx = PredicateContext.of(player);
+            for (var test : config.placement.predicates) {
+                if (test.predicate.test(ctx).success()) {
+                    text = test.text;
+                }
+            }
+        }
+
+        if (text == null) {
             var eventResult = PlayerGraveCreationEvent.EVENT.invoker().shouldCreate(player);
 
             if (eventResult.canCreate()) {
@@ -416,7 +426,7 @@ public class GraveUtils {
             }
         }
 
-        if (text != null && text.textNode() != TextNode.empty()) {
+        if (text != null && !text.isEmpty()) {
             player.sendMessage(text.with(placeholders));
         }
     }

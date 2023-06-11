@@ -28,7 +28,7 @@
   "text.graves.gui.quick_pickup": "Zabierz Wszytkie Przedmioty",
   "text.graves.gui.teleport": "Teleportuj do grobu",
   "text.graves.gui.teleport.not_enough": "Nie masz wystarczających surowców!",
-  "text.graves.gui.teleport.cost": "Koszt:",
+  "text.graves.gui.cost": "Koszt:",
   "text.graves.gui.fetch": "Przenieś grób do swojej pozycji",
   "text.graves.gui.fetch_failed": "Przeniesienie grobu nie powiodło się!",
   "text.graves.gui.cant_reverse": "Nie możesz cofnąć tej akcji!",
@@ -42,8 +42,8 @@
   "block.universal_graves.visual_grave": "Nagrobek",
   "gamerule.universal_graves:protection_time": "Czas ochrony grobu przeciw innymi graczami",
   "gamerule.universal_graves:breaking_time": "Czas zniszczenia grobu",
-  "text.graves.teleportation_cost.level": "Poziomów XP",
-  "text.graves.teleportation_cost.creative": "Tryb Kreatywny",
-  "text.graves.teleportation_cost.free": "Za darmo",
-  "text.graves.teleportation_cost.item": "Przedmioty"
+  "text.graves.cost.level": "Poziomów XP",
+  "text.graves.cost.creative": "Tryb Kreatywny",
+  "text.graves.cost.free": "Za darmo",
+  "text.graves.cost.item": "Przedmioty"
 }

@@ -8,7 +8,7 @@ import eu.pb4.graves.config.data.IconData;
 import eu.pb4.graves.config.data.WrappedDateFormat;
 import eu.pb4.graves.config.data.WrappedText;
 import eu.pb4.graves.other.GravesXPCalculation;
-import eu.pb4.graves.other.TeleportationCost;
+import eu.pb4.graves.other.GenericCost;
 import eu.pb4.predicate.api.GsonPredicateSerializer;
 import eu.pb4.predicate.api.MinecraftPredicate;
 import net.minecraft.block.Block;
@@ -31,7 +31,6 @@ import net.minecraft.util.math.AffineTransformation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
-import org.joml.Matrix4f;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -70,33 +69,33 @@ public class BaseGson {
             //.registerTypeHierarchyAdapter(Matrix4f.class, new CodecSerializer<>(AffineTransformation.ANY_CODEC.xmap(AffineTransformation::getMatrix, AffineTransformation::new)))
 
             .registerTypeHierarchyAdapter(GravesXPCalculation.class, new StringSerializer<>(GravesXPCalculation::byName, GravesXPCalculation::configName))
-            .registerTypeHierarchyAdapter(TeleportationCost.class, new TeleportationCostSerializer())
+            .registerTypeHierarchyAdapter(GenericCost.class, new TeleportationCostSerializer())
             .registerTypeHierarchyAdapter(IconData.class, new IconDataSerializer())
             .registerTypeHierarchyAdapter(WrappedText.class, new StringSerializer<>(WrappedText::of, WrappedText::input))
             .registerTypeHierarchyAdapter(WrappedDateFormat.class, new StringSerializer<>(WrappedDateFormat::of, WrappedDateFormat::pattern))
             .setLenient().create();
 
-    private record TeleportationCostSerializer() implements JsonSerializer<TeleportationCost<Object>>, JsonDeserializer<TeleportationCost<Object>> {
+    private record TeleportationCostSerializer() implements JsonSerializer<GenericCost<Object>>, JsonDeserializer<GenericCost<Object>> {
 
         @Override
-        public TeleportationCost<Object> deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+        public GenericCost<Object> deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
             if (!jsonElement.isJsonObject()) {
                 return null;
             }
 
             var obj = jsonElement.getAsJsonObject();
 
-            var baseType = TeleportationCost.Type.BY_TYPE.getOrDefault(obj.get("type").getAsString(), TeleportationCost.Type.CREATIVE);
+            var baseType = GenericCost.Type.BY_TYPE.getOrDefault(obj.get("type").getAsString(), GenericCost.Type.CREATIVE);
             var input = baseType.decodeConfig(obj.get("input"));
             var count = obj.getAsJsonPrimitive("count").getAsInt();
 
-            return new TeleportationCost(baseType, input, count);
+            return new GenericCost(baseType, input, count);
         }
 
         @Override
-        public JsonElement serialize(TeleportationCost<Object> teleportationCost, Type type, JsonSerializationContext jsonSerializationContext) {
+        public JsonElement serialize(GenericCost<Object> teleportationCost, Type type, JsonSerializationContext jsonSerializationContext) {
             var obj = new JsonObject();
-            obj.addProperty("type", TeleportationCost.Type.TYPE_NAME.get(teleportationCost.type()));
+            obj.addProperty("type", GenericCost.Type.TYPE_NAME.get(teleportationCost.type()));
 
             var x = teleportationCost.type().encodeConfig(teleportationCost.object());
             if (x != null) {

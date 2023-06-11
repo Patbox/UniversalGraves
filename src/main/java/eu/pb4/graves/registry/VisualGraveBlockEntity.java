@@ -1,12 +1,7 @@
 package eu.pb4.graves.registry;
 
-import eu.pb4.graves.GraveNetworking;
-import eu.pb4.graves.config.ConfigManager;
-import eu.pb4.graves.model.GraveModel;
 import eu.pb4.graves.model.GraveModelHandler;
 import eu.pb4.graves.other.VisualGraveData;
-import eu.pb4.placeholders.api.Placeholders;
-import eu.pb4.placeholders.api.node.EmptyNode;
 import eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment;
 import eu.pb4.sgui.api.gui.SignGui;
 import net.minecraft.block.BlockState;
@@ -16,13 +11,8 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.nbt.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
-import net.minecraft.text.TextContent;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import java.util.*;
@@ -96,7 +86,7 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
 
         if (self.model == null) {
             self.model = (GraveModelHandler) BlockBoundAttachment.get(world, pos).holder();
-            self.model.setGrave(self.getModelId(), state.get(IS_LOCKED), self.allowModification, self.getGrave().gameProfile(), self::createPlaceholders);
+            self.model.setGrave(self.getModelId(), state.get(IS_LOCKED), self.allowModification, false, self.getGrave().gameProfile(), self::createPlaceholders);
         }
 
         if (world.getTime() % 20 == 0) {
@@ -135,7 +125,7 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
         if (!this.getModelId().equals(model)) {
             super.setModelId(model);
             if (this.model != null) {
-                this.model.setModel(model, this.getCachedState().get(IS_LOCKED), this.allowModification);
+                this.model.setModel(model, this.getCachedState().get(IS_LOCKED), this.allowModification, false);
             }
         }
     }

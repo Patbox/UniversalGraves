@@ -18,6 +18,9 @@
   "text.graves.creation_failed_void": "Grave wasn't created, because you died in void!",
   "text.graves.creation_failed_pvp": "Grave wasn't created, because player killed you! Your items were dropped at %s (%s)",
   "text.graves.creation_failed_claim": "Grave wasn't created, because you were in a claim! Your items were dropped at %s (%s)",
+  "text.graves.grave_unlock_payment.no_access": "You don't have access to this grave!",
+  "text.graves.grave_unlock_payment.accepted": "You have unlocked the grave!",
+  "text.graves.grave_unlock_payment.failed": "You don't have enough currency to unlock the grave! Required: %s",
 
   "text.graves.damage_source_info": "You were damaged by: %s",
   "text.graves.damage_source_info.enabled": "Enabled displaying of next damage sources! Type this command again to disable.",
@@ -32,8 +35,10 @@
   "text.graves.gui.break_grave": "Break Grave",
   "text.graves.gui.quick_pickup": "Take All Items",
   "text.graves.gui.teleport": "Teleport to grave",
-  "text.graves.gui.teleport.not_enough": "Not enough resources!",
+  "text.graves.gui.cost.not_enough": "Not enough resources!",
+  "text.graves.gui.cost": "Cost:",
   "text.graves.gui.teleport.cost": "Cost:",
+  "text.graves.gui.unlock_grave": "Unlock Grave",
   "text.graves.gui.fetch": "Move grave to your location",
   "text.graves.gui.fetch_failed": "Couldn't move grave to your location!",
 
@@ -52,8 +57,8 @@
   "gamerule.universal_graves:protection_time": "Time of grave's protection against other players",
   "gamerule.universal_graves:breaking_time": "Grave expiration time",
 
-  "text.graves.teleportation_cost.level": "XP Levels",
-  "text.graves.teleportation_cost.creative": "Creative",
-  "text.graves.teleportation_cost.free": "Free",
-  "text.graves.teleportation_cost.item": "Items"
+  "text.graves.cost.level": "XP Levels",
+  "text.graves.cost.creative": "Creative",
+  "text.graves.cost.free": "Free",
+  "text.graves.cost.item": "Items"
 }

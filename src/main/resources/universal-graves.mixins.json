@@ -11,7 +11,6 @@
     "ServerWorldMixin"
   ],
   "client": [
-    "client.GenericContainerScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1
