@@ -84,6 +84,11 @@ public class GraveBlock extends AbstractGraveBlock implements BlockEntityProvide
             return playerTemp.isSneaking() ? ActionResult.PASS : ActionResult.FAIL;
         }
         BlockEntity blockEntity = world.getBlockEntity(pos);
+        var stack = player.getStackInHand(hand);
+
+        if (!stack.isEmpty() && playerTemp.isSneaking()) {
+            return ActionResult.PASS;
+        }
 
         if (blockEntity instanceof GraveBlockEntity graveBlockEntity && graveBlockEntity.getGrave() != null && graveBlockEntity.getGrave().hasAccess(player)) {
             try {
@@ -94,8 +99,10 @@ public class GraveBlock extends AbstractGraveBlock implements BlockEntityProvide
                 if (!grave.isRemoved()) {
                     if (ConfigManager.getConfig().interactions.shiftClickTakesItems && (player.isSneaking() || !ConfigManager.getConfig().interactions.clickGraveToOpenGui)) {
                         grave.quickEquip(player);
-                    } else {
+                    } else if (!player.isSneaking()) {
                         grave.openUi(player, true, false);
+                    } else {
+                        return ActionResult.PASS;
                     }
                 }
                 return ActionResult.SUCCESS;
@@ -104,7 +111,7 @@ public class GraveBlock extends AbstractGraveBlock implements BlockEntityProvide
             }
         }
 
-        return playerTemp.isSneaking() ? ActionResult.PASS : ActionResult.SUCCESS;
+        return ActionResult.SUCCESS;
     }
 
     @Nullable
@@ -123,11 +130,6 @@ public class GraveBlock extends AbstractGraveBlock implements BlockEntityProvide
     protected @Nullable Grave getGraveData(World world, BlockPos pos) {
         var entity = world.getBlockEntity(pos, GraveBlockEntity.BLOCK_ENTITY_TYPE);
         return entity.isPresent() ? entity.get().getGrave() : null;
-    }
-
-    @Override
-    protected @Nullable Text[] getTextOverrides(World world, BlockPos pos) {
-        return null;
     }
 
     @Override

@@ -48,7 +48,7 @@ public class GraveCompassItem extends Item implements PolymerItem {
                     }
                 }
             } else {
-                var graveId = ((PlayerAdditions) entity).graves_lastGrave();
+                var graveId = ((PlayerAdditions) entity).graves$lastGrave();
                 if (graveId != -1) {
                     stack.getOrCreateNbt().putLong("GraveId", graveId);
                 } else {

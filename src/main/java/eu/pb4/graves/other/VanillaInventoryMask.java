@@ -12,10 +12,13 @@ public class VanillaInventoryMask implements GraveInventoryMask {
 
     @Override
     public void addToGrave(ServerPlayerEntity player, ItemConsumer consumer) {
-        for (int i = 0; i < player.getInventory().size(); ++i) {
-            ItemStack itemStack = player.getInventory().getStack(i);
+        var inventory = player.getInventory();
+        var size = inventory.size();
+        for (int slot = 0; slot < size; slot++) {
+            ItemStack itemStack = inventory.getStack(slot);
             if (GravesApi.canAddItem(player, itemStack)) {
-                consumer.addItem(player.getInventory().removeStack(i), i);
+                inventory.setStack(slot, ItemStack.EMPTY);
+                consumer.addItem(itemStack, slot);
             }
         }
 
@@ -29,7 +32,6 @@ public class VanillaInventoryMask implements GraveInventoryMask {
     @Override
     public boolean moveToPlayerExactly(ServerPlayerEntity player, ItemStack stack, int slot, NbtElement _unused) {
         var inventory = player.getInventory();
-
         if (slot > -1 && slot < inventory.size() && inventory.getStack(slot).isEmpty()) {
             inventory.setStack(slot, stack.copy());
             stack.setCount(0);

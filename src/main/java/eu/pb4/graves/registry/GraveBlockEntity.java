@@ -26,6 +26,7 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.IntFunction;
 
 import static eu.pb4.graves.registry.AbstractGraveBlock.IS_LOCKED;
 
@@ -157,7 +158,7 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity implements GraveH
 
         if (self.model == null) {
             self.model = (GraveModelHandler) BlockBoundAttachment.get(world, pos).holder();
-            self.model.setGrave(self.getModelId(), isProtected, false, self.getGrave().isPaymentRequired(), self.getGrave().getProfile(),  () -> self.getGrave().getPlaceholders(self.world.getServer()));
+            self.model.setGrave(self.getModelId(), isProtected, false, self.getGrave().isPaymentRequired(), self.getGrave().getProfile(),  () -> self.getGrave().getPlaceholders(self.world.getServer()), self.getItemProvider());
         }
 
         if (world.getTime() % 20 == 0) {
@@ -165,13 +166,19 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity implements GraveH
         }
     }
 
-    @Override
-    public void setModelId(String model) {
-        if (!this.getModelId().equals(model)) {
-            super.setModelId(model);
-            if (this.model != null) {
-                this.model.setModel(model, this.getCachedState().get(IS_LOCKED), false, this.getGrave().isPaymentRequired());
+    private IntFunction<ItemStack> getItemProvider() {
+        return (i) -> {
+            if (this.getGrave() != null && i < this.getGrave().getItems().size()) {
+                return this.getGrave().getItems().get(i).stack();
             }
+            return ItemStack.EMPTY;
+        };
+    }
+
+    @Override
+    public void onModelChanged(String model) {
+        if (this.model != null) {
+            this.model.setModel(model, this.getCachedState().get(IS_LOCKED), false, this.getGrave().isPaymentRequired());
         }
     }
 
@@ -180,11 +187,12 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity implements GraveH
     }
 
     public void breakBlock(boolean canCreateVisual) {
+        assert world != null;
         if (canCreateVisual && ConfigManager.getConfig().placement.keepBlockAfterBreaking) {
             world.setBlockState(pos, VisualGraveBlock.INSTANCE.getStateWithProperties(this.getCachedState()), Block.NOTIFY_ALL | Block.FORCE_STATE);
 
             if (world.getBlockEntity(pos) instanceof VisualGraveBlockEntity blockEntity) {
-                blockEntity.setVisualData(this.getClientData(), this.replacedBlockState, false);
+                blockEntity.setVisualData(this.getClientData(), this.replacedBlockState);
                 blockEntity.setModelId(this.getModelId());
             }
 

@@ -47,20 +47,24 @@ public class GravesMod implements ModInitializer {
         GenericModInfo.build(CONTAINER);
 
         Registry.register(Registries.ITEM, new Identifier("universal_graves", "grave_compass"), GraveCompassItem.INSTANCE);
-        Registry.register(Registries.ITEM, new Identifier("universal_graves", "visual_grave"), VisualGraveBlockItem.INSTANCE);
+        Registry.register(Registries.ITEM, new Identifier("universal_graves", "visual_grave"), CointainerGraveBlockItem.INSTANCE);
         Registry.register(Registries.ITEM, new Identifier("universal_graves", "icon"), IconItem.INSTANCE);
         Registry.register(Registries.BLOCK, new Identifier("universal_graves", "grave"), GraveBlock.INSTANCE);
         Registry.register(Registries.BLOCK, new Identifier("universal_graves", "visual_grave"), VisualGraveBlock.INSTANCE);
+        Registry.register(Registries.BLOCK, new Identifier("universal_graves", "container_grave"), ContainerGraveBlock.INSTANCE);
         Registry.register(Registries.BLOCK, new Identifier("universal_graves", "temp_block"), TempBlock.INSTANCE);
         Registry.register(Registries.ENTITY_TYPE, new Identifier("universal_graves", "xp"), SafeXPEntity.TYPE);
         PolymerEntityUtils.registerType(SafeXPEntity.TYPE);
         GraveBlockEntity.BLOCK_ENTITY_TYPE = Registry.register(Registries.BLOCK_ENTITY_TYPE, "universal_graves:grave", FabricBlockEntityTypeBuilder.create(GraveBlockEntity::new, GraveBlock.INSTANCE).build(null));
         VisualGraveBlockEntity.BLOCK_ENTITY_TYPE = Registry.register(Registries.BLOCK_ENTITY_TYPE, "universal_graves:visual_grave", FabricBlockEntityTypeBuilder.create(VisualGraveBlockEntity::new, VisualGraveBlock.INSTANCE).build(null));
+        ContainerGraveBlockEntity.BLOCK_ENTITY_TYPE = Registry.register(Registries.BLOCK_ENTITY_TYPE, "universal_graves:container_grave", FabricBlockEntityTypeBuilder.create(ContainerGraveBlockEntity::new, ContainerGraveBlock.INSTANCE).build(null));
         Commands.register();
-        PolymerBlockUtils.registerBlockEntity(GraveBlockEntity.BLOCK_ENTITY_TYPE, VisualGraveBlockEntity.BLOCK_ENTITY_TYPE);
+        PolymerBlockUtils.registerBlockEntity(GraveBlockEntity.BLOCK_ENTITY_TYPE, VisualGraveBlockEntity.BLOCK_ENTITY_TYPE, ContainerGraveBlockEntity.BLOCK_ENTITY_TYPE);
 
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register((e) -> {
-            e.add(VisualGraveBlockItem.INSTANCE);
+            if (!Thread.currentThread().getName().contains("client")) {
+                e.add(CointainerGraveBlockItem.INSTANCE);
+            }
         });
 
         GraveTextures.initialize();

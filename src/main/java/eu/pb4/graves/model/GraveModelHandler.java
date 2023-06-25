@@ -14,6 +14,7 @@ import eu.pb4.polymer.virtualentity.api.elements.GenericEntityElement;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import eu.pb4.polymer.virtualentity.api.elements.TextDisplayElement;
 import net.minecraft.block.BlockState;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.SkullItem;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
@@ -25,11 +26,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.IntFunction;
 import java.util.function.Supplier;
 
 public class GraveModelHandler extends ElementHolder {
     private final List<TextsWithPlaceholders> textsWithPlaceholders = new ArrayList<>();
     private final List<ItemDisplayElement> playerHeadDisplays = new ArrayList<>();
+    private final List<ItemDisplayElement> itemDisplays = new ArrayList<>();
     private BlockState blockState;
     private float yaw;
     private GameProfile gameProfile;
@@ -38,6 +41,7 @@ public class GraveModelHandler extends ElementHolder {
     private boolean isProtected;
     private boolean isPlayerMade;
     private boolean isPaymentRequired;
+    private IntFunction<ItemStack> itemGetter;
 
     public GraveModelHandler(BlockState state) {
         this.blockState = state;
@@ -48,9 +52,10 @@ public class GraveModelHandler extends ElementHolder {
         this.setYaw(RotationPropertyHelper.toDegrees(blockState.get(AbstractGraveBlock.ROTATION)));
     }
 
-    public void setGrave(String model, boolean isProtected, boolean isPlayerMade, boolean isPaymentRequired, GameProfile profile, Supplier<Map<String, Text>> placeholderSupplier) {
+    public void setGrave(String model, boolean isProtected, boolean isPlayerMade, boolean isPaymentRequired, GameProfile profile, Supplier<Map<String, Text>> placeholderSupplier, IntFunction<ItemStack> itemGetter) {
         this.gameProfile = profile;
         this.placeholderSupplier = placeholderSupplier;
+        this.itemGetter = itemGetter;
         this.setModel(model, isProtected, isPlayerMade, isPaymentRequired);
     }
 
@@ -66,6 +71,7 @@ public class GraveModelHandler extends ElementHolder {
         if (!this.getElements().isEmpty()) {
             this.textsWithPlaceholders.clear();
             this.playerHeadDisplays.clear();
+            this.itemDisplays.clear();
             for (var element : new ArrayList<>(this.getElements())) {
                 this.removeElement(element);
             }
@@ -93,11 +99,18 @@ public class GraveModelHandler extends ElementHolder {
             }
         }
 
-        if (element instanceof ItemDisplayElement itemDisplayElement && part.tags.contains(ModelPart.Tags.PLAYER_HEAD)) {
-            this.playerHeadDisplays.add(itemDisplayElement);
+        if (element instanceof ItemDisplayElement itemDisplayElement) {
+            if (part.tags.contains(ModelPart.Tags.PLAYER_HEAD)) {
 
-            if (gameProfile != null) {
-                itemDisplayElement.getItem().getOrCreateNbt().put(SkullItem.SKULL_OWNER_KEY, NbtHelper.writeGameProfile(new NbtCompound(), gameProfile));
+                this.playerHeadDisplays.add(itemDisplayElement);
+
+                if (gameProfile != null) {
+                    itemDisplayElement.getItem().getOrCreateNbt().put(SkullItem.SKULL_OWNER_KEY, NbtHelper.writeGameProfile(new NbtCompound(), gameProfile));
+                }
+            } else if (part.tags.contains(ModelPart.Tags.ITEM)) {
+                var i = this.itemDisplays.size();
+                itemDisplayElement.setItem(this.itemGetter.apply(i));
+                this.itemDisplays.add(itemDisplayElement);
             }
         }
 
@@ -120,6 +133,9 @@ public class GraveModelHandler extends ElementHolder {
         for (var text : textsWithPlaceholders) {
             text.displayElement.setText(text.node().toText(ParserContext.of(DynamicNode.NODES, placeholders)));
         }
+        for (int i = 0; i < this.itemDisplays.size(); i++) {
+            this.itemDisplays.get(i).setItem(this.itemGetter.apply(i));
+        }
     }
 
     @Override
@@ -130,6 +146,7 @@ public class GraveModelHandler extends ElementHolder {
                 this.updateYaw();
             }
             this.blockState = state;
+            this.tick();
         }
     }
 

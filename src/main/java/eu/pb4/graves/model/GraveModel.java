@@ -14,6 +14,7 @@ import net.minecraft.item.Items;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.AffineTransformation;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import org.joml.Matrix4f;
 
@@ -53,6 +54,31 @@ public class GraveModel {
 
     public static GraveModel getDefaultModel() {
         var model = new GraveModel();
+        {
+            var tool = new ModelPart();
+            tool.type = ModelPart.Type.ITEM;
+            tool.transformation = new AffineTransformation(
+                    new Matrix4f().translate(0.4f, -0.495f, -0.2f).rotateY(330 * MathHelper.RADIANS_PER_DEGREE).rotateZ(5 * MathHelper.RADIANS_PER_DEGREE).rotateX(MathHelper.HALF_PI).scale(0.5f)
+            );
+            tool.transformation.getTranslation();
+
+            tool.tags.add(ModelPart.Tags.ITEM);
+
+            model.elements.add(tool);
+        }
+        {
+            var tool = new ModelPart();
+            tool.type = ModelPart.Type.ITEM;
+            tool.transformation = new AffineTransformation(
+                    new Matrix4f().translate(-0.35f, -0.43f, -0.05f).rotateY(80 * MathHelper.RADIANS_PER_DEGREE).rotateZ(-30 * MathHelper.RADIANS_PER_DEGREE).rotateX(-160 * MathHelper.RADIANS_PER_DEGREE).scale(0.5f)
+            );
+            tool.transformation.getTranslation();
+
+            tool.tags.add(ModelPart.Tags.ITEM);
+
+            model.elements.add(tool);
+        }
+
         {
             var head = new ModelPart();
             head.type = ModelPart.Type.ITEM;

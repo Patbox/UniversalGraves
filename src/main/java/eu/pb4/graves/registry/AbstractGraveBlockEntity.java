@@ -25,6 +25,8 @@ public abstract class AbstractGraveBlockEntity extends BlockEntity {
     public void readNbt(NbtCompound nbt) {
         super.readNbt(nbt);
         this.model = nbt.getString("GraveModel");
+        this.onModelChanged(this.model);
+
     }
 
     public String getModelId() {
@@ -33,7 +35,11 @@ public abstract class AbstractGraveBlockEntity extends BlockEntity {
 
     public void setModelId(String model) {
         this.model = model;
+        this.onModelChanged(model);
+        this.markDirty();
     }
+
+    public abstract void onModelChanged(String model);
 
     public abstract VisualGraveData getClientData();
 }

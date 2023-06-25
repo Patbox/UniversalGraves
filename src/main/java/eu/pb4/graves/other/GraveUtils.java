@@ -16,8 +16,6 @@ import eu.pb4.graves.registry.GraveBlock;
 import eu.pb4.graves.registry.GraveBlockEntity;
 import eu.pb4.graves.registry.SafeXPEntity;
 import eu.pb4.graves.registry.TempBlock;
-import eu.pb4.placeholders.api.Placeholders;
-import eu.pb4.placeholders.api.node.TextNode;
 import eu.pb4.predicate.api.PredicateContext;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.block.Block;
@@ -28,6 +26,7 @@ import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.ExperienceOrbEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
@@ -60,8 +59,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static eu.pb4.placeholders.api.Placeholders.PREDEFINED_PLACEHOLDER_PATTERN;
-
 public class GraveUtils {
     public static final Identifier REPLACEABLE_ID = new Identifier("universal_graves", "replaceable");
     public static final TagKey<Block> REPLACEABLE_TAG = TagKey.of(RegistryKeys.BLOCK, REPLACEABLE_ID);
@@ -89,15 +86,25 @@ public class GraveUtils {
         var result = isValidPos(player, world, border, blockPos, false, config);
         if (result.allow) {
             return new BlockCheckResult(blockPos, result);
-        } else {
-            var checkResult = findPos(player, world, blockPos, maxDistance, false, 0, config);
-
-            if (!checkResult.result.allow && anyBlock) {
-                checkResult = findPos(player, world, blockPos, maxDistance, true, 0, config);
+        } else if (result == BlockResult.BLOCK_FLUID) {
+            var x = blockPos.mutableCopy();
+            while (world.getBlockState(x).getFluidState().getFluid() != Fluids.EMPTY) {
+                x.move(0, 1, 0);
             }
-
-            return checkResult;
+            blockPos = x.toImmutable();
+            result = isValidPos(player, world, border, blockPos, false, config);
+            if (result.allow) {
+                return new BlockCheckResult(blockPos, result);
+            }
         }
+
+        var checkResult = findPos(player, world, blockPos, maxDistance, false, 0, config);
+
+        if (!checkResult.result.allow && anyBlock) {
+            checkResult = findPos(player, world, blockPos, maxDistance, true, 0, config);
+        }
+
+        return checkResult;
     }
 
     private static BlockCheckResult findPos(ServerPlayerEntity player, ServerWorld world, BlockPos blockPos, int maxDistance, boolean allowAnyBlock, int iteration, Config config) {
@@ -156,6 +163,10 @@ public class GraveUtils {
         BlockState state = world.getBlockState(pos);
 
         if (canReplaceState(state, anyBlock) && border.contains(pos) && pos.getY() >= world.getBottomY() && pos.getY() < world.getTopY()) {
+            if (config.placement.generateOnTopOfFluids && state.getFluidState().getFluid() != Fluids.EMPTY && world.getBlockState(pos.up()).getFluidState().getFluid() != Fluids.EMPTY) {
+                return BlockResult.BLOCK_FLUID;
+            }
+
             var areas = config.placement.blacklistedAreas.get(world.getRegistryKey().getValue());
             if (areas != null) {
                 for (var area : areas) {
@@ -176,18 +187,6 @@ public class GraveUtils {
         } else {
             return BlockResult.BLOCK;
         }
-    }
-
-    public static String blockStateToString(BlockState state) {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(Registries.BLOCK.getId(state.getBlock()));
-        if (!state.getEntries().isEmpty()) {
-            stringBuilder.append('[');
-            stringBuilder.append(state.getEntries().entrySet().stream().map(PROPERTY_MAP_PRINTER).collect(Collectors.joining(",")));
-            stringBuilder.append(']');
-        }
-
-        return stringBuilder.toString();
     }
 
     public static Text toWorldName(Identifier identifier) {
@@ -261,13 +260,13 @@ public class GraveUtils {
                                     player.getYaw(), player.getPitch());
                             player.playSound(SoundEvents.ENTITY_ENDERMAN_TELEPORT,
                                     SoundCategory.MASTER, 1f, 1f);
-                            player.setInvulnerable(true);
+                            ((PlayerAdditions) player).graves$setInvulnerable(true);
                         }
                         GravesMod.DO_ON_NEXT_TICK.add(this);
                     } else if (--invulnerableTicks > 0) {
                         GravesMod.DO_ON_NEXT_TICK.add(this);
                     } else {
-                        player.setInvulnerable(false);
+                        ((PlayerAdditions) player).graves$setInvulnerable(false);
                         finishedCallback.accept(true);
                     }
                 }
@@ -275,7 +274,7 @@ public class GraveUtils {
         }
     }
 
-    public static void createGrave(ServerPlayerEntity player, DamageSource source, boolean isCommandDeath) {
+    public static void createGrave(ServerPlayerEntity player, DamageSource source) {
         Config config = ConfigManager.getConfig();
 
 
@@ -332,7 +331,7 @@ public class GraveUtils {
                         experience = config.storage.xpStorageType.converter.calc(player);
                     }
 
-                    if (items.size() == 0 && experience == 0) {
+                    if (items.size() == 0 && (!config.storage.canStoreOnlyXp || experience == 0)) {
                         return;
                     }
 
@@ -364,7 +363,7 @@ public class GraveUtils {
                             (int) (world.getServer().getOverworld().getTimeOfDay() / 24000)
                     );
 
-                    ((PlayerAdditions) player).graves_setLastGrave(grave.getId());
+                    ((PlayerAdditions) player).graves$setLastGrave(grave.getId());
                     BlockState oldBlockState = world.getBlockState(gravePos);
                     world.setBlockState(gravePos, TempBlock.INSTANCE.getDefaultState());
 
@@ -403,7 +402,7 @@ public class GraveUtils {
                             }
 
                             ItemScatterer.spawn(world, gravePos, droppedItems);
-                            ((PlayerAdditions) player).graves_setLastGrave(-1);
+                            ((PlayerAdditions) player).graves$setLastGrave(-1);
                         }
                         if (text2 != null) {
                             player.sendMessage(text2.with(placeholders2));
@@ -414,7 +413,7 @@ public class GraveUtils {
                     text = switch (result.result()) {
                         case BLOCK -> config.placement.messageCreationFailed;
                         case BLOCK_CLAIM -> config.placement.messageCreationFailedClaim;
-                        case ALLOW -> null;
+                        default -> null;
                     };
                 }
             } else {
@@ -435,11 +434,35 @@ public class GraveUtils {
         return state.getBlock() != TempBlock.INSTANCE && !state.hasBlockEntity() && (state.isAir() || dontValidateWithTag || state.isIn(REPLACEABLE_TAG));
     }
 
+    public static void grandExperience(PlayerEntity player, int experience) {
+        player.addScore(experience);
+        player.experienceProgress += (float)experience / (float)player.getNextLevelExperience();
+        player.totalExperience = MathHelper.clamp(player.totalExperience + experience, 0, 2147483647);
+
+        while(player.experienceProgress < 0.0F) {
+            float f = player.experienceProgress * (float)player.getNextLevelExperience();
+            if (player.experienceLevel > 0) {
+                player.addExperienceLevels(-1);
+                player.experienceProgress = 1.0F + f / (float)player.getNextLevelExperience();
+            } else {
+                player.addExperienceLevels(-1);
+                player.experienceProgress = 0.0F;
+            }
+        }
+
+        while(player.experienceProgress >= 1.0F) {
+            player.experienceProgress = (player.experienceProgress - 1.0F) * (float)player.getNextLevelExperience();
+            player.addExperienceLevels(1);
+            player.experienceProgress /= (float)player.getNextLevelExperience();
+        }
+    }
+
 
     public enum BlockResult {
-        ALLOW(true, 3),
+        ALLOW(true, 999),
         BLOCK(false, 0),
-        BLOCK_CLAIM(false, 1);
+        BLOCK_CLAIM(false, 1),
+        BLOCK_FLUID(false, 2);
 
         private final boolean allow;
         private final int priority;

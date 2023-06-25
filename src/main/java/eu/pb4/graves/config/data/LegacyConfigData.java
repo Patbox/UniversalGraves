@@ -11,6 +11,7 @@ import net.minecraft.util.Identifier;
 
 import java.util.*;
 
+@Deprecated
 public class LegacyConfigData {
     public static final String LEGACY_VERSION_KEY = "CONFIG_VERSION_DONT_TOUCH_THIS";
 

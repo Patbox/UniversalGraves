@@ -52,7 +52,8 @@
 
   "item.universal_graves.grave_compass": "Grave Compass",
   "block.universal_graves.grave": "Grave",
-  "block.universal_graves.visual_grave": "Gravestone",
+  "block.universal_graves.visual_grave": "Emptied Grave",
+  "block.universal_graves.container_grave": "Gravestone",
 
   "gamerule.universal_graves:protection_time": "Time of grave's protection against other players",
   "gamerule.universal_graves:breaking_time": "Grave expiration time",

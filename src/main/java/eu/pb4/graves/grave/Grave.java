@@ -277,10 +277,10 @@ public final class Grave {
 
         if (cfg.interactions.cost.checkCost(player)) {
             cfg.interactions.cost.takeCost(player);
+            this.requirePayment = false;
             if (!cfg.texts.graveUnlocked.isEmpty()) {
                 player.sendMessage(cfg.texts.graveUnlocked.with(cfg.interactions.cost.getPlaceholders()));
             }
-            this.requirePayment = false;
             if (player.server.getWorld(RegistryKey.of(RegistryKeys.WORLD, this.location.world())).getBlockEntity(location.blockPos()) instanceof GraveBlockEntity entity) {
                 entity.setModelId(entity.getModelId());
             }
@@ -500,6 +500,10 @@ public final class Grave {
     }
 
     public boolean isEmpty() {
+        if (ConfigManager.getConfig().storage.canStoreOnlyXp && this.xp != 0) {
+            return false;
+        }
+
         for (var stack : this.items) {
             if (!stack.isEmpty()) {
                 return false;
@@ -529,6 +533,8 @@ public final class Grave {
                         }
                     }
                 }
+                GraveUtils.grandExperience(player, this.xp);
+                this.xp = 0;
                 this.tryBreak(player.getServer(), player);
                 this.updateSelf(player.getServer());
             }

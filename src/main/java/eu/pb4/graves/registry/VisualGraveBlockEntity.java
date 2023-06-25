@@ -8,6 +8,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -16,6 +17,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import java.util.*;
+import java.util.function.IntFunction;
 
 import static eu.pb4.graves.registry.AbstractGraveBlock.IS_LOCKED;
 
@@ -23,7 +25,7 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
     public static BlockEntityType<VisualGraveBlockEntity> BLOCK_ENTITY_TYPE;
     public BlockState replacedBlockState = Blocks.AIR.getDefaultState();
     private VisualGraveData visualData = VisualGraveData.DEFAULT;
-    protected boolean allowModification = true;
+    protected boolean isPlayerMade = false;
     protected Text[] textOverrides = null;
     private GraveModelHandler model;
 
@@ -31,11 +33,22 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
         super(BLOCK_ENTITY_TYPE, pos, state);
     }
 
-    public void setVisualData(VisualGraveData data, BlockState oldBlockState, boolean allowModification) {
+    public VisualGraveBlockEntity(BlockEntityType<?> blockEntityType, BlockPos pos, BlockState state) {
+        super(blockEntityType, pos, state);
+    }
+
+    public void setVisualData(VisualGraveData data, BlockState oldBlockState) {
         this.replacedBlockState = oldBlockState;
         this.visualData = data;
-        this.allowModification = allowModification;
+        if (this.model != null) {
+            this.model.setGrave(this.getModelId(), this.getCachedState().get(IS_LOCKED), this.isPlayerMade, false, this.getGrave().gameProfile(), this::createPlaceholders, this.getItemGetter());
+        }
+
         this.markDirty();
+    }
+
+    protected IntFunction<ItemStack> getItemGetter() {
+        return (i) -> ItemStack.EMPTY;
     }
 
     @Override
@@ -43,7 +56,7 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
         super.writeNbt(nbt);
         nbt.put("BlockState", NbtHelper.fromBlockState(this.replacedBlockState));
         nbt.put("VisualData", this.visualData.toNbt());
-        nbt.putBoolean("AllowModification", this.allowModification);
+        nbt.putBoolean("AllowModification", this.isPlayerMade);
 
         if (this.textOverrides != null) {
             var list = new NbtList();
@@ -63,7 +76,6 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
         try {
             this.visualData = VisualGraveData.fromNbt(nbt.getCompound("VisualData"));
             this.replacedBlockState = NbtHelper.toBlockState(Registries.BLOCK.getReadOnlyWrapper(), (NbtCompound) Objects.requireNonNull(nbt.get("BlockState")));
-            this.allowModification = nbt.getBoolean("AllowModification");
 
             if (nbt.contains("TextOverride", NbtElement.LIST_TYPE)) {
                 var textOverrides = new ArrayList<>();
@@ -86,7 +98,7 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
 
         if (self.model == null) {
             self.model = (GraveModelHandler) BlockBoundAttachment.get(world, pos).holder();
-            self.model.setGrave(self.getModelId(), state.get(IS_LOCKED), self.allowModification, false, self.getGrave().gameProfile(), self::createPlaceholders);
+            self.model.setGrave(self.getModelId(), state.get(IS_LOCKED), self.isPlayerMade, false, self.getGrave().gameProfile(), self::createPlaceholders, self.getItemGetter());
         }
 
         if (world.getTime() % 20 == 0) {
@@ -94,7 +106,7 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
         }
     }
 
-    private Map<String, Text> createPlaceholders() {
+    protected Map<String, Text> createPlaceholders() {
         var placeholder = this.getGrave().getPlaceholders(this.world.getServer());
 
         if (this.textOverrides != null) {
@@ -121,12 +133,9 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
     }
 
     @Override
-    public void setModelId(String model) {
-        if (!this.getModelId().equals(model)) {
-            super.setModelId(model);
-            if (this.model != null) {
-                this.model.setModel(model, this.getCachedState().get(IS_LOCKED), this.allowModification, false);
-            }
+    public void onModelChanged(String model) {
+        if (this.model != null) {
+            this.model.setModel(model, this.getCachedState().get(IS_LOCKED), this.isPlayerMade, false);
         }
     }
 

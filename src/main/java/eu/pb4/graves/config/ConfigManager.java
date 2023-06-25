@@ -53,7 +53,7 @@ public class ConfigManager {
                 });
             } else {
                 Files.createDirectories(MODELS_PATH);
-                Files.writeString(MODELS_PATH.resolve("example.json"), BaseGson.GSON.toJson(GraveModel.DEFAULT_MODEL));
+                Files.writeString(MODELS_PATH.resolve("example.json"), BaseGson.GSON.toJson(GraveModel.DEFAULT_MODEL.get()));
                 MODELS.put("example", GraveModel.DEFAULT_MODEL.get());
             }
 
@@ -69,8 +69,7 @@ public class ConfigManager {
             overrideConfig(config);
             CONFIG = config;
             ENABLED = true;
-        }
-            catch(Throwable exception) {
+        } catch(Throwable exception) {
             ENABLED = false;
             GravesMod.LOGGER.error("Something went wrong while reading config!");
             exception.printStackTrace();

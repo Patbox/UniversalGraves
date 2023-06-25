@@ -10,6 +10,8 @@ import eu.pb4.graves.ui.GraveListGui;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.command.argument.GameProfileArgumentType;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -53,18 +55,8 @@ public class Commands {
         });
     }
 
-    private static int toggleDamageSourceInfo(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        var pl = (PlayerAdditions) context.getSource().getPlayer();
-        var bl = pl.graves_getPrintNextDamageSource();
-
-        pl.graves_setPrintNextDamageSource(!bl);
-        context.getSource().sendFeedback(() -> Text.translatable("text.graves.damage_source_info." + (bl ? "disabled" : "enabled")), false);
-        return 0;
-    }
-
     private static int list(CommandContext<ServerCommandSource> context, boolean canModify) throws CommandSyntaxException {
         ServerPlayerEntity player = context.getSource().getPlayer();
-
         try {
             new GraveListGui(player, player.getGameProfile(), canModify, Permissions.check(player, "universal_graves.fetch_grave", 3)).open();
         } catch (Exception e) {

@@ -15,7 +15,10 @@ import eu.pb4.predicate.api.MinecraftPredicate;
 import eu.pb4.predicate.api.PredicateContext;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.EntityType;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
@@ -82,6 +85,8 @@ public class Config {
         public GravesXPCalculation xpStorageType = GravesXPCalculation.PERCENT_POINTS;
         @SerializedName("experience_percent:setting_value")
         public double xpPercentTypeValue = 100;
+        @SerializedName("can_store_only_xp")
+        public boolean canStoreOnlyXp = false;
         @SerializedName("alternative_experience_entity")
         public boolean useAlternativeXPEntity = FabricLoader.getInstance().isModLoaded("origins")
                 || FabricLoader.getInstance().isModLoaded("bewitchment");
@@ -106,7 +111,8 @@ public class Config {
         public int maxShiftCount = 5;
         @SerializedName("max_shift_distance")
         public int shiftDistance = 40;
-
+        @SerializedName("generate_on_top_of_fluids")
+        public boolean generateOnTopOfFluids = false;
         @SerializedName("restore_replaced_block")
         public boolean keepBlockAfterBreaking = false;
         @SerializedName("restore_replaced_block_after_player_breaking")
@@ -179,7 +185,12 @@ public class Config {
         public String defaultModelId = "default";
         @SerializedName("alternative")
         public List<CheckedModel> alternative = new ArrayList<>();
-
+        @SerializedName("enable_geyser_workaround")
+        public boolean geyserWorkaround = true;
+        @SerializedName("gravestone_item_base")
+        public Item gravestoneItemBase = Items.SKELETON_SKULL;
+        @SerializedName("gravestone_item_nbt")
+        public NbtCompound gravestoneItemNbt = new NbtCompound();
         public class CheckedModel {
             @SerializedName("require")
             public MinecraftPredicate predicate = BuiltinPredicates.operatorLevel(0);

@@ -5,13 +5,12 @@ import org.jetbrains.annotations.Nullable;
 
 public interface PlayerAdditions {
     @Nullable
-    Text graves_lastDeathCause();
+    Text graves$lastDeathCause();
 
     @Nullable
-    long graves_lastGrave();
+    long graves$lastGrave();
 
-    void graves_setLastGrave(long graveId);
+    void graves$setLastGrave(long graveId);
 
-    void graves_setPrintNextDamageSource(boolean value);
-    boolean graves_getPrintNextDamageSource();
+    void graves$setInvulnerable(boolean value);
 }

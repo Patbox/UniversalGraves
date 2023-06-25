@@ -1,10 +1,14 @@
 package eu.pb4.graves.registry;
 
 
+import eu.pb4.graves.config.Config;
+import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.grave.Grave;
 import eu.pb4.graves.model.GraveModelHandler;
 import eu.pb4.graves.other.VisualGraveData;
+import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.core.api.block.PolymerBlock;
+import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.virtualentity.api.BlockWithElementHolder;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import net.minecraft.block.*;
@@ -59,7 +63,8 @@ public abstract class AbstractGraveBlock extends Block implements PolymerBlock, 
 
     @Override
     public BlockState getPolymerBlockState(BlockState state, ServerPlayerEntity player) {
-        return Blocks.BARRIER.getDefaultState();
+        return ConfigManager.getConfig().model.geyserWorkaround && PolymerCommonUtils.isBedrockPlayer(player)
+                ? Blocks.SKELETON_SKULL.getDefaultState().with(ROTATION, state.get(ROTATION)) : Blocks.BARRIER.getDefaultState();
     }
 
     public boolean canPathfindThrough(BlockState state, BlockView world, BlockPos pos, NavigationType type) {
@@ -77,9 +82,6 @@ public abstract class AbstractGraveBlock extends Block implements PolymerBlock, 
 
     @Nullable
     protected abstract Grave getGraveData(World world, BlockPos pos);
-
-    @Nullable
-    protected abstract Text[] getTextOverrides(World world, BlockPos pos);
 
     protected abstract VisualGraveData getVisualData(World world, BlockPos pos, @Nullable Grave grave);
 

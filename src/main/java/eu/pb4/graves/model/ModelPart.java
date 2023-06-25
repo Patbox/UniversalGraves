@@ -144,5 +144,6 @@ public class ModelPart {
         Identifier IF_NOT_REQUIRE_PAYMENT = new Identifier("graves", "payment_not_required");
         Identifier IF_VISUAL = new Identifier("graves", "if_visual");
         Identifier IF_NOT_VISUAL = new Identifier("graves", "if_not_visual");
+        Identifier ITEM = new Identifier("graves", "item");
     }
 }

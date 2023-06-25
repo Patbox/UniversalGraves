@@ -2,6 +2,7 @@ package eu.pb4.graves.registry;
 
 import eu.pb4.graves.mixin.ExperienceOrbEntityAccessor;
 
+import eu.pb4.graves.other.GraveUtils;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.entity.Entity;
@@ -40,28 +41,7 @@ public class SafeXPEntity extends ExperienceOrbEntity implements PolymerEntity {
             if (player.experiencePickUpDelay == 0) {
                 player.experiencePickUpDelay = 2;
                 player.sendPickup(this, 1);
-                var experience = this.getExperienceAmount();
-
-                player.addScore(experience);
-                player.experienceProgress += (float)experience / (float)player.getNextLevelExperience();
-                player.totalExperience = MathHelper.clamp(player.totalExperience + experience, 0, 2147483647);
-
-                while(player.experienceProgress < 0.0F) {
-                    float f = player.experienceProgress * (float)player.getNextLevelExperience();
-                    if (player.experienceLevel > 0) {
-                        player.addExperienceLevels(-1);
-                        player.experienceProgress = 1.0F + f / (float)player.getNextLevelExperience();
-                    } else {
-                        player.addExperienceLevels(-1);
-                        player.experienceProgress = 0.0F;
-                    }
-                }
-
-                while(player.experienceProgress >= 1.0F) {
-                    player.experienceProgress = (player.experienceProgress - 1.0F) * (float)player.getNextLevelExperience();
-                    player.addExperienceLevels(1);
-                    player.experienceProgress /= (float)player.getNextLevelExperience();
-                }
+                GraveUtils.grandExperience(player, this.getExperienceAmount());
 
                 this.discard();
             }
