@@ -41,7 +41,7 @@ public class GraveModelHandler extends ElementHolder {
     private boolean isProtected;
     private boolean isPlayerMade;
     private boolean isPaymentRequired;
-    private IntFunction<ItemStack> itemGetter;
+    private IntFunction<ItemStack> itemGetter = (i) -> ItemStack.EMPTY;
 
     public GraveModelHandler(BlockState state) {
         this.blockState = state;
@@ -129,10 +129,13 @@ public class GraveModelHandler extends ElementHolder {
 
     @Override
     protected void onTick() {
-        var placeholders = (Function<String, Text>) placeholderSupplier.get()::get;
-        for (var text : textsWithPlaceholders) {
-            text.displayElement.setText(text.node().toText(ParserContext.of(DynamicNode.NODES, placeholders)));
+        if (placeholderSupplier != null) {
+            var placeholders = (Function<String, Text>) placeholderSupplier.get()::get;
+            for (var text : textsWithPlaceholders) {
+                text.displayElement.setText(text.node().toText(ParserContext.of(DynamicNode.NODES, placeholders)));
+            }
         }
+
         for (int i = 0; i < this.itemDisplays.size(); i++) {
             this.itemDisplays.get(i).setItem(this.itemGetter.apply(i));
         }
