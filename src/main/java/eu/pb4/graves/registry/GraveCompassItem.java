@@ -1,24 +1,31 @@
 package eu.pb4.graves.registry;
 
+import eu.pb4.graves.config.ConfigManager;
+import eu.pb4.graves.grave.Grave;
 import eu.pb4.graves.grave.GraveManager;
 import eu.pb4.graves.other.PlayerAdditions;
 import eu.pb4.polymer.core.api.item.PolymerItem;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Hand;
+import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 public class GraveCompassItem extends Item implements PolymerItem {
     public static Item INSTANCE = new GraveCompassItem();
+    private final boolean openGuiWhenUsed;
 
     public GraveCompassItem() {
         super(new Settings().maxCount(1));
+        this.openGuiWhenUsed = ConfigManager.getConfig().interactions.useDeathCompassToOpenGui;
     }
 
     public static ItemStack create(long graveId, boolean toVanilla) {
@@ -26,6 +33,16 @@ public class GraveCompassItem extends Item implements PolymerItem {
         stack.getOrCreateNbt().putLong("GraveId", graveId);
         stack.getNbt().putBoolean("ConvertToVanilla", toVanilla);
         return stack;
+    }
+
+    @Override
+    public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
+        ItemStack stack = user.getStackInHand(hand);
+        if (user instanceof ServerPlayerEntity serverPlayerEntity && this.openGuiWhenUsed && stack.hasNbt() && stack.getNbt().contains("GraveId", NbtElement.LONG_TYPE)) {
+            Grave grave = GraveManager.INSTANCE.getId(user.getStackInHand(hand).getNbt().getLong("GraveId"));
+            grave.openUi(serverPlayerEntity, false, false);
+        }
+        return TypedActionResult.pass(user.getStackInHand(hand));
     }
 
     @Override
