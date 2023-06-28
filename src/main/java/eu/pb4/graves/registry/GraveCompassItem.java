@@ -21,11 +21,9 @@ import org.jetbrains.annotations.Nullable;
 
 public class GraveCompassItem extends Item implements PolymerItem {
     public static Item INSTANCE = new GraveCompassItem();
-    private final boolean openGuiWhenUsed;
 
     public GraveCompassItem() {
         super(new Settings().maxCount(1));
-        this.openGuiWhenUsed = ConfigManager.getConfig().interactions.useDeathCompassToOpenGui;
     }
 
     public static ItemStack create(long graveId, boolean toVanilla) {
@@ -38,7 +36,7 @@ public class GraveCompassItem extends Item implements PolymerItem {
     @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
         ItemStack stack = user.getStackInHand(hand);
-        if (user instanceof ServerPlayerEntity serverPlayerEntity && this.openGuiWhenUsed && stack.hasNbt() && stack.getNbt().contains("GraveId", NbtElement.LONG_TYPE)) {
+        if (user instanceof ServerPlayerEntity serverPlayerEntity && ConfigManager.getConfig().interactions.useDeathCompassToOpenGui && stack.hasNbt() && stack.getNbt().contains("GraveId", NbtElement.LONG_TYPE)) {
             Grave grave = GraveManager.INSTANCE.getId(user.getStackInHand(hand).getNbt().getLong("GraveId"));
             grave.openUi(serverPlayerEntity, false, false);
         }
