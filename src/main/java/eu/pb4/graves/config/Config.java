@@ -65,6 +65,8 @@ public class Config {
         public GenericCost<?> cost = new GenericCost<>(GenericCost.Type.FREE, null, 0);
         @SerializedName("give_death_compass")
         public boolean giveGraveCompass = true;
+        @SerializedName("enable_use_death_compass_to_open_gui")
+        public boolean useDeathCompassToOpenGui = true;
         @SerializedName("enable_click_to_open_gui")
         public boolean clickGraveToOpenGui = true;
         @SerializedName("shift_and_use_quick_pickup")
