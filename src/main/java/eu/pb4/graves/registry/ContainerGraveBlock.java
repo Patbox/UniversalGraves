@@ -77,6 +77,8 @@ public class ContainerGraveBlock extends VisualGraveBlock {
                     if (itemStack.hasNbt() && itemStack.getNbt().contains(SkullItem.SKULL_OWNER_KEY, NbtElement.COMPOUND_TYPE)) {
                         grave.setVisualData(new VisualGraveData(
                                 NbtHelper.toGameProfile(itemStack.getNbt().getCompound(SkullItem.SKULL_OWNER_KEY)),
+                                grave.getGraveSkinModelLayers(),
+                                grave.getGraveMainArm(),
                                 grave.getGrave().deathCause(),
                                 grave.getGrave().creationTime(),
                                 grave.getGrave().location(), grave.getGrave().minecraftDay()), grave.replacedBlockState);
@@ -85,6 +87,8 @@ public class ContainerGraveBlock extends VisualGraveBlock {
                             if (profile.isPresent()) {
                                 grave.setVisualData(new VisualGraveData(
                                         profile.get(),
+                                        grave.getGraveSkinModelLayers(),
+                                        grave.getGraveMainArm(),
                                         grave.getGrave().deathCause(),
                                         grave.getGrave().creationTime(),
                                         grave.getGrave().location(), grave.getGrave().minecraftDay()), grave.replacedBlockState);
@@ -93,16 +97,18 @@ public class ContainerGraveBlock extends VisualGraveBlock {
                     } else {
                         grave.setVisualData(new VisualGraveData(
                                 new GameProfile(Util.NIL_UUID, "Player"),
+                                grave.getGraveSkinModelLayers(),
+                                grave.getGraveMainArm(),
                                 grave.getGrave().deathCause(),
                                 grave.getGrave().creationTime(),
                                 grave.getGrave().location(), grave.getGrave().minecraftDay()), grave.replacedBlockState);
                     }
                 } else if (itemStack.getItem() == Items.MOSS_BLOCK) {
                     world.setBlockState(pos, state.with(IS_LOCKED, false));
-                    grave.setModelId(grave.getModelId());
+                    grave.updateModel();
                 } else if (itemStack.getItem() == Items.SPONGE || itemStack.getItem() == Items.WET_SPONGE) {
                     world.setBlockState(pos, state.with(IS_LOCKED, true));
-                    grave.setModelId(grave.getModelId());
+                    grave.updateModel();
                 } else if (itemStack.getItem() instanceof ShovelItem) {
                     int val = state.get(Properties.ROTATION) + (player.isSneaking() ? -1 : 1);
                     if (val < 0) {

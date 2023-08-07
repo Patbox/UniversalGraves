@@ -10,25 +10,25 @@ import net.minecraft.screen.slot.Slot;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.Nullable;
 
-public record DisplayElement(@Nullable GuiElementInterface element, @Nullable Slot slot) {
-    private static final DisplayElement EMPTY = DisplayElement.of(new GuiElement(ItemStack.EMPTY, GuiElementInterface.EMPTY_CALLBACK));
+public record GuiSlot(@Nullable GuiElementInterface element, @Nullable Slot slot) {
+    private static final GuiSlot EMPTY = GuiSlot.of(new GuiElement(ItemStack.EMPTY, GuiElementInterface.EMPTY_CALLBACK));
 
-    public static DisplayElement of(GuiElementInterface element) {
-        return new DisplayElement(element, null);
+    public static GuiSlot of(GuiElementInterface element) {
+        return new GuiSlot(element, null);
     }
 
-    public static DisplayElement of(GuiElementBuilderInterface<?> element) {
-        return new DisplayElement(element.build(), null);
+    public static GuiSlot of(GuiElementBuilderInterface<?> element) {
+        return new GuiSlot(element.build(), null);
     }
 
-    public static DisplayElement of(Slot slot) {
-        return new DisplayElement(null, slot);
+    public static GuiSlot of(Slot slot) {
+        return new GuiSlot(null, slot);
     }
 
-    public static DisplayElement nextPage(PagedGui gui) {
+    public static GuiSlot nextPage(PagedGui gui) {
         var config = ConfigManager.getConfig();
         if (gui.canNextPage()) {
-            return DisplayElement.of(
+            return GuiSlot.of(
                     config.ui.nextButton.get(true).builder()
                             .setCallback((x, y, z) -> {
                                 PagedGui.playClickSound(gui.getPlayer());
@@ -36,15 +36,15 @@ public record DisplayElement(@Nullable GuiElementInterface element, @Nullable Sl
                             })
             );
         } else {
-            return DisplayElement.of(config.ui.nextButton.get(false).builder());
+            return GuiSlot.of(config.ui.nextButton.get(false).builder());
         }
     }
 
-    public static DisplayElement previousPage(PagedGui gui) {
+    public static GuiSlot previousPage(PagedGui gui) {
         var config = ConfigManager.getConfig();
 
         if (gui.canPreviousPage()) {
-            return DisplayElement.of(
+            return GuiSlot.of(
                     config.ui.previousButton.get(true).builder()
                             .setCallback((x, y, z) -> {
                                 PagedGui.playClickSound(gui.getPlayer());
@@ -52,28 +52,28 @@ public record DisplayElement(@Nullable GuiElementInterface element, @Nullable Sl
                             })
             );
         } else {
-            return DisplayElement.of(config.ui.previousButton.get(false).builder()
+            return GuiSlot.of(config.ui.previousButton.get(false).builder()
             );
         }
     }
 
-    public static DisplayElement filler() {
-        return DisplayElement.of(
+    public static GuiSlot filler() {
+        return GuiSlot.of(
                 ConfigManager.getConfig().ui.barButton.builder()
         );
     }
 
-    public static DisplayElement empty() {
+    public static GuiSlot empty() {
         return EMPTY;
     }
 
-    public static DisplayElement lowerBar(ServerPlayerEntity player) {
-        return GraveTextures.hasGuiTexture(player) ? DisplayElement.empty() : DisplayElement.filler();
+    public static GuiSlot lowerBar(ServerPlayerEntity player) {
+        return GraveTextures.hasGuiTexture(player) ? GuiSlot.empty() : GuiSlot.filler();
     }
 
-    public static DisplayElement back(Runnable back) {
+    public static GuiSlot back(Runnable back) {
         var config = ConfigManager.getConfig();
-        return DisplayElement.of(
+        return GuiSlot.of(
                 config.ui.backButton.builder()
                         .setCallback((x, y, z, d) -> {
                             PagedGui.playClickSound(d.getPlayer());

@@ -9,14 +9,17 @@ import eu.pb4.graves.other.VisualGraveData;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.core.api.block.PolymerBlock;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
+import eu.pb4.polymer.core.api.utils.PolymerUtils;
 import eu.pb4.polymer.virtualentity.api.BlockWithElementHolder;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import net.minecraft.block.*;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.entity.ai.pathing.NavigationType;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -52,10 +55,6 @@ public abstract class AbstractGraveBlock extends Block implements PolymerBlock, 
         return false;
     }
 
-    public PistonBehavior getPistonBehavior(BlockState state) {
-        return PistonBehavior.BLOCK;
-    }
-
     @Override
     public Block getPolymerBlock(BlockState state) {
         return Blocks.DIRT;
@@ -63,8 +62,19 @@ public abstract class AbstractGraveBlock extends Block implements PolymerBlock, 
 
     @Override
     public BlockState getPolymerBlockState(BlockState state, ServerPlayerEntity player) {
-        return ConfigManager.getConfig().model.geyserWorkaround && PolymerCommonUtils.isBedrockPlayer(player)
+        return useFallback(player)
                 ? Blocks.SKELETON_SKULL.getDefaultState().with(ROTATION, state.get(ROTATION)) : Blocks.BARRIER.getDefaultState();
+    }
+
+    @Override
+    public void onPolymerBlockSend(BlockState blockState, BlockPos.Mutable pos, ServerPlayerEntity player) {
+        if (useFallback(player)) {
+            player.networkHandler.sendPacket(PolymerBlockUtils.createBlockEntityPacket(pos, BlockEntityType.SKULL, null));
+        }
+    }
+
+    private static boolean useFallback(ServerPlayerEntity player) {
+        return ConfigManager.getConfig().model.geyserWorkaround && PolymerCommonUtils.isBedrockPlayer(player);
     }
 
     public boolean canPathfindThrough(BlockState state, BlockView world, BlockPos pos, NavigationType type) {
@@ -77,7 +87,7 @@ public abstract class AbstractGraveBlock extends Block implements PolymerBlock, 
 
     @Override
     public @Nullable ElementHolder createElementHolder(ServerWorld world, BlockPos pos, BlockState initialBlockState) {
-        return new GraveModelHandler(initialBlockState);
+        return new GraveModelHandler(initialBlockState, world);
     }
 
     @Nullable

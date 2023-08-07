@@ -323,7 +323,7 @@ public class GraveUtils {
                     List<PositionedItemStack> items = new ArrayList<>();
 
                     for (var mask : GravesApi.getAllInventoryMasks()) {
-                        mask.addToGrave(player, (stack, slot, nbt) -> items.add(new PositionedItemStack(stack, slot, mask, nbt)));
+                        mask.addToGrave(player, (stack, slot, nbt, tags) -> items.add(new PositionedItemStack(stack, slot, mask, nbt, Set.of(tags))));
                     }
 
                     int experience = 0;
@@ -341,7 +341,6 @@ public class GraveUtils {
 
                     int finalExperience = experience;
                     var world = player.getServerWorld();
-                    var gameProfile = player.getGameProfile();
 
                     var allowedUUID = new HashSet<UUID>();
 
@@ -354,7 +353,7 @@ public class GraveUtils {
                         }
                     }
                     var grave = Grave.createBlock(
-                            gameProfile,
+                            player,
                             world.getRegistryKey().getValue(),
                             gravePos,finalExperience,
                             source.getDeathMessage(player),

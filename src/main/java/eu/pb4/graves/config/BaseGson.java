@@ -7,6 +7,9 @@ import com.mojang.serialization.JsonOps;
 import eu.pb4.graves.config.data.IconData;
 import eu.pb4.graves.config.data.WrappedDateFormat;
 import eu.pb4.graves.config.data.WrappedText;
+import eu.pb4.graves.model.TaggedText;
+import eu.pb4.graves.model.parts.ModelPart;
+import eu.pb4.graves.model.parts.ModelPartType;
 import eu.pb4.graves.other.GravesXPCalculation;
 import eu.pb4.graves.other.GenericCost;
 import eu.pb4.predicate.api.GsonPredicateSerializer;
@@ -37,6 +40,7 @@ import net.minecraft.util.math.Vec3d;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Function;
 
 public class BaseGson {
@@ -75,7 +79,9 @@ public class BaseGson {
             .registerTypeHierarchyAdapter(GenericCost.class, new TeleportationCostSerializer())
             .registerTypeHierarchyAdapter(IconData.class, new IconDataSerializer())
             .registerTypeHierarchyAdapter(WrappedText.class, new StringSerializer<>(WrappedText::of, WrappedText::input))
+            .registerTypeHierarchyAdapter(TaggedText.class, new CodecSerializer<>(TaggedText.CODEC))
             .registerTypeHierarchyAdapter(WrappedDateFormat.class, new StringSerializer<>(WrappedDateFormat::of, WrappedDateFormat::pattern))
+            .registerTypeAdapter(ModelPart.class, new ModelPartSerializer())
             .setLenient().create();
 
     private record TeleportationCostSerializer() implements JsonSerializer<GenericCost<Object>>, JsonDeserializer<GenericCost<Object>> {
@@ -109,6 +115,29 @@ public class BaseGson {
             return obj;
         }
     }
+
+    private record ModelPartSerializer() implements JsonSerializer<ModelPart<?, ?>>, JsonDeserializer<ModelPart<?, ?>> {
+
+
+        @Override
+        public ModelPart<?, ?> deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+            var obj = jsonElement.getAsJsonObject();
+
+            var typeElement = ModelPartType.valueOf(obj.get("type").getAsString().toUpperCase(Locale.ROOT));
+
+            return jsonDeserializationContext.deserialize(jsonElement, typeElement.modelPartClass);
+        }
+
+        @Override
+        public JsonElement serialize(ModelPart<?, ?> modelPart, Type type, JsonSerializationContext jsonSerializationContext) {
+            var obj = new JsonObject();
+            obj.addProperty("type", modelPart.type().name());
+
+            obj.asMap().putAll(jsonSerializationContext.serialize(modelPart, modelPart.getClass()).getAsJsonObject().asMap());
+            return obj;
+        }
+    }
+
     private record IconDataSerializer() implements JsonSerializer<IconData>, JsonDeserializer<IconData> {
         @Override
         public IconData deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {

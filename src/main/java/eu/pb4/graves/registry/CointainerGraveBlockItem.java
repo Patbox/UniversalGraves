@@ -3,6 +3,7 @@ package eu.pb4.graves.registry;
 import com.mojang.authlib.GameProfile;
 import eu.pb4.graves.config.Config;
 import eu.pb4.graves.config.ConfigManager;
+import eu.pb4.graves.mixin.PlayerEntityAccessor;
 import eu.pb4.graves.other.VisualGraveData;
 import eu.pb4.polymer.core.api.item.PolymerItem;
 import net.minecraft.block.BlockState;
@@ -29,7 +30,9 @@ public class CointainerGraveBlockItem extends BlockItem implements PolymerItem {
             grave.openEditScreen(serverPlayer);
 
             grave.setVisualData(new VisualGraveData(
-                    player != null && !player.isSneaking() ? player.getGameProfile() : new GameProfile(MathHelper.randomUuid(), ""),
+                    !player.isSneaking() ? player.getGameProfile() : new GameProfile(MathHelper.randomUuid(), ""),
+                    player.getDataTracker().get(PlayerEntityAccessor.getPLAYER_MODEL_PARTS()),
+                    player.getMainArm(),
                     grave.getGrave().deathCause(),
                     grave.getGrave().creationTime(),
                     grave.getGrave().location(), grave.getGrave().minecraftDay()), grave.replacedBlockState);

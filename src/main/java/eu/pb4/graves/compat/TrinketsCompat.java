@@ -60,9 +60,9 @@ public class TrinketsCompat extends VanillaInventoryMask {
     }
 
     @Override
-    public boolean moveToPlayerExactly(ServerPlayerEntity player, ItemStack stack, int slot, NbtElement data) {
-        var groupId = ((NbtCompound) data).getString(GROUP_TAG);
-        var slotId = ((NbtCompound) data).getString(SLOT_TAG);
+    public boolean moveToPlayerExactly(ServerPlayerEntity player, ItemStack stack, int slot, NbtElement extraData) {
+        var groupId = ((NbtCompound) extraData).getString(GROUP_TAG);
+        var slotId = ((NbtCompound) extraData).getString(SLOT_TAG);
 
         var inventory = getInventory(player, groupId, slotId);
 

@@ -3,6 +3,7 @@ package eu.pb4.graves.config;
 import com.google.gson.JsonParser;
 import eu.pb4.graves.GravesMod;
 import eu.pb4.graves.config.data.LegacyConfigData;
+import eu.pb4.graves.model.DefaultGraveModels;
 import eu.pb4.graves.model.GraveModel;
 import eu.pb4.graves.other.ImplementedInventory;
 import net.fabricmc.loader.api.FabricLoader;
@@ -18,6 +19,7 @@ public class ConfigManager {
     private static final Path BASE_CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("universal-graves/");
     private static final Path CONFIG_PATH = BASE_CONFIG_PATH.resolve("config.json");
     private static final Path MODELS_PATH = BASE_CONFIG_PATH.resolve("models/");
+    private static final Path EXAMPLE_MODELS_PATH = BASE_CONFIG_PATH.resolve("example_models/");
     private static final Path OLD_CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("universal-graves.json");
     private static final Map<String, GraveModel> MODELS = new HashMap<>();
 
@@ -42,6 +44,16 @@ public class ConfigManager {
         try {
             Config config;
             MODELS.clear();
+            Files.createDirectories(EXAMPLE_MODELS_PATH);
+            DefaultGraveModels.forEach((name, model) -> {
+                try {
+                    MODELS.put(name, model);
+                    Files.writeString(EXAMPLE_MODELS_PATH.resolve(name + ".json"), BaseGson.GSON.toJson(model));
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                }
+            });
+
             if (Files.exists(MODELS_PATH)) {
                 Files.newDirectoryStream(MODELS_PATH).forEach((path) -> {
                     try {
@@ -53,10 +65,7 @@ public class ConfigManager {
                 });
             } else {
                 Files.createDirectories(MODELS_PATH);
-                Files.writeString(MODELS_PATH.resolve("example.json"), BaseGson.GSON.toJson(GraveModel.DEFAULT_MODEL.get()));
-                MODELS.put("example", GraveModel.DEFAULT_MODEL.get());
             }
-
 
             if (Files.exists(CONFIG_PATH)) {
                 config = BaseGson.GSON.fromJson(Files.readString(CONFIG_PATH), Config.class);
@@ -88,7 +97,11 @@ public class ConfigManager {
         }
     }
 
-    public static GraveModel getModel(String model, GraveModel defaultModel) {
-        return MODELS.getOrDefault(model, defaultModel);
+    public static GraveModel getModel(String model) {
+        if (GravesMod.DEV && model.equals("debug")) {
+            return DefaultGraveModels.debug();
+        }
+
+        return MODELS.getOrDefault(model, DefaultGraveModels.FALLBACK);
     }
 }

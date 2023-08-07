@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import eu.pb4.graves.config.Config;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.config.data.WrappedText;
+import eu.pb4.graves.mixin.PlayerEntityAccessor;
 import eu.pb4.graves.other.*;
 import eu.pb4.graves.registry.GraveBlock;
 import eu.pb4.graves.registry.GraveBlockEntity;
@@ -21,6 +22,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
+import net.minecraft.util.Arm;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.collection.DefaultedList;
@@ -53,6 +55,8 @@ public final class Grave {
     private GraveType type;
     private boolean isRemoved;
     private long id = -1;
+    private Arm mainArm = Arm.RIGHT;
+    private byte skinModelParts = (byte) 0xFF;
 
     private boolean requirePayment;
 
@@ -60,6 +64,7 @@ public final class Grave {
     private boolean isProtectionEnabled;
     private VisualGraveData visualData;
     private int minecraftDay;
+    private final Map<Identifier, List<PositionedItemStack>> taggedStacks = new HashMap<>();
 
     public Grave() {
         this.requirePayment = !ConfigManager.getConfig().interactions.cost.isFree();
@@ -78,7 +83,7 @@ public final class Grave {
         this.minecraftDay = -1;
     }
 
-    public Grave(long id, @Nullable GameProfile profile, BlockPos position, Identifier world, GraveType type, long creationTime, long gameCreationTime, int xp, Text deathCause, Collection<UUID> allowedUUIDs, Collection<PositionedItemStack> itemStacks, boolean isProtectionEnabled, int minecraftDay) {
+    public Grave(long id, @Nullable GameProfile profile, byte visibleLayers, Arm arm, BlockPos position, Identifier world, GraveType type, long creationTime, long gameCreationTime, int xp, Text deathCause, Collection<UUID> allowedUUIDs, Collection<PositionedItemStack> itemStacks, boolean isProtectionEnabled, int minecraftDay) {
         this.requirePayment = !ConfigManager.getConfig().interactions.cost.isFree();
         this.gameProfile = profile;
         this.creationTime = creationTime;
@@ -93,11 +98,40 @@ public final class Grave {
         this.isProtectionEnabled = isProtectionEnabled;
         this.id = id;
         this.minecraftDay = minecraftDay;
+        this.skinModelParts = visibleLayers;
+        this.mainArm = arm;
+        for (var item : this.items) {
+            this.addTaggedItem(item);
+        }
+
         this.updateDisplay();
     }
 
-    public static Grave createBlock(GameProfile profile, Identifier world, BlockPos position, int xp, Text deathCause, Collection<UUID> allowedUUIDs, Collection<PositionedItemStack> itemStacks, int minecraftDay) {
-        return new Grave(GraveManager.INSTANCE.requestId(), profile, position, world, GraveType.BLOCK, System.currentTimeMillis() / 1000, GraveManager.INSTANCE.getCurrentGameTime(), xp, deathCause, allowedUUIDs, itemStacks, true, minecraftDay);
+    private void addTaggedItem(PositionedItemStack item) {
+        for (var tag : item.tags()) {
+            this.taggedStacks.computeIfAbsent(tag, Grave::createList).add(item);
+        }
+    }
+
+    private void removeTaggedItem(PositionedItemStack item) {
+        for (var tag : item.tags()) {
+            var stacks = this.taggedStacks.get(tag);
+
+            if (stacks != null) {
+                stacks.remove(item);
+                if (stacks.isEmpty()) {
+                    this.taggedStacks.remove(tag);
+                }
+            }
+        }
+    }
+
+    private static List<PositionedItemStack> createList(Identifier identifier) {
+        return new ArrayList<>();
+    }
+
+    public static Grave createBlock(ServerPlayerEntity player, Identifier world, BlockPos position, int xp, Text deathCause, Collection<UUID> allowedUUIDs, Collection<PositionedItemStack> itemStacks, int minecraftDay) {
+        return new Grave(GraveManager.INSTANCE.requestId(), player.getGameProfile(), player.getDataTracker().get(PlayerEntityAccessor.getPLAYER_MODEL_PARTS()), player.getMainArm(), position, world, GraveType.BLOCK, System.currentTimeMillis() / 1000, GraveManager.INSTANCE.getCurrentGameTime(), xp, deathCause, allowedUUIDs, itemStacks, true, minecraftDay);
     }
 
     public NbtCompound writeNbt(NbtCompound nbt) {
@@ -129,6 +163,8 @@ public final class Grave {
         }
 
         nbt.put("Items", items);
+        nbt.putByte("SkinModelParts", this.skinModelParts);
+        nbt.putByte("MainArm", (byte) this.mainArm.getId());
         return nbt;
     }
 
@@ -173,7 +209,16 @@ public final class Grave {
             }
 
             for (var item : nbt.getList("Items", NbtElement.COMPOUND_TYPE)) {
-                this.items.add(PositionedItemStack.fromNbt((NbtCompound) item));
+                var stack = PositionedItemStack.fromNbt((NbtCompound) item);
+                this.items.add(stack);
+                this.addTaggedItem(stack);
+            }
+            if (nbt.contains("SkinModelParts", NbtElement.BYTE_TYPE)) {
+                this.skinModelParts = nbt.getByte("SkinModelParts");
+            }
+
+            if (nbt.contains("MainArm", NbtElement.BYTE_TYPE)) {
+                this.mainArm = nbt.getByte("MainArm") == Arm.LEFT.getId() ? Arm.LEFT : Arm.RIGHT;
             }
 
             this.updateDisplay();
@@ -282,7 +327,7 @@ public final class Grave {
                 player.sendMessage(cfg.texts.graveUnlocked.with(cfg.interactions.cost.getPlaceholders()));
             }
             if (player.server.getWorld(RegistryKey.of(RegistryKeys.WORLD, this.location.world())).getBlockEntity(location.blockPos()) instanceof GraveBlockEntity entity) {
-                entity.setModelId(entity.getModelId());
+                entity.setModelId(entity.getGraveModelId());
             }
 
             return true;
@@ -378,17 +423,23 @@ public final class Grave {
 
             public ItemStack set(int index, ItemStack element) {
                 Validate.notNull(element);
-                Grave.this.items.set(index, new PositionedItemStack(element, -1, VanillaInventoryMask.INSTANCE, null));
-                return element;
+                var old = Grave.this.items.set(index, new PositionedItemStack(element, -1, VanillaInventoryMask.INSTANCE, null, Set.of()));
+                if (old != null) {
+                    Grave.this.removeTaggedItem(old);
+                    return old.stack();
+                }
+                return ItemStack.EMPTY;
             }
 
             public void add(int value, ItemStack element) {
                 Validate.notNull(element);
-                Grave.this.items.add(value, new PositionedItemStack(element, -1, VanillaInventoryMask.INSTANCE, null));
+                Grave.this.items.add(value, new PositionedItemStack(element, -1, VanillaInventoryMask.INSTANCE, null, Set.of()));
             }
 
             public ItemStack remove(int index) {
-                return Grave.this.items.remove(index).stack();
+                var x = Grave.this.items.remove(index);
+                Grave.this.removeTaggedItem(x);
+                return x.stack();
             }
 
             public int size() {
@@ -415,7 +466,7 @@ public final class Grave {
         }
         this.itemCount = i;
 
-        this.visualData = new VisualGraveData(this.getProfile(), this.deathCause, this.creationTime, this.location, this.minecraftDay);
+        this.visualData = new VisualGraveData(this.getProfile(), this.skinModelParts, this.mainArm, this.deathCause, this.creationTime, this.location, this.minecraftDay);
     }
 
     public boolean isRemoved() {
@@ -424,6 +475,14 @@ public final class Grave {
 
     public boolean isPaymentRequired() {
         return this.requirePayment;
+    }
+
+    public byte visibleSkinModelParts() {
+        return skinModelParts;
+    }
+
+    public Arm mainArm() {
+        return mainArm;
     }
 
     public void destroyGrave(MinecraftServer server, @Nullable PlayerEntity breaker) {
@@ -548,12 +607,12 @@ public final class Grave {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Grave graveInfo = (Grave) o;
-        return Objects.equals(this.id, graveInfo.id);
+        return this.id == graveInfo.id;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.id);
+        return (int) (31 * this.id);
     }
 
     public long getId() {
@@ -562,5 +621,13 @@ public final class Grave {
 
     void setId(long requestId) {
         this.id = requestId;
+    }
+
+    public ItemStack getTaggedItem(Identifier identifier) {
+        var list = this.taggedStacks.get(identifier);
+        if (list != null && !list.isEmpty()) {
+            return list.get(0).stack();
+        }
+        return ItemStack.EMPTY;
     }
 }

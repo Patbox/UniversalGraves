@@ -47,7 +47,7 @@ public abstract class PagedGui extends SimpleGui {
             var element = this.getElement(offset + i);
 
             if (element == null) {
-                element = DisplayElement.empty();
+                element = GuiSlot.empty();
             }
 
             if (element.element() != null) {
@@ -61,7 +61,7 @@ public abstract class PagedGui extends SimpleGui {
             var navElement = this.getNavElement(i);
 
             if (navElement == null) {
-                navElement = DisplayElement.empty();
+                navElement = GuiSlot.empty();
             }
 
             if (navElement.element() != null) {
@@ -78,9 +78,9 @@ public abstract class PagedGui extends SimpleGui {
 
     protected abstract int getPageAmount();
 
-    protected abstract DisplayElement getElement(int id);
+    protected abstract GuiSlot getElement(int id);
 
-    protected abstract DisplayElement getNavElement(int id);
+    protected abstract GuiSlot getNavElement(int id);
 
     public static final void playClickSound(ServerPlayerEntity player) {
         player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), SoundCategory.MASTER, 1, 1);

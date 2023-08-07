@@ -1,5 +1,6 @@
 package eu.pb4.graves.registry;
 
+import com.mojang.authlib.GameProfile;
 import eu.pb4.graves.model.GraveModelHandler;
 import eu.pb4.graves.other.VisualGraveData;
 import eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment;
@@ -13,6 +14,8 @@ import net.minecraft.nbt.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.util.Arm;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -28,6 +31,7 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
     protected boolean isPlayerMade = false;
     protected Text[] textOverrides = null;
     private GraveModelHandler model;
+    private Map<String, Text> cachedPlaceholders;
 
     public VisualGraveBlockEntity(BlockPos pos, BlockState state) {
         super(BLOCK_ENTITY_TYPE, pos, state);
@@ -40,15 +44,12 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
     public void setVisualData(VisualGraveData data, BlockState oldBlockState) {
         this.replacedBlockState = oldBlockState;
         this.visualData = data;
+        this.cachedPlaceholders = null;
         if (this.model != null) {
-            this.model.setGrave(this.getModelId(), this.getCachedState().get(IS_LOCKED), this.isPlayerMade, false, this.getGrave().gameProfile(), this::createPlaceholders, this.getItemGetter());
+            this.model.setGrave(this);
         }
 
         this.markDirty();
-    }
-
-    protected IntFunction<ItemStack> getItemGetter() {
-        return (i) -> ItemStack.EMPTY;
     }
 
     @Override
@@ -89,21 +90,20 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
                 this.visualData = VisualGraveData.DEFAULT;
             }
         }
+        this.cachedPlaceholders = null;
     }
 
     public static <T extends BlockEntity> void tick(World world, BlockPos pos, BlockState state, T t) {
-        if (!(t instanceof VisualGraveBlockEntity self) || world.isClient() || world.getTime() % 10 != 0) {
+        if (!(t instanceof VisualGraveBlockEntity self) || world.isClient()) {
             return;
         }
 
         if (self.model == null) {
             self.model = (GraveModelHandler) BlockBoundAttachment.get(world, pos).holder();
-            self.model.setGrave(self.getModelId(), state.get(IS_LOCKED), self.isPlayerMade, false, self.getGrave().gameProfile(), self::createPlaceholders, self.getItemGetter());
+            self.model.setGrave(self);
         }
 
-        if (world.getTime() % 20 == 0) {
-            self.model.tick();
-        }
+        self.model.maybeTick(world.getTime());
     }
 
     protected Map<String, Text> createPlaceholders() {
@@ -135,7 +135,7 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
     @Override
     public void onModelChanged(String model) {
         if (this.model != null) {
-            this.model.setModel(model, this.getCachedState().get(IS_LOCKED), this.isPlayerMade, false);
+            this.model.updateModel();
         }
     }
 
@@ -149,6 +149,7 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
                         this.getLine(2),
                         this.getLine(3)
                 };
+                VisualGraveBlockEntity.this.cachedPlaceholders = null;
                 VisualGraveBlockEntity.this.markDirty();
             }
         };
@@ -168,5 +169,68 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
         }
 
         sign.open();
+    }
+
+    @Override
+    public boolean isGraveProtected() {
+        return this.getCachedState().get(IS_LOCKED);
+    }
+
+    @Override
+    public boolean isGraveBroken() {
+        return true;
+    }
+
+    @Override
+    public boolean isGravePlayerMade() {
+        return this.isPlayerMade;
+    }
+
+    @Override
+    public boolean isGravePaymentRequired() {
+        return false;
+    }
+
+    @Override
+    public Text getGravePlaceholder(String id) {
+        var x = this.cachedPlaceholders;
+        if (x == null) {
+            x = this.createPlaceholders();
+            this.cachedPlaceholders = x;
+        }
+
+        return x.getOrDefault(id, EMPTY_TEXT);
+    }
+
+    @Override
+    public GameProfile getGraveGameProfile() {
+        return this.getGrave().gameProfile();
+    }
+
+    @Override
+    public ItemStack getGraveSlotItem(int i) {
+        return ItemStack.EMPTY;
+    }
+
+    @Override
+    public ItemStack getGraveTaggedItem(Identifier identifier) {
+        return ItemStack.EMPTY;
+    }
+
+    @Override
+    public Arm getGraveMainArm() {
+        return this.getGrave().mainArm();
+    }
+
+    @Override
+    public byte getGraveSkinModelLayers() {
+        return this.getGrave().visualSkinModelLayers();
+    }
+
+    @Override
+    public void updateModel() {
+        if (this.model != null) {
+            this.model.updateModel();
+        }
     }
 }

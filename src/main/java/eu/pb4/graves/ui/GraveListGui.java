@@ -37,7 +37,7 @@ public class GraveListGui extends PagedGui {
     }
 
     @Override
-    protected DisplayElement getElement(int id) {
+    protected GuiSlot getElement(int id) {
         if (id < this.graves.size()) {
             var config = ConfigManager.getConfig();
 
@@ -50,18 +50,18 @@ public class GraveListGui extends PagedGui {
                         grave.openUi(player, this.canModify, this.canFetch);
                     });
 
-            return DisplayElement.of(element);
+            return GuiSlot.of(element);
         }
 
-        return DisplayElement.empty();
+        return GuiSlot.empty();
     }
 
     @Override
-    protected DisplayElement getNavElement(int id) {
+    protected GuiSlot getNavElement(int id) {
         return switch (id) {
-            case 2 -> DisplayElement.previousPage(this);
-            case 6 -> DisplayElement.nextPage(this);
-            default -> GraveTextures.hasGuiTexture(this.player) ? DisplayElement.empty() : DisplayElement.filler();
+            case 2 -> GuiSlot.previousPage(this);
+            case 6 -> GuiSlot.nextPage(this);
+            default -> GraveTextures.hasGuiTexture(this.player) ? GuiSlot.empty() : GuiSlot.filler();
         };
     }
 

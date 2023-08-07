@@ -34,13 +34,11 @@ public class ContainerGraveBlockEntity extends VisualGraveBlockEntity implements
     }
 
     @Override
-    protected IntFunction<ItemStack> getItemGetter() {
-        return (i) -> {
-            if (i < this.size()) {
-                return this.getStack(i);
-            }
-            return ItemStack.EMPTY;
-        };
+    public ItemStack getGraveSlotItem(int i) {
+        if (i < this.size()) {
+            return this.getStack(i);
+        }
+        return ItemStack.EMPTY;
     }
 
     @Override
