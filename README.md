@@ -94,7 +94,7 @@ There are few other data types:
   },
   "storage": {
     // Selects how much of experience is stored. 
-    // Available types: "none", "vanilla", "drop", "percent_point", "percent_level"
+    // Available types: "none", "vanilla", "drop", "percent_points", "percent_levels"
     "experience_type": "percent_points",
     // Amount of percent stored for "percent_X" types
     "experience_percent:setting_value": 100.0,
