@@ -69,7 +69,7 @@ public abstract class AbstractGraveBlock extends Block implements PolymerBlock, 
     @Override
     public void onPolymerBlockSend(BlockState blockState, BlockPos.Mutable pos, ServerPlayerEntity player) {
         if (useFallback(player)) {
-            player.networkHandler.sendPacket(PolymerBlockUtils.createBlockEntityPacket(pos, BlockEntityType.SKULL, null));
+            player.networkHandler.sendPacket(PolymerBlockUtils.createBlockEntityPacket(pos, BlockEntityType.SKULL, new NbtCompound()));
         }
     }
 

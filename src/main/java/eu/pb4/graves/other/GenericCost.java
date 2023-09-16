@@ -8,6 +8,7 @@ import net.minecraft.item.Items;
 import net.minecraft.network.packet.s2c.play.ExperienceBarUpdateS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -94,7 +95,13 @@ public record GenericCost<T>(Type<T> type, T object, int count) {
 
             @Override
             public ItemStack decodeConfig(JsonElement object) {
-                return BaseGson.GSON.fromJson(object, ItemStack.class);
+                if (object != null) {
+                    var x = BaseGson.GSON.fromJson(object, ItemStack.class);
+                    if (x != null) {
+                        return x;
+                    }
+                }
+                return ItemStack.EMPTY;
             }
 
             @Override
@@ -165,7 +172,7 @@ public record GenericCost<T>(Type<T> type, T object, int count) {
             };
         }
 
-        T decodeConfig(JsonElement object);
+        T decodeConfig(@Nullable JsonElement object);
         JsonElement encodeConfig(T object);
         ItemStack getIcon(T object, int count);
         default Text toText(T object, int i) {

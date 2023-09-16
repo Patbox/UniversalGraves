@@ -94,9 +94,9 @@ public class BaseGson {
 
             var obj = jsonElement.getAsJsonObject();
 
-            var baseType = GenericCost.Type.BY_TYPE.getOrDefault(obj.get("type").getAsString(), GenericCost.Type.CREATIVE);
+            var baseType = obj.has("type") ? GenericCost.Type.BY_TYPE.getOrDefault(obj.get("type").getAsString(), GenericCost.Type.CREATIVE) : GenericCost.Type.CREATIVE;
             var input = baseType.decodeConfig(obj.get("input"));
-            var count = obj.getAsJsonPrimitive("count").getAsInt();
+            var count = obj.has("count") ? obj.getAsJsonPrimitive("count").getAsInt() : 1;
 
             return new GenericCost(baseType, input, count);
         }

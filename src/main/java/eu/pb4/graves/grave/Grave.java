@@ -1,6 +1,8 @@
 package eu.pb4.graves.grave;
 
+import com.google.common.collect.Iterables;
 import com.mojang.authlib.GameProfile;
+import eu.pb4.graves.GravesMod;
 import eu.pb4.graves.config.Config;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.config.data.WrappedText;
@@ -10,6 +12,7 @@ import eu.pb4.graves.registry.GraveBlock;
 import eu.pb4.graves.registry.GraveBlockEntity;
 import eu.pb4.graves.ui.GraveGui;
 import me.lucko.fabric.api.permissions.v0.Permissions;
+import net.minecraft.block.entity.SkullBlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
@@ -65,6 +68,7 @@ public final class Grave {
     private VisualGraveData visualData;
     private int minecraftDay;
     private final Map<Identifier, List<PositionedItemStack>> taggedStacks = new HashMap<>();
+    private boolean delayPlayerModel = false;
 
     public Grave() {
         this.requirePayment = !ConfigManager.getConfig().interactions.cost.isFree();
@@ -104,7 +108,22 @@ public final class Grave {
             this.addTaggedItem(item);
         }
 
+        if (GravesMod.IS_CLIENT) {
+            var texture = Iterables.getFirst(profile.getProperties().get("textures"), null);
+            if (texture != null && !texture.hasSignature()) {
+                this.delayPlayerModel = true;
+                SkullBlockEntity.loadProperties(new GameProfile(profile.getId(), profile.getName()), profilex -> {
+                    this.gameProfile = profilex;
+                    this.delayPlayerModel = false;
+                });
+            }
+        }
+
         this.updateDisplay();
+    }
+
+    public boolean delayPlayerModel() {
+        return this.delayPlayerModel;
     }
 
     private void addTaggedItem(PositionedItemStack item) {

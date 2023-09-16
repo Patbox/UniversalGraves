@@ -6,6 +6,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import eu.pb4.graves.GenericModInfo;
 import eu.pb4.graves.config.ConfigManager;
+import eu.pb4.graves.ui.AllGraveListGui;
 import eu.pb4.graves.ui.GraveListGui;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -45,6 +46,15 @@ public class Commands {
                                             )
                                     ))
 
+                            .then(literal("all")
+                                    .requires(Permissions.require("universal_graves.list_others", 3))
+                                    .executes((ctx) -> Commands.listAll(ctx, false))
+                                    .then(literal("modify")
+                                                    .requires(Permissions.require("universal_graves.list_others.modify", 3))
+                                                    .executes((ctx) -> Commands.listAll(ctx, true))
+                                            )
+                            )
+
                             .then(literal("about").executes(Commands::about))
 
                             .then(literal("reload")
@@ -77,7 +87,18 @@ public class Commands {
             return 0;
         }
         try {
-            new GraveListGui(player, profiles.get(0), canModify, Permissions.check(player, "universal_graves.fetch_grave.others", 3)).open();
+            new GraveListGui(player, profiles.get(0), canModify, canModify && Permissions.check(player, "universal_graves.fetch_grave.others", 3)).open();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+
+    private static int listAll(CommandContext<ServerCommandSource> context, boolean canModify) throws CommandSyntaxException {
+        ServerPlayerEntity player = context.getSource().getPlayer();
+        try {
+            new AllGraveListGui(player, canModify, canModify && Permissions.check(player, "universal_graves.fetch_grave.others", 3)).open();
         } catch (Exception e) {
             e.printStackTrace();
         }

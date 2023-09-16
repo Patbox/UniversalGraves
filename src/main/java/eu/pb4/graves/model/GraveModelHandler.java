@@ -47,6 +47,7 @@ public class GraveModelHandler extends ElementHolder {
     private ModelDataProvider dataPrivider;
     private final List<Pair<LivingEntity, Set<Identifier>>> entityWithEquipment = new ArrayList<>();
     private int tickTime = 20;
+    private final List<EntityModelPart.PlayerElement> delayedPlayerModels = new ArrayList<>();
 
     public GraveModelHandler(BlockState state, ServerWorld world) {
         this.blockState = state;
@@ -70,6 +71,7 @@ public class GraveModelHandler extends ElementHolder {
             this.itemDisplays.clear();
             this.entityWithEquipment.clear();
             this.rotatingElements.clear();
+            this.delayedPlayerModels.clear();
             for (var element : new ArrayList<>(this.getElements())) {
                 this.removeElement(element);
             }
@@ -166,14 +168,6 @@ public class GraveModelHandler extends ElementHolder {
             }
         }
 
-        if (part instanceof EntityModelPart playerModelPart && element instanceof EntityModelPart.PlayerElement playerElement) {
-            if (playerModelPart.tags.contains(ModelTags.PLAYER_HEAD)) {
-                playerElement.copyTexture(this.dataPrivider.getGraveGameProfile());
-                playerElement.entity().setMainArm(this.dataPrivider.getGraveMainArm());
-                playerElement.entity().getDataTracker().set(PlayerEntityAccessor.getPLAYER_MODEL_PARTS(), this.dataPrivider.getGraveSkinModelLayers());
-            }
-        }
-
         if (element instanceof EntityElement<?> entityElement && entityElement.entity() instanceof LivingEntity livingEntity) {
             boolean hasTag = false;
             for (var tag : ModelTags.EQUIPMENT_WITH_SLOT) {
@@ -190,6 +184,20 @@ public class GraveModelHandler extends ElementHolder {
 
         if (this.updateYawFor(element, part)) {
             this.rotatingElements.add(new Pair<>(element, part));
+        }
+
+        if (part instanceof EntityModelPart playerModelPart && element instanceof EntityModelPart.PlayerElement playerElement) {
+            if (playerModelPart.tags.contains(ModelTags.PLAYER_HEAD)) {
+                playerElement.copyTexture(this.dataPrivider.getGraveGameProfile());
+                playerElement.entity().setMainArm(this.dataPrivider.getGraveMainArm());
+                playerElement.entity().getDataTracker().set(PlayerEntityAccessor.getPLAYER_MODEL_PARTS(), this.dataPrivider.getGraveSkinModelLayers());
+                if (this.dataPrivider.isGravePlayerModelDelayed()) {
+                    this.delayedPlayerModels.add(playerElement);
+                    return;
+                } else {
+                    playerElement.copyTexture(this.dataPrivider.getGraveGameProfile());
+                }
+            }
         }
 
         this.addElement(element);
@@ -231,6 +239,14 @@ public class GraveModelHandler extends ElementHolder {
     protected void onTick() {
         if (this.dataPrivider != null) {
             if (this.world.getTime() % 20 == 0) {
+                if (!this.delayedPlayerModels.isEmpty() && !this.dataPrivider.isGravePlayerModelDelayed()) {
+                    for (var playerElement : this.delayedPlayerModels) {
+                        playerElement.copyTexture(this.dataPrivider.getGraveGameProfile());
+                        this.addElement(playerElement);
+                    }
+                    this.delayedPlayerModels.clear();
+                }
+
                 var placeholders = (Function<String, Text>) this.dataPrivider::getGravePlaceholder;
                 for (var text : textsWithPlaceholders) {
                     text.displayElement.setText(text.node().toText(ParserContext.of(DynamicNode.NODES, placeholders)));

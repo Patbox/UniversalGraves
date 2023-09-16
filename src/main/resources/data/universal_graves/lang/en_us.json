@@ -8,6 +8,7 @@
   "text.graves.break_time_sign": "Breaks in",
   "text.graves.not_protected": "Not protected!",
   "text.graves.players_grave": "%s's grave",
+  "text.graves.admin_graves": "All graves",
   "text.graves.gui_title": "Your graves",
   "text.graves.no_longer_protected": "Your grave at %s (%s) containing %s item(s) is no longer protected!",
   "text.graves.expired": "Your grave at %s (%s) containing %s item(s) expired!",
@@ -61,5 +62,7 @@
   "text.graves.cost.level": "XP Levels",
   "text.graves.cost.creative": "Creative",
   "text.graves.cost.free": "Free",
-  "text.graves.cost.item": "Items"
+  "text.graves.cost.item": "Items",
+
+  "screen.graves.settings": "Universal Graves Settings"
 }

@@ -228,6 +228,11 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
     }
 
     @Override
+    public boolean isGravePlayerModelDelayed() {
+        return false;
+    }
+
+    @Override
     public void updateModel() {
         if (this.model != null) {
             this.model.updateModel();

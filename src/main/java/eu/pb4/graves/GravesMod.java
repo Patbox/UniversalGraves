@@ -26,6 +26,8 @@ import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -36,6 +38,7 @@ import java.util.List;
 public class GravesMod implements ModInitializer {
     public static final Logger LOGGER = LogManager.getLogger("Universal Graves");
     public static final boolean DEV = FabricLoader.getInstance().isDevelopmentEnvironment();
+    public static final boolean IS_CLIENT = FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT;
     public static ModContainer CONTAINER = FabricLoader.getInstance().getModContainer("universal-graves").get();
 
     public static final List<Runnable> DO_ON_NEXT_TICK = new ArrayList<>();

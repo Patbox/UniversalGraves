@@ -4,6 +4,7 @@
   "package": "eu.pb4.graves.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
+    "CreateBlockBreakingKineticBlockEntity",
     "ExperienceOrbEntityAccessor",
     "LivingEntityAccessor",
     "LivingEntityMixin",

@@ -18,4 +18,6 @@ public interface ModelDataProvider {
     ItemStack getGraveTaggedItem(Identifier identifier);
     Arm getGraveMainArm();
     byte getGraveSkinModelLayers();
+
+    boolean isGravePlayerModelDelayed();
 }

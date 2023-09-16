@@ -8,7 +8,6 @@ import eu.pb4.graves.grave.GraveHolder;
 import eu.pb4.graves.grave.GraveManager;
 import eu.pb4.graves.grave.PositionedItemStack;
 import eu.pb4.graves.model.GraveModelHandler;
-import eu.pb4.graves.model.ModelDataProvider;
 import eu.pb4.graves.other.VanillaInventoryMask;
 import eu.pb4.graves.other.VisualGraveData;
 import eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment;
@@ -31,7 +30,6 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.function.IntFunction;
 
 import static eu.pb4.graves.registry.AbstractGraveBlock.IS_LOCKED;
 
@@ -181,7 +179,7 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity implements GraveH
 
     public void breakBlock(boolean canCreateVisual) {
         assert world != null;
-        if (canCreateVisual && ConfigManager.getConfig().placement.keepBlockAfterBreaking) {
+        if (canCreateVisual && ConfigManager.getConfig().placement.createVisualGrave) {
             world.setBlockState(pos, VisualGraveBlock.INSTANCE.getStateWithProperties(this.getCachedState()), Block.NOTIFY_ALL | Block.FORCE_STATE);
 
             if (world.getBlockEntity(pos) instanceof VisualGraveBlockEntity blockEntity) {
@@ -279,5 +277,10 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity implements GraveH
     @Override
     public byte getGraveSkinModelLayers() {
         return this.getGrave() != null ? this.data.visibleSkinModelParts() : (byte) 0xFF;
+    }
+
+    @Override
+    public boolean isGravePlayerModelDelayed() {
+        return this.getGrave() != null && this.data.delayPlayerModel();
     }
 }

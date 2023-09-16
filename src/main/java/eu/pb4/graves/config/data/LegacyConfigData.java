@@ -1,8 +1,6 @@
 package eu.pb4.graves.config.data;
 
-import eu.pb4.common.protection.api.CommonProtection;
 import eu.pb4.graves.config.Config;
-import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.other.GravesXPCalculation;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.EntityType;
@@ -64,7 +62,7 @@ public class LegacyConfigData {
         config.storage.xpStorageType = GravesXPCalculation.byName(this.xpStorageType);
         config.storage.xpPercentTypeValue = this.xpPercentTypeValue;
         config.storage.useAlternativeXPEntity = this.useAlternativeXPEntity;
-        config.placement.keepBlockAfterBreaking = this.keepBlockAfterBreaking;
+        config.placement.createVisualGrave = this.keepBlockAfterBreaking;
         config.placement.restoreBlockAfterPlayerBreaking = this.restoreBlockAfterPlayerBreaking;
         config.placement.maxGraveCount = this.maxGraveCount;
         config.placement.replaceAnyBlock = this.replaceAnyBlock;

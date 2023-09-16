@@ -104,4 +104,8 @@ public class ConfigManager {
 
         return MODELS.getOrDefault(model, DefaultGraveModels.FALLBACK);
     }
+
+    public static void saveConfig() {
+        overrideConfig(CONFIG);
+    }
 }

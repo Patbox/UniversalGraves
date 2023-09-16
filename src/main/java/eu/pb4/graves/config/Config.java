@@ -2,11 +2,12 @@ package eu.pb4.graves.config;
 
 import com.google.gson.annotations.SerializedName;
 import eu.pb4.common.protection.api.CommonProtection;
+import eu.pb4.graves.config.annotations.ConfigCategory;
+import eu.pb4.graves.config.annotations.ConfigHidden;
 import eu.pb4.graves.config.data.IconData;
 import eu.pb4.graves.config.data.Variant;
 import eu.pb4.graves.config.data.WrappedDateFormat;
 import eu.pb4.graves.config.data.WrappedText;
-import eu.pb4.graves.grave.Grave;
 import eu.pb4.graves.other.GenericCost;
 import eu.pb4.graves.other.GravesXPCalculation;
 import eu.pb4.graves.registry.IconItem;
@@ -16,7 +17,6 @@ import eu.pb4.predicate.api.PredicateContext;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -27,9 +27,11 @@ import java.util.*;
 public class Config {
     public String _comment = "Before changing anything, see https://github.com/Patbox/UniversalGraves#configuration";
 
+    @ConfigHidden
     @SerializedName("config_version")
     public int version = ConfigManager.VERSION;
 
+    @ConfigCategory
     @SerializedName("protection")
     public Protection protection = new Protection();
 
@@ -56,7 +58,7 @@ public class Config {
         @SerializedName("use_real_time")
         public boolean useRealTime = false;
     }
-
+    @ConfigCategory
     @SerializedName("interactions")
     public Interactions interactions = new Interactions();
 
@@ -79,6 +81,7 @@ public class Config {
         public boolean allowRemoteGraveUnlocking;
     }
 
+    @ConfigCategory
     @SerializedName("storage")
     public Storage storage = new Storage();
 
@@ -96,6 +99,7 @@ public class Config {
         public Set<Identifier> skippedEnchantments = new HashSet<>();
     }
 
+    @ConfigCategory
     @SerializedName("placement")
     public Placement placement = new Placement();
 
@@ -115,8 +119,8 @@ public class Config {
         public int shiftDistance = 40;
         @SerializedName("generate_on_top_of_fluids")
         public boolean generateOnTopOfFluids = false;
-        @SerializedName("restore_replaced_block")
-        public boolean keepBlockAfterBreaking = false;
+        @SerializedName("create_gravestone_after_emptying")
+        public boolean createVisualGrave = false;
         @SerializedName("restore_replaced_block_after_player_breaking")
         public boolean restoreBlockAfterPlayerBreaking = true;
 
@@ -149,6 +153,7 @@ public class Config {
     }
 
 
+    @ConfigCategory
     @SerializedName("teleportation")
     public Teleportation teleportation = new Teleportation();
     public static class Teleportation {
@@ -180,6 +185,7 @@ public class Config {
         }
     }
 
+    @ConfigCategory
     @SerializedName("model")
     public Model model = new Model();
     public static class Model {
@@ -200,7 +206,7 @@ public class Config {
             public String model = "default";
         }
     }
-
+    @ConfigCategory
     @SerializedName("ui")
     public Ui ui = new Ui();
 
@@ -208,8 +214,13 @@ public class Config {
         @SerializedName("title")
         public WrappedText graveTitle = ofText("<lang:'text.graves.players_grave':'${player}'>");
 
+        @SerializedName("admin_title")
+        public WrappedText adminGraveListTitle = ofText("<lang:'text.graves.admin_graves'>");
         @SerializedName("list_grave_icon")
         public Variant<IconData> listGraveIcon = Variant.of(IconData.of(Items.CHEST, getDefaultProtectedGui()), IconData.of(Items.TRAPPED_CHEST, getDefaultGui()));
+
+        @SerializedName("admin_list_grave_icon")
+        public Variant<IconData> listAllGraveIcon = Variant.of(IconData.of(Items.CHEST, getDefaultProtectedGuiWithName()), IconData.of(Items.TRAPPED_CHEST, getDefaultGuiWithName()));
 
         @SerializedName("grave_info")
         public Variant<IconData> graveInfoIcon = Variant.of(IconData.of(Items.OAK_SIGN, getDefaultProtectedGui()), IconData.of(Items.OAK_SIGN, getDefaultGui()));
@@ -278,7 +289,7 @@ public class Config {
         @SerializedName("bar")
         public IconData barButton = IconData.of(Items.WHITE_STAINED_GLASS_PANE, "");
     }
-
+    @ConfigCategory
     @SerializedName("text")
     public Texts texts = new Texts();
 
@@ -338,6 +349,30 @@ public class Config {
         List<String> list = new ArrayList<>();
 
         list.add("${position} <gray>(${world})");
+        list.add("<yellow>${death_cause}");
+        list.add("<gray><lang:'text.graves.items_xp':'<white>${item_count}':'<white>${xp}'>");
+        list.add("<blue><lang:'text.graves.not_protected'>");
+        list.add("<red><lang:'text.graves.break_time':'<white>${break_time}'>");
+
+        return list;
+    }
+
+    private static List<String> getDefaultProtectedGuiWithName() {
+        List<String> list = new ArrayList<>();
+
+        list.add("<dark_gray>[<white>${player}</>]</> ${position} <gray>(${world})");
+        list.add("<yellow>${death_cause}");
+        list.add("<gray><lang:'text.graves.items_xp':'<white>${item_count}':'<white>${xp}'>");
+        list.add("<blue><lang:'text.graves.protected_time':'<white>${protection_time}'>");
+        list.add("<red><lang:'text.graves.break_time':'<white>${break_time}'>");
+
+        return list;
+    }
+
+    private static List<String> getDefaultGuiWithName() {
+        List<String> list = new ArrayList<>();
+
+        list.add("<dark_gray>[<white>${player}</>]</> ${position} <gray>(${world})");
         list.add("<yellow>${death_cause}");
         list.add("<gray><lang:'text.graves.items_xp':'<white>${item_count}':'<white>${xp}'>");
         list.add("<blue><lang:'text.graves.not_protected'>");

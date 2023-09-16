@@ -4,11 +4,15 @@ import com.google.common.collect.Iterables;
 import com.google.gson.annotations.SerializedName;
 import com.mojang.authlib.GameProfile;
 import com.mojang.datafixers.util.Pair;
+import eu.pb4.graves.GravesMod;
 import eu.pb4.graves.mixin.LivingEntityAccessor;
+import eu.pb4.polymer.common.api.PolymerCommonUtils;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
 import eu.pb4.polymer.virtualentity.api.elements.EntityElement;
 import it.unimi.dsi.fastutil.ints.IntList;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.util.Session;
 import net.minecraft.entity.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -16,6 +20,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.*;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -54,7 +59,7 @@ public class EntityModelPart extends ModelPart<EntityElement<?>, EntityModelPart
         if (entityPose != null) {
             entity.setPose(this.entityPose);
         }
-        var base = entityType == EntityType.PLAYER ? new PlayerElement((PlayerEntity) entity, world) : new PatchedEntityElement<>(entity, world);
+        var base = entityType == EntityType.PLAYER ? new PlayerElement((PlayerEntity) entity, world) : new EntityElement<>(entity, world);
         base.setOffset(this.position);
         return base;
     }
@@ -83,44 +88,7 @@ public class EntityModelPart extends ModelPart<EntityElement<?>, EntityModelPart
         return ModelPartType.ENTITY;
     }
 
-    public static class PatchedEntityElement<T extends Entity> extends EntityElement<T> {
-        public PatchedEntityElement(T entity, ServerWorld world) {
-            super(entity, world);
-        }
-
-        @Override
-        public void tick() {
-            super.tick();
-            if (this.entity() instanceof LivingEntity livingEntity) {
-                this.sendEquipmentChanges(livingEntity);
-            }
-        }
-
-        private void sendEquipmentChanges(LivingEntity livingEntity) {
-            var ac = ((LivingEntityAccessor) livingEntity);
-            var equipmentChanges = ac.callGetEquipmentChanges();
-            if (equipmentChanges != null && !equipmentChanges.isEmpty()) {
-                List<Pair<EquipmentSlot, ItemStack>> list = new ArrayList<>(equipmentChanges.size());
-                equipmentChanges.forEach((slot, stack) -> {
-                    ItemStack itemStack = stack.copy();
-                    list.add(Pair.of(slot, itemStack));
-                    switch (slot.getType()) {
-                        case HAND:
-                            ac.callSetSyncedHandStack(slot, itemStack);
-                            break;
-                        case ARMOR:
-                            ac.callSetSyncedArmorStack(slot, itemStack);
-                    }
-                });
-
-                if (this.getHolder() != null) {
-                    this.getHolder().sendPacket(new EntityEquipmentUpdateS2CPacket(livingEntity.getId(), list));
-                }
-            }
-        }
-    }
-
-    public static class PlayerElement extends PatchedEntityElement<PlayerEntity> {
+    public static class PlayerElement extends EntityElement<PlayerEntity> {
         private final int extraId = VirtualEntityUtils.requestEntityId();
         private final UUID extraUuid = UUID.randomUUID();
         private GameProfile profile;
@@ -158,7 +126,7 @@ public class EntityModelPart extends ModelPart<EntityElement<?>, EntityModelPart
 
         public void copyTexture(GameProfile profile) {
             var texture = Iterables.getFirst(profile.getProperties().get("textures"), null);
-            if (texture != null) {
+            if (texture != null && texture.hasSignature()) {
                 this.profile.getProperties().put("textures", texture);
             } else {
                 this.profile.getProperties().removeAll("textures");
