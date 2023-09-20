@@ -108,17 +108,6 @@ public final class Grave {
             this.addTaggedItem(item);
         }
 
-        if (GravesMod.IS_CLIENT) {
-            var texture = Iterables.getFirst(profile.getProperties().get("textures"), null);
-            if (texture != null && !texture.hasSignature()) {
-                this.delayPlayerModel = true;
-                SkullBlockEntity.loadProperties(new GameProfile(profile.getId(), profile.getName()), profilex -> {
-                    this.gameProfile = profilex;
-                    this.delayPlayerModel = false;
-                });
-            }
-        }
-
         this.updateDisplay();
     }
 

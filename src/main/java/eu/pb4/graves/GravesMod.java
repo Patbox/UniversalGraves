@@ -101,8 +101,8 @@ public class GravesMod implements ModInitializer {
 
         ServerWorldEvents.LOAD.register(((server, world) -> {
             if (world == server.getOverworld()) {
-                GraveManager.INSTANCE = (GraveManager) world.getPersistentStateManager()
-                        .getOrCreate((nbt) -> GraveManager.fromNbt(nbt, server), GraveManager::new, "universal-graves");
+                GraveManager.INSTANCE = world.getPersistentStateManager().getOrCreate(GraveManager.TYPE, "universal-graves");
+                GraveManager.INSTANCE.setServer(server);
             }
         }));
 

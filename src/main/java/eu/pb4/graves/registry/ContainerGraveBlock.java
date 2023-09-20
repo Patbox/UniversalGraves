@@ -11,8 +11,8 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.item.PlayerHeadItem;
 import net.minecraft.item.ShovelItem;
-import net.minecraft.item.SkullItem;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
@@ -74,16 +74,16 @@ public class ContainerGraveBlock extends VisualGraveBlock {
                 if (itemStack.getItem() == Items.FEATHER) {
                     grave.openEditScreen(player);
                 } else if (itemStack.getItem() == Items.PLAYER_HEAD) {
-                    if (itemStack.hasNbt() && itemStack.getNbt().contains(SkullItem.SKULL_OWNER_KEY, NbtElement.COMPOUND_TYPE)) {
+                    if (itemStack.hasNbt() && itemStack.getNbt().contains(PlayerHeadItem.SKULL_OWNER_KEY, NbtElement.COMPOUND_TYPE)) {
                         grave.setVisualData(new VisualGraveData(
-                                NbtHelper.toGameProfile(itemStack.getNbt().getCompound(SkullItem.SKULL_OWNER_KEY)),
+                                NbtHelper.toGameProfile(itemStack.getNbt().getCompound(PlayerHeadItem.SKULL_OWNER_KEY)),
                                 grave.getGraveSkinModelLayers(),
                                 grave.getGraveMainArm(),
                                 grave.getGrave().deathCause(),
                                 grave.getGrave().creationTime(),
                                 grave.getGrave().location(), grave.getGrave().minecraftDay()), grave.replacedBlockState);
-                    } else if (itemStack.hasNbt() && itemStack.getNbt().contains(SkullItem.SKULL_OWNER_KEY, NbtElement.STRING_TYPE)) {
-                        player.getServer().getUserCache().findByNameAsync(itemStack.getNbt().getString(SkullItem.SKULL_OWNER_KEY), (profile) -> {
+                    } else if (itemStack.hasNbt() && itemStack.getNbt().contains(PlayerHeadItem.SKULL_OWNER_KEY, NbtElement.STRING_TYPE)) {
+                        player.getServer().getUserCache().findByNameAsync(itemStack.getNbt().getString(PlayerHeadItem.SKULL_OWNER_KEY)).thenAccept((profile) -> {
                             if (profile.isPresent()) {
                                 grave.setVisualData(new VisualGraveData(
                                         profile.get(),

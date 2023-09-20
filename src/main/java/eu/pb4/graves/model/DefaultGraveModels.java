@@ -202,8 +202,6 @@ public class DefaultGraveModels {
             entity.entityType = EntityType.SKELETON;
             entity.position = new Vec3d(0.9, -0.51, 0);
             entity.entityPose = EntityPose.SLEEPING;
-            entity.rotatePos = false;
-            entity.rotateYaw = false;
 
             entity.tags.add(ModelTags.IF_UNPROTECTED);
             entity.tags.add(ModelTags.PLAYER_HEAD);
@@ -222,8 +220,6 @@ public class DefaultGraveModels {
             entity.position = new Vec3d(0.9, -0.51, 0);
             entity.entityPose = EntityPose.SLEEPING;
 
-            entity.rotatePos = false;
-            entity.rotateYaw = false;
             entity.tags.add(ModelTags.IF_PROTECTED);
             entity.tags.add(ModelTags.PLAYER_HEAD);
             entity.tags.add(ModelTags.EQUIPMENT_HELMET);

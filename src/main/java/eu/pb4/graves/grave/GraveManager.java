@@ -19,6 +19,7 @@ import org.jetbrains.annotations.ApiStatus;
 import java.util.*;
 
 public final class GraveManager extends PersistentState {
+    public static final Type<GraveManager> TYPE = new Type<>(GraveManager::new, GraveManager::fromNbt, null);
     public static GraveManager INSTANCE;
 
     private final HashMap<UUID, Set<Grave>> byUuid = new HashMap<>();
@@ -75,10 +76,8 @@ public final class GraveManager extends PersistentState {
         return nbt;
     }
 
-    public static PersistentState fromNbt(NbtCompound nbt, MinecraftServer server) {
+    public static GraveManager fromNbt(NbtCompound nbt) {
         GraveManager manager = new GraveManager();
-        manager.protectionTime = GraveGameRules.getProtectionTime(server);
-        manager.breakingTime = GraveGameRules.getBreakingTime(server);
         GraveManager.INSTANCE = manager;
 
         manager.currentGameTime = nbt.getLong("CurrentGameTime");
@@ -170,5 +169,10 @@ public final class GraveManager extends PersistentState {
 
     public Collection<Grave> getByPlayer(ServerPlayerEntity player) {
         return this.getByUuid(player.getUuid());
+    }
+
+    public void setServer(MinecraftServer server) {
+        this.protectionTime = GraveGameRules.getProtectionTime(server);
+        this.breakingTime = GraveGameRules.getBreakingTime(server);
     }
 }
