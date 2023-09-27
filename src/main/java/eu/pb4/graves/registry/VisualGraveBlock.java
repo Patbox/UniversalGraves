@@ -11,6 +11,7 @@ import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.entity.ai.pathing.NavigationType;
+import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.*;
@@ -32,12 +33,12 @@ public class VisualGraveBlock extends AbstractGraveBlock implements BlockEntityP
 
     public VisualGraveBlock(AbstractBlock.Settings settings) {
         super(settings);
-        this.setDefaultState(this.getStateManager().getDefaultState().with(Properties.WATERLOGGED, false));
+        this.setDefaultState(this.getStateManager().getDefaultState().with(WATERLOGGED, false));
     }
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(Properties.ROTATION, IS_LOCKED, Properties.WATERLOGGED);
+        builder.add(Properties.ROTATION, IS_LOCKED, WATERLOGGED);
     }
 
     public PistonBehavior getPistonBehavior(BlockState state) {
@@ -83,6 +84,9 @@ public class VisualGraveBlock extends AbstractGraveBlock implements BlockEntityP
     @Nullable
     @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
-        return this.getDefaultState().with(Properties.ROTATION, RotationPropertyHelper.fromYaw(ctx.getPlayerYaw() + 180.0F));
+
+
+        return this.getDefaultState().with(Properties.ROTATION, RotationPropertyHelper.fromYaw(ctx.getPlayerYaw() + 180.0F))
+                .with(WATERLOGGED, ctx.getWorld().getFluidState(ctx.getBlockPos()).isOf(Fluids.WATER));
     }
 }

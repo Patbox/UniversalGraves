@@ -40,14 +40,16 @@ public abstract class AbstractGraveBlock extends Block implements PolymerBlock, 
     public static BooleanProperty IS_LOCKED = BooleanProperty.of("is_locked");
     public static IntProperty ROTATION = Properties.ROTATION;
 
+    public static BooleanProperty WATERLOGGED = Properties.WATERLOGGED;
+
     protected AbstractGraveBlock(Settings settings) {
         super(settings);
-        this.setDefaultState(this.getStateManager().getDefaultState().with(Properties.WATERLOGGED, false));
+        this.setDefaultState(this.getStateManager().getDefaultState().with(WATERLOGGED, false));
     }
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(Properties.ROTATION, IS_LOCKED, Properties.WATERLOGGED);
+        builder.add(Properties.ROTATION, IS_LOCKED, WATERLOGGED);
     }
 
     @Override
@@ -63,7 +65,7 @@ public abstract class AbstractGraveBlock extends Block implements PolymerBlock, 
     @Override
     public BlockState getPolymerBlockState(BlockState state, ServerPlayerEntity player) {
         return useFallback(player)
-                ? Blocks.SKELETON_SKULL.getDefaultState().with(ROTATION, state.get(ROTATION)) : Blocks.BARRIER.getDefaultState();
+                ? Blocks.SKELETON_SKULL.getDefaultState().with(ROTATION, state.get(ROTATION)) : Blocks.BARRIER.getDefaultState().with(WATERLOGGED, state.get(WATERLOGGED));
     }
 
     @Override

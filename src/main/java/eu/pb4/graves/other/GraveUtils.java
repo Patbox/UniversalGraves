@@ -363,16 +363,18 @@ public class GraveUtils {
                     );
 
                     ((PlayerAdditions) player).graves$setLastGrave(grave.getId());
-                    BlockState oldBlockState = world.getBlockState(gravePos);
+                    var oldBlockState = world.getBlockState(gravePos);
+                    var fluidState = world.getFluidState(gravePos);
                     world.setBlockState(gravePos, TempBlock.INSTANCE.getDefaultState());
 
                     GravesMod.DO_ON_NEXT_TICK.add(() -> {
                         WrappedText text2;
                         Map<String, Text> placeholders2 = placeholders;
 
-                        BlockState storedBlockState = world.getBlockState(gravePos).getBlock() == TempBlock.INSTANCE ? oldBlockState : Blocks.AIR.getDefaultState();
+                        var storedBlockState = world.getBlockState(gravePos).getBlock() == TempBlock.INSTANCE ? oldBlockState : Blocks.AIR.getDefaultState();
 
-                        world.setBlockState(gravePos, GraveBlock.INSTANCE.getDefaultState().with(Properties.ROTATION, player.getRandom().nextInt(15)));
+                        world.setBlockState(gravePos, GraveBlock.INSTANCE.getDefaultState().with(Properties.ROTATION, player.getRandom().nextInt(15))
+                                .with(Properties.WATERLOGGED, fluidState.isOf(Fluids.WATER)));
                         BlockEntity entity = world.getBlockEntity(gravePos);
 
                         if (entity instanceof GraveBlockEntity graveBlockEntity) {

@@ -180,14 +180,14 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity implements GraveH
     public void breakBlock(boolean canCreateVisual) {
         assert world != null;
         if (canCreateVisual && ConfigManager.getConfig().placement.createVisualGrave) {
-            world.setBlockState(pos, VisualGraveBlock.INSTANCE.getStateWithProperties(this.getCachedState()), Block.NOTIFY_ALL | Block.FORCE_STATE);
+            world.setBlockState(pos, VisualGraveBlock.INSTANCE.getStateWithProperties(this.getCachedState()));
 
             if (world.getBlockEntity(pos) instanceof VisualGraveBlockEntity blockEntity) {
                 blockEntity.setVisualData(this.getClientData(), this.replacedBlockState);
                 blockEntity.setModelId(this.getGraveModelId());
             }
         } else {
-            world.setBlockState(pos, this.replacedBlockState, Block.NOTIFY_ALL | Block.FORCE_STATE);
+            world.setBlockState(pos, this.replacedBlockState);
         }
     }
 
