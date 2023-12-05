@@ -9,7 +9,6 @@ import eu.pb4.placeholders.api.parsers.NodeParser;
 import eu.pb4.placeholders.api.parsers.PatternPlaceholderParser;
 import eu.pb4.placeholders.api.parsers.StaticPreParser;
 import eu.pb4.placeholders.api.parsers.TextParserV1;
-import net.minecraft.text.LiteralTextContent;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextContent;
 

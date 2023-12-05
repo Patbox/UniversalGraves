@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.0.+'
+	id 'fabric-loom' version '1.4.+'
 	id 'maven-publish'
 	id "com.modrinth.minotaur" version "2.+"
 	id 'com.matthewprenger.cursegradle' version '1.4.0'
@@ -57,11 +57,11 @@ dependencies {
 
 
 	modImplementation include("eu.pb4:sgui:1.3.0+1.20.2")
-	modImplementation include("eu.pb4:placeholder-api:2.2.0+1.20.2")
-	modImplementation include('xyz.nucleoid:server-translations-api:2.1.0+1.20.2-rc2')
-	modImplementation include('eu.pb4:polymer-core:0.6.0+1.20.2')
-	modImplementation include('eu.pb4:polymer-resource-pack:0.6.0+1.20.2')
-	modImplementation include('eu.pb4:polymer-virtual-entity:0.6.0+1.20.2')
+	modImplementation include("eu.pb4:placeholder-api:2.3.0+1.20.3")
+	modImplementation include('xyz.nucleoid:server-translations-api:2.2.0+1.20.3-rc1')
+	modImplementation include('eu.pb4:polymer-core:0.7.0+1.20.3-rc1')
+	modImplementation include('eu.pb4:polymer-resource-pack:0.7.0+1.20.3-rc1')
+	modImplementation include('eu.pb4:polymer-virtual-entity:0.7.0+1.20.3-rc1')
 	modImplementation include('eu.pb4:predicate-api:0.3.0+1.20.2')
 	modImplementation include("eu.pb4:common-protection-api:1.0.0")
 
@@ -74,8 +74,6 @@ dependencies {
 	modCompileOnly "draylar:get-off-my-lawn:1.17-1.4.0-beta"
 	modCompileOnly 'com.jamieswhiteshirt:rtree-3i-lite:0.3.0'
 	modCompileOnly "io.github.onyxstudios.Cardinal-Components-API:cardinal-components-base:3.0.0-nightly.21w19a"
-
-	annotationProcessor("io.github.llamalad7:mixinextras-fabric:0.2.0-rc.2")
 
 	modCompileOnly("com.terraformersmc:modmenu:7.2.2")
 

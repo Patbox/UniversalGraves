@@ -58,7 +58,6 @@ public class BaseGson {
             .registerTypeHierarchyAdapter(BlockEntityType.class, new RegistrySerializer<>(Registries.BLOCK_ENTITY_TYPE))
 
             .registerTypeHierarchyAdapter(Text.class, new Text.Serializer())
-            .registerTypeHierarchyAdapter(Style.class, new Style.Serializer())
 
             //.registerTypeHierarchyAdapter(ItemStack.class, new CodecSerializer<>(ItemStack.CODEC))
             .registerTypeHierarchyAdapter(ItemStack.class, new ItemStackSerializer())

@@ -151,7 +151,7 @@ public final class Grave {
         nbt.putLong("CreationTime", this.creationTime);
         nbt.putInt("ItemCount", this.itemCount);
         nbt.putInt("MinecraftDay", this.minecraftDay);
-        nbt.putString("DeathCause", Text.Serializer.toJson(this.deathCause));
+        nbt.putString("DeathCause", Text.Serialization.toJsonString(this.deathCause));
         nbt.putString("Type", this.type.name());
         nbt.putBoolean("IsProtectionEnabled", this.isProtectionEnabled);
         nbt.putBoolean("RequirePayment", this.requirePayment);
@@ -189,7 +189,7 @@ public final class Grave {
             this.creationTime = nbt.getLong("CreationTime");
             this.itemCount = nbt.getInt("ItemCount");
             this.minecraftDay = nbt.getInt("MinecraftDay");
-            this.deathCause = Text.Serializer.fromLenientJson(nbt.getString("DeathCause"));
+            this.deathCause = Text.Serialization.fromLenientJson(nbt.getString("DeathCause"));
             this.location = Location.fromNbt(nbt);
             this.allowedUUIDs.clear();
             this.requirePayment = nbt.getBoolean("RequirePayment");

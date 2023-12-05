@@ -63,7 +63,7 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
             var list = new NbtList();
 
             for (var text : this.textOverrides) {
-                list.add(NbtString.of(Text.Serializer.toJson(text)));
+                list.add(NbtString.of(Text.Serialization.toJsonString(text)));
             }
 
             nbt.put("TextOverride", list);
@@ -81,7 +81,7 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
             if (nbt.contains("TextOverride", NbtElement.LIST_TYPE)) {
                 var textOverrides = new ArrayList<>();
                 for (var text : nbt.getList("TextOverride", NbtElement.STRING_TYPE)) {
-                    textOverrides.add(Text.Serializer.fromLenientJson(text.asString()));
+                    textOverrides.add(Text.Serialization.fromLenientJson(text.asString()));
                 }
                 this.textOverrides = textOverrides.toArray(new Text[0]);
             }

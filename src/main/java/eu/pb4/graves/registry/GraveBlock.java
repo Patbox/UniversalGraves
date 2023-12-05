@@ -58,9 +58,9 @@ public class GraveBlock extends AbstractGraveBlock implements BlockEntityProvide
     }
 
     @Override
-    public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity playerTemp) {
+    public BlockState onBreak(World world, BlockPos pos, BlockState state, PlayerEntity playerTemp) {
         if (!(playerTemp instanceof ServerPlayerEntity player)) {
-            return;
+            return state;
         }
         BlockEntity blockEntity = world.getBlockEntity(pos);
 
@@ -75,7 +75,7 @@ public class GraveBlock extends AbstractGraveBlock implements BlockEntityProvide
                 e.printStackTrace();
             }
         }
-        super.onBreak(world, pos, state, player);
+        return super.onBreak(world, pos, state, player);
     }
 
     @Override

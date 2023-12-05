@@ -23,7 +23,7 @@ public record VisualGraveData(GameProfile gameProfile, byte visualSkinModelLayer
     public NbtCompound toNbt() {
         var nbt = new NbtCompound();
         nbt.put("GameProfile", NbtHelper.writeGameProfile(new NbtCompound(), this.gameProfile));
-        nbt.putString("DeathCause", Text.Serializer.toJson(this.deathCause));
+        nbt.putString("DeathCause", Text.Serialization.toJsonString(this.deathCause));
         nbt.putLong("CreationTime", this.creationTime);
         nbt.putInt("MinecraftDay", this.minecraftDay);
         nbt.putByte("SkinModelParts", this.visualSkinModelLayers);
@@ -56,7 +56,7 @@ public record VisualGraveData(GameProfile gameProfile, byte visualSkinModelLayer
                 NbtHelper.toGameProfile(nbt.getCompound("GameProfile")),
                 nbt.contains("SkinModelParts", NbtElement.BYTE_TYPE) ? nbt.getByte("SkinModelParts") : (byte) 0xFF,
                 nbt.contains("MainArm", NbtElement.BYTE_TYPE) ? (nbt.getByte("MainArm") == Arm.LEFT.getId() ? Arm.LEFT : Arm.RIGHT) : Arm.RIGHT,
-                Text.Serializer.fromJson(nbt.getString("DeathCause")),
+                Text.Serialization.fromJson(nbt.getString("DeathCause")),
                 nbt.getLong("CreationTime"),
                 Location.fromNbt(nbt),
                 nbt.getInt("MinecraftDay")

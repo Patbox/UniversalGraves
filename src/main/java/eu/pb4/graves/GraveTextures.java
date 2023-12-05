@@ -26,7 +26,7 @@ public final class GraveTextures {
 
     public static boolean hasGuiTexture(@Nullable ServerPlayerEntity player) {
         var mata = player != null ? PolymerServerNetworking.getMetadata(player.networkHandler, IDENTIFIER, NbtInt.TYPE) : null;
-        return PolymerResourcePackUtils.hasPack(player)
+        return PolymerResourcePackUtils.hasMainPack(player)
                 || (player != null && player.networkHandler != null && mata != null && mata.intValue() == 1);
     }
 
