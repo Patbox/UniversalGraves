@@ -119,6 +119,9 @@ public class Config {
         public int shiftDistance = 40;
         @SerializedName("generate_on_top_of_fluids")
         public boolean generateOnTopOfFluids = false;
+        @SerializedName("generate_on_ground")
+        public boolean generateOnGround = false;
+
         @SerializedName("create_gravestone_after_emptying")
         public boolean createVisualGrave = false;
         @SerializedName("restore_replaced_block_after_player_breaking")

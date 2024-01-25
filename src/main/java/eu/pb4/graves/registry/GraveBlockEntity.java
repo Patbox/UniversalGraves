@@ -76,25 +76,10 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity implements GraveH
     public void readNbt(NbtCompound nbt) {
         super.readNbt(nbt);
         try {
-            if (nbt.contains("GraveInfo", NbtElement.COMPOUND_TYPE)) {
-                // Legacy grave handling
-                this.data = new Grave();
-                this.data.readNbt(nbt.getCompound("GraveInfo"));
-
-                NbtList nbtList = nbt.getList("Items", NbtElement.COMPOUND_TYPE);
-
-                for (NbtElement compound : nbtList) {
-                    this.data.getItems().add(new PositionedItemStack(ItemStack.fromNbt((NbtCompound) compound), -1, VanillaInventoryMask.INSTANCE, null, Set.of()));
-                }
-                GraveManager.INSTANCE.add(this.data);
-                this.visualData = this.data.toVisualGraveData();
-            } else if (nbt.contains("GraveId", NbtElement.LONG_TYPE)) {
+            if (nbt.contains("GraveId", NbtElement.LONG_TYPE)) {
                 this.graveId = nbt.getLong("GraveId");
             }
-
-            if (this.data == null) {
-                this.fetchGraveData();
-            }
+            this.fetchGraveData();
 
             if (this.visualData == null) {
                 this.visualData = VisualGraveData.fromNbt(nbt.getCompound("VisualData"));
