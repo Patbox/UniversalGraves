@@ -36,6 +36,7 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ChunkTicketType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -45,10 +46,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.world.GameRules;
@@ -60,6 +58,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class GraveUtils {
+    private static final ChunkTicketType<Grave> GRAVE_TICKED = ChunkTicketType.create("universal_graves", Comparator.comparing(Grave::getId), 5);
+
     public static final Identifier REPLACEABLE_ID = new Identifier("universal_graves", "replaceable");
     public static final TagKey<Block> REPLACEABLE_TAG = TagKey.of(RegistryKeys.BLOCK, REPLACEABLE_ID);
     public static final Inventory EMPTY_INVENTORY = new SimpleInventory(0);
@@ -82,6 +82,11 @@ public class GraveUtils {
         var border = world.getWorldBorder();
         blockPos = BlockPos.ofFloored(MathHelper.clamp(blockPos.getX(), border.getBoundWest() + 1, border.getBoundEast() - 1), MathHelper.clamp(blockPos.getY(), world.getBottomY(), world.getTopY() - 1), MathHelper.clamp(blockPos.getZ(), border.getBoundNorth() + 1, border.getBoundSouth() - 1));
         var config = ConfigManager.getConfig();
+        if (config.placement.generateOnGround) {
+            while (world.getBlockState(blockPos).isAir() && world.getBottomY() + 2 < blockPos.getY()) {
+                blockPos = blockPos.down();
+            }
+        }
 
         var result = isValidPos(player, world, border, blockPos, false, config);
         if (result.allow) {
@@ -287,7 +292,7 @@ public class GraveUtils {
 
         WrappedText text = null;
         var placeholders = Map.of(
-                "position", Text.literal("" + player.getBlockPos().toShortString()),
+                "position", Text.literal(player.getBlockPos().toShortString()),
                 "world", GraveUtils.toWorldName(player.getWorld().getRegistryKey().getValue())
         );
 
@@ -320,6 +325,9 @@ public class GraveUtils {
                     var model = config.getGraveModel(player);
 
                     BlockPos gravePos = result.pos();
+                    if (gravePos == null) {
+                        return;
+                    }
                     List<PositionedItemStack> items = new ArrayList<>();
 
                     for (var mask : GravesApi.getAllInventoryMasks()) {
@@ -331,7 +339,7 @@ public class GraveUtils {
                         experience = config.storage.xpStorageType.converter.calc(player);
                     }
 
-                    if (items.size() == 0 && (!config.storage.canStoreOnlyXp || experience == 0)) {
+                    if (items.isEmpty() && (!config.storage.canStoreOnlyXp || experience == 0)) {
                         return;
                     }
 
@@ -367,6 +375,8 @@ public class GraveUtils {
                     var fluidState = world.getFluidState(gravePos);
                     world.setBlockState(gravePos, TempBlock.INSTANCE.getDefaultState());
 
+                    world.getChunkManager().addTicket(GRAVE_TICKED, new ChunkPos(gravePos), 1, grave);
+
                     GravesMod.DO_ON_NEXT_TICK.add(() -> {
                         WrappedText text2;
                         Map<String, Text> placeholders2 = placeholders;
@@ -381,13 +391,14 @@ public class GraveUtils {
                             GraveManager.INSTANCE.add(grave);
                             graveBlockEntity.setGrave(grave, storedBlockState);
                             graveBlockEntity.setModelId(model);
+                            world.markDirty(gravePos);
                             text2 = config.texts.messageGraveCreated;
                             placeholders2 = grave.getPlaceholders(player.getServer());
 
 
                             if (config.placement.maxGraveCount > -1) {
                                 var graves = new ArrayList<>(GraveManager.INSTANCE.getByPlayer(player));
-                                graves.sort(Comparator.comparing(x -> x.getCreationTime()));
+                                graves.sort(Comparator.comparing(Grave::getCreationTime));
                                 while (graves.size() > config.placement.maxGraveCount) {
                                     graves.remove(0).destroyGrave(player.server, null);
                                 }

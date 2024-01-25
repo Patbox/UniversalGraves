@@ -15,7 +15,7 @@ public class ItemDisplayModelPart extends DisplayModelPart<ItemDisplayElement, I
 
     @Override
     protected ItemDisplayElement constructBase() {
-        var e = new ItemDisplayElement(this.itemStack);
+        var e = new ItemDisplayElement(this.itemStack.copy());
         e.setModelTransformation(this.itemModelTransformation);
         return e;
     }
