@@ -1,0 +1,68 @@
+{
+  "text.graves.grave_of": "%sの墓",
+  "text.graves.items_xp": "アイテム: %s 経験値: %s",
+  "text.graves.items": "アイテム: %s",
+  "text.graves.protected_time": "%sのあいだ保護中",
+  "text.graves.protected_time_sign": "保護中",
+  "text.graves.break_time": "あと%sで崩壊",
+  "text.graves.break_time_sign": "崩壊",
+  "text.graves.not_protected": "保護されていません！",
+  "text.graves.players_grave": "%sの墓",
+  "text.graves.admin_graves": "全ての墓",
+  "text.graves.gui_title": "あなたの墓",
+  "text.graves.no_longer_protected": "あなたの墓は%s (%s)に在り%sのアイテムがありますが，もはや保護されていません！",
+  "text.graves.expired": "あなたの墓は%s (%s)に在り%sのアイテムがありますが，期限切れです。",
+  "text.graves.somebody_broke": "あなたの墓は%s (%s)に在り%sのアイテムがありますが，崩壊しました！",
+  "text.graves.created_at": "墓が%s (%s)に生成されました。",
+  "text.graves.created_at_expire": "墓が%s (%s)に生成されました。あと%sで期限切れです。",
+  "text.graves.creation_failed": "墓を生成できませんでした。アイテムは%s (%s)にドロップしています。",
+  "text.graves.creation_failed_void": "奈落で死亡したため，墓は生成されませんでした。",
+  "text.graves.creation_failed_pvp": "プレイヤーに殺されたため，墓は生成されませんでした。アイテムは%s (%s)にドロップしています。",
+  "text.graves.creation_failed_claim": "保護区域で死亡したため，墓は生成されませんでした。アイテムは%s (%s)にドロップしています。",
+  "text.graves.grave_unlock_payment.no_access": "この墓を漁ることはできません！",
+  "text.graves.grave_unlock_payment.accepted": "墓を開放しました！",
+  "text.graves.grave_unlock_payment.failed": "所持金が墓を開放するのに足りません！ 要求額: %s",
+
+  "text.graves.damage_source_info": "%sからダメージを受けました。",
+  "text.graves.damage_source_info.enabled": "ダメージ源が表示されるようになりました。無効にするにはもう一度同じコマンドを実行します。",
+  "text.graves.damage_source_info.disabled": "ダメージ源が非表示になりました。",
+
+  "text.graves.about.version": "第%s版",
+  "text.graves.about.contributors": "貢献者",
+
+  "text.graves.gui.next_page": "次のページ",
+  "text.graves.gui.previous_page": "前のページ",
+  "text.graves.gui.remove_protection": "保護を解除",
+  "text.graves.gui.break_grave": "墓を破壊する",
+  "text.graves.gui.quick_pickup": "全アイテムを取得",
+  "text.graves.gui.teleport": "墓まで移動する",
+  "text.graves.gui.cost.not_enough": "資金が足りない！",
+  "text.graves.gui.cost": "費用:",
+  "text.graves.gui.teleport.cost": "費用:",
+  "text.graves.gui.unlock_grave": "墓を開放する",
+  "text.graves.gui.fetch": "墓を手元に移動させる",
+  "text.graves.gui.fetch_failed": "手元に移動させられませんでした。",
+
+  "text.graves.gui.cant_reverse": "この操作は元に戻せません！",
+  "text.graves.gui.click_to_confirm": "続行するにはもう一度クリック",
+
+  "text.graves.teleport.teleport_timer": "%s秒後にテレポートします。動かないでください！",
+  "text.graves.teleport.teleport_timer_moving": "%s秒後にテレポートします。",
+  "text.graves.teleport.teleport_location": "%sにテレポートする。",
+  "text.graves.teleport.teleport_cancelled": "テレポートを中断しました。",
+
+  "item.universal_graves.grave_compass": "墓指しコンパス",
+  "block.universal_graves.grave": "墓",
+  "block.universal_graves.visual_grave": "空き墓",
+  "block.universal_graves.container_grave": "墓石",
+
+  "gamerule.universal_graves:protection_time": "他のプレイヤーが墓を壊せるようになるまでの時間",
+  "gamerule.universal_graves:breaking_time": "墓の有効期限",
+
+  "text.graves.cost.level": "経験値",
+  "text.graves.cost.creative": "クリエイティブ",
+  "text.graves.cost.free": "無償",
+  "text.graves.cost.item": "アイテム",
+
+  "screen.graves.settings": "Universal Graves設定"
+}
