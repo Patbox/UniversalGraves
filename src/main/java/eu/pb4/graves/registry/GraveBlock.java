@@ -35,7 +35,8 @@ public class GraveBlock extends AbstractGraveBlock implements BlockEntityProvide
 
     @Override
     public float calcBlockBreakingDelta(BlockState state, PlayerEntity player, BlockView world, BlockPos pos) {
-        if (world.getBlockEntity(pos) instanceof GraveBlockEntity be && be.getGrave().canTakeFrom(player)) {
+        if (world.getBlockEntity(pos) instanceof GraveBlockEntity be
+                && (be.getGrave() == null || be.getGrave().canTakeFrom(player))) {
             return super.calcBlockBreakingDelta(state, player, world, pos);
         }
 

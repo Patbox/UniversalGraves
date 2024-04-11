@@ -32,7 +32,7 @@ public class DefaultGraveModels {
     }
 
     public static GraveModel debug() {
-        return corpsePlayer();
+        return playerHead();
     }
 
     public static GraveModel soul() {

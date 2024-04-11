@@ -1,6 +1,7 @@
 package eu.pb4.graves.model.parts;
 
 import com.google.gson.annotations.SerializedName;
+import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.polymer.virtualentity.api.elements.DisplayElement;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.decoration.Brightness;
@@ -44,7 +45,7 @@ public abstract class DisplayModelPart<T extends DisplayElement, G extends Displ
         base.setDisplaySize(this.cullBox);
         base.setShadowRadius(this.shadowRadius);
         base.setShadowStrength(this.shadowStrength);
-        base.setInvisible(true);
+        base.setInvisible(ConfigManager.getConfig().model.hideF3DebugLines);
         return base;
     }
 

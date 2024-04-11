@@ -27,6 +27,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.particle.ParticleEffect;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.*;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Style;
@@ -70,6 +72,7 @@ public class BaseGson {
             .registerTypeHierarchyAdapter(BlockState.class, new CodecSerializer<>(BlockState.CODEC))
             .registerTypeHierarchyAdapter(AffineTransformation.class, new CodecSerializer<>(AffineTransformation.CODEC))
             .registerTypeHierarchyAdapter(DisplayEntity.BillboardMode.class, new CodecSerializer<>(DisplayEntity.BillboardMode.CODEC))
+            .registerTypeHierarchyAdapter(ParticleEffect.class, new CodecSerializer<>(ParticleTypes.TYPE_CODEC))
             .registerTypeHierarchyAdapter(DisplayEntity.TextDisplayEntity.TextAlignment.class, new CodecSerializer<>(DisplayEntity.TextDisplayEntity.TextAlignment.CODEC))
             .registerTypeHierarchyAdapter(Brightness.class, new CodecSerializer<>(Brightness.CODEC))
             //.registerTypeHierarchyAdapter(Matrix4f.class, new CodecSerializer<>(AffineTransformation.ANY_CODEC.xmap(AffineTransformation::getMatrix, AffineTransformation::new)))

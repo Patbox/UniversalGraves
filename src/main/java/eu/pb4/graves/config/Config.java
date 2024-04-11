@@ -196,8 +196,8 @@ public class Config {
         public String defaultModelId = "default";
         @SerializedName("alternative")
         public List<CheckedModel> alternative = new ArrayList<>();
-        @SerializedName("enable_geyser_workaround")
-        public boolean geyserWorkaround = true;
+        @SerializedName("hide_f3_debug_lines")
+        public boolean hideF3DebugLines = !FabricLoader.getInstance().isModLoaded("geyser");
         @SerializedName("gravestone_item_base")
         public Item gravestoneItemBase = Items.SKELETON_SKULL;
         @SerializedName("gravestone_item_nbt")

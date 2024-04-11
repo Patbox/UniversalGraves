@@ -64,19 +64,7 @@ public abstract class AbstractGraveBlock extends Block implements PolymerBlock, 
 
     @Override
     public BlockState getPolymerBlockState(BlockState state, ServerPlayerEntity player) {
-        return useFallback(player)
-                ? Blocks.SKELETON_SKULL.getDefaultState().with(ROTATION, state.get(ROTATION)) : Blocks.BARRIER.getDefaultState().with(WATERLOGGED, state.get(WATERLOGGED));
-    }
-
-    @Override
-    public void onPolymerBlockSend(BlockState blockState, BlockPos.Mutable pos, ServerPlayerEntity player) {
-        if (useFallback(player)) {
-            player.networkHandler.sendPacket(PolymerBlockUtils.createBlockEntityPacket(pos, BlockEntityType.SKULL, new NbtCompound()));
-        }
-    }
-
-    private static boolean useFallback(ServerPlayerEntity player) {
-        return ConfigManager.getConfig().model.geyserWorkaround && PolymerCommonUtils.isBedrockPlayer(player);
+        return Blocks.BARRIER.getDefaultState().with(WATERLOGGED, state.get(WATERLOGGED));
     }
 
     public boolean canPathfindThrough(BlockState state, BlockView world, BlockPos pos, NavigationType type) {
