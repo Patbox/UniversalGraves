@@ -13,6 +13,7 @@ import eu.pb4.graves.other.VanillaInventoryMask;
 import eu.pb4.graves.registry.*;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
+import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
@@ -57,6 +58,9 @@ public class GravesMod implements ModInitializer {
         Registry.register(Registries.BLOCK, new Identifier("universal_graves", "container_grave"), ContainerGraveBlock.INSTANCE);
         Registry.register(Registries.BLOCK, new Identifier("universal_graves", "temp_block"), TempBlock.INSTANCE);
         Registry.register(Registries.ENTITY_TYPE, new Identifier("universal_graves", "xp"), SafeXPEntity.TYPE);
+        Registry.register(Registries.DATA_COMPONENT_TYPE, new Identifier("universal_graves", "compass"), GraveCompassComponent.TYPE);
+        Registry.register(Registries.DATA_COMPONENT_TYPE, new Identifier("universal_graves", "texture"), IconItem.TEXTURE);
+        PolymerItemUtils.markAsPolymer(GraveCompassComponent.TYPE, IconItem.TEXTURE);
         PolymerEntityUtils.registerType(SafeXPEntity.TYPE);
         GraveBlockEntity.BLOCK_ENTITY_TYPE = Registry.register(Registries.BLOCK_ENTITY_TYPE, "universal_graves:grave", FabricBlockEntityTypeBuilder.create(GraveBlockEntity::new, GraveBlock.INSTANCE).build(null));
         VisualGraveBlockEntity.BLOCK_ENTITY_TYPE = Registry.register(Registries.BLOCK_ENTITY_TYPE, "universal_graves:visual_grave", FabricBlockEntityTypeBuilder.create(VisualGraveBlockEntity::new, VisualGraveBlock.INSTANCE).build(null));
@@ -94,14 +98,14 @@ public class GravesMod implements ModInitializer {
             SaveGearOnDeathCompat.register();
         }
 
-        ServerLifecycleEvents.SERVER_STARTING.register((server) -> ConfigManager.loadConfig());
+        ServerLifecycleEvents.SERVER_STARTING.register((server) -> ConfigManager.loadConfig(server.getRegistryManager()));
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             CardboardWarning.checkAndAnnounce();
         });
 
         ServerWorldEvents.LOAD.register(((server, world) -> {
             if (world == server.getOverworld()) {
-                GraveManager.INSTANCE = world.getPersistentStateManager().getOrCreate(GraveManager.TYPE, "universal-graves");
+                GraveManager.INSTANCE = world.getPersistentStateManager().getOrCreate(GraveManager.getType(server), "universal-graves");
                 GraveManager.INSTANCE.setServer(server);
             }
         }));

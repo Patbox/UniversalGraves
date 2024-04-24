@@ -80,12 +80,12 @@ public class GraveBlock extends AbstractGraveBlock implements BlockEntityProvide
     }
 
     @Override
-    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity playerTemp, Hand hand, BlockHitResult hit) {
-        if (!(playerTemp instanceof ServerPlayerEntity player) || hand == Hand.OFF_HAND) {
+    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity playerTemp, BlockHitResult hit) {
+        if (!(playerTemp instanceof ServerPlayerEntity player)) {
             return playerTemp.isSneaking() ? ActionResult.PASS : ActionResult.FAIL;
         }
         BlockEntity blockEntity = world.getBlockEntity(pos);
-        var stack = player.getStackInHand(hand);
+        var stack = player.getStackInHand(Hand.MAIN_HAND);
 
         if (!stack.isEmpty() && playerTemp.isSneaking()) {
             return ActionResult.PASS;

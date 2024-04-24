@@ -83,10 +83,10 @@ public abstract class PagedGui extends SimpleGui {
     protected abstract GuiSlot getNavElement(int id);
 
     public static final void playClickSound(ServerPlayerEntity player) {
-        player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), SoundCategory.MASTER, 1, 1);
+        player.playSoundToPlayer(SoundEvents.UI_BUTTON_CLICK.value(), SoundCategory.MASTER, 1, 1);
     }
 
     public static final void playClickSound(ServerPlayerEntity player, SoundEvent soundEvent) {
-        player.playSound(soundEvent, SoundCategory.MASTER, 1, 1);
+        player.playSoundToPlayer(soundEvent, SoundCategory.MASTER, 1, 1);
     }
 }

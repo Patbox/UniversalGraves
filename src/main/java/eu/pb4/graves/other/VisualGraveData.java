@@ -7,6 +7,7 @@ import eu.pb4.graves.grave.Grave;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Arm;
@@ -20,10 +21,10 @@ import java.util.Map;
 public record VisualGraveData(GameProfile gameProfile, byte visualSkinModelLayers, Arm mainArm, Text deathCause, long creationTime, Location location, int minecraftDay) {
     public static final VisualGraveData DEFAULT = new VisualGraveData(Grave.DEFAULT_GAME_PROFILE, (byte) 0xFF, Arm.RIGHT, Grave.DEFAULT_DEATH_CAUSE, 0, new Location(new Identifier("the_void"), BlockPos.ORIGIN), -1);
 
-    public NbtCompound toNbt() {
+    public NbtCompound toNbt(RegistryWrapper.WrapperLookup lookup) {
         var nbt = new NbtCompound();
-        nbt.put("GameProfile", NbtHelper.writeGameProfile(new NbtCompound(), this.gameProfile));
-        nbt.putString("DeathCause", Text.Serialization.toJsonString(this.deathCause));
+        nbt.put("GameProfile", LegacyNbtHelper.writeGameProfile(new NbtCompound(), this.gameProfile));
+        nbt.putString("DeathCause", Text.Serialization.toJsonString(this.deathCause, lookup));
         nbt.putLong("CreationTime", this.creationTime);
         nbt.putInt("MinecraftDay", this.minecraftDay);
         nbt.putByte("SkinModelParts", this.visualSkinModelLayers);
@@ -51,12 +52,12 @@ public record VisualGraveData(GameProfile gameProfile, byte visualSkinModelLayer
         return values;
     }
 
-    public static VisualGraveData fromNbt(NbtCompound nbt) {
+    public static VisualGraveData fromNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup) {
         return new VisualGraveData(
-                NbtHelper.toGameProfile(nbt.getCompound("GameProfile")),
+                LegacyNbtHelper.toGameProfile(nbt.getCompound("GameProfile")),
                 nbt.contains("SkinModelParts", NbtElement.BYTE_TYPE) ? nbt.getByte("SkinModelParts") : (byte) 0xFF,
                 nbt.contains("MainArm", NbtElement.BYTE_TYPE) ? (nbt.getByte("MainArm") == Arm.LEFT.getId() ? Arm.LEFT : Arm.RIGHT) : Arm.RIGHT,
-                Text.Serialization.fromJson(nbt.getString("DeathCause")),
+                Text.Serialization.fromJson(nbt.getString("DeathCause"), lookup),
                 nbt.getLong("CreationTime"),
                 Location.fromNbt(nbt),
                 nbt.getInt("MinecraftDay")

@@ -152,6 +152,6 @@ public interface ImplementedInventory extends Inventory {
     }
 
    default boolean canCombine(ItemStack one, ItemStack two) {
-        return one.isEmpty() == two.isEmpty() && ItemStack.canCombine(one, two);
+        return one.isEmpty() == two.isEmpty() && ItemStack.areItemsAndComponentsEqual(one, two);
     }
 }

@@ -18,7 +18,7 @@ public record IconData(ItemStack baseStack, List<WrappedText> text) {
             list.add(x.with(textMap));
         }
 
-        return GuiElementBuilder.from(baseStack).setName(list.remove(0)).setLore(list).hideFlags();
+        return GuiElementBuilder.from(baseStack).setName(list.remove(0)).setLore(list).hideDefaultTooltip();
     }
 
     public GuiElementBuilder builder() {

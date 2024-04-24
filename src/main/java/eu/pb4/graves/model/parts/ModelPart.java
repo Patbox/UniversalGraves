@@ -3,6 +3,8 @@ package eu.pb4.graves.model.parts;
 import com.google.gson.annotations.SerializedName;
 import eu.pb4.graves.config.BaseGson;
 import eu.pb4.polymer.virtualentity.api.elements.AbstractElement;
+import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
@@ -28,8 +30,9 @@ public abstract class ModelPart<T extends AbstractElement, G extends ModelPart<T
     public abstract ModelPartType type();
 
     public G copy() {
+        var gson = BaseGson.getGson(DynamicRegistryManager.of(Registries.REGISTRIES));
         // Ugly but quick
         //noinspection unchecked
-        return (G) BaseGson.GSON.fromJson(BaseGson.GSON.toJsonTree(this), this.getClass());
+        return (G) gson.fromJson(gson.toJsonTree(this), this.getClass());
     }
 }

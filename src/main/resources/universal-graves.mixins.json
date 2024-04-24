@@ -11,7 +11,8 @@
     "PlayerEntityAccessor",
     "PlayerInventoryAccessor",
     "ServerPlayerEntityMixin",
-    "ServerWorldMixin"
+    "ServerWorldMixin",
+    "datafixer.Schema1460Mixin"
   ],
   "client": [
   ],

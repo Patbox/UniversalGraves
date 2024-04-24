@@ -7,6 +7,9 @@ import eu.pb4.graves.model.DefaultGraveModels;
 import eu.pb4.graves.model.GraveModel;
 import eu.pb4.graves.other.ImplementedInventory;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryWrapper;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,7 +31,7 @@ public class ConfigManager {
 
     public static Config getConfig() {
         if (CONFIG == null) {
-            loadConfig();
+            loadConfig(DynamicRegistryManager.of(Registries.REGISTRIES));
         }
         return CONFIG;
     }
@@ -37,18 +40,19 @@ public class ConfigManager {
         return ENABLED;
     }
 
-    public static boolean loadConfig() {
+    public static boolean loadConfig(RegistryWrapper.WrapperLookup lookup) {
         ENABLED = false;
 
         CONFIG = null;
         try {
+            var gson = BaseGson.getGson(lookup);
             Config config;
             MODELS.clear();
             Files.createDirectories(EXAMPLE_MODELS_PATH);
             DefaultGraveModels.forEach((name, model) -> {
                 try {
                     MODELS.put(name, model);
-                    Files.writeString(EXAMPLE_MODELS_PATH.resolve(name + ".json"), BaseGson.GSON.toJson(model));
+                    Files.writeString(EXAMPLE_MODELS_PATH.resolve(name + ".json"),gson.toJson(model));
                 } catch (Throwable e) {
                     e.printStackTrace();
                 }
@@ -58,7 +62,7 @@ public class ConfigManager {
                 Files.newDirectoryStream(MODELS_PATH).forEach((path) -> {
                     try {
                         var name = MODELS_PATH.relativize(path).toString();
-                        MODELS.put(name.substring(0, name.length() - 5), BaseGson.GSON.fromJson(Files.readString(path), GraveModel.class));
+                        MODELS.put(name.substring(0, name.length() - 5),gson.fromJson(Files.readString(path), GraveModel.class));
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -68,14 +72,14 @@ public class ConfigManager {
             }
 
             if (Files.exists(CONFIG_PATH)) {
-                config = BaseGson.GSON.fromJson(Files.readString(CONFIG_PATH), Config.class);
+                config =gson.fromJson(Files.readString(CONFIG_PATH), Config.class);
             } else if (Files.exists(OLD_CONFIG_PATH)) {
-                config = BaseGson.GSON.fromJson(Files.readString(OLD_CONFIG_PATH), LegacyConfigData.class).convert();
+                config =gson.fromJson(Files.readString(OLD_CONFIG_PATH), LegacyConfigData.class).convert();
             } else {
                 config = new Config();
             }
             config.fillMissing();
-            overrideConfig(config);
+            overrideConfig(config, lookup);
             CONFIG = config;
             ENABLED = true;
         } catch(Throwable exception) {
@@ -87,9 +91,9 @@ public class ConfigManager {
         return ENABLED;
     }
 
-    public static void overrideConfig(Config configData) {
+    public static void overrideConfig(Config configData, RegistryWrapper.WrapperLookup lookup) {
         try {
-            Files.writeString(CONFIG_PATH, BaseGson.GSON.toJson(configData));
+            Files.writeString(CONFIG_PATH, BaseGson.getGson(lookup).toJson(configData));
             CONFIG = configData;
         } catch (Exception e) {
             GravesMod.LOGGER.error("Something went wrong while saving config!");
@@ -103,9 +107,5 @@ public class ConfigManager {
         }
 
         return MODELS.getOrDefault(model, DefaultGraveModels.FALLBACK);
-    }
-
-    public static void saveConfig() {
-        overrideConfig(CONFIG);
     }
 }

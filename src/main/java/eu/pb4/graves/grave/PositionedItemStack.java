@@ -1,11 +1,12 @@
 package eu.pb4.graves.grave;
 
+import com.mojang.datafixers.DataFixer;
+import com.mojang.serialization.Dynamic;
 import eu.pb4.graves.GravesApi;
+import net.minecraft.datafixer.TypeReferences;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtString;
+import net.minecraft.nbt.*;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,9 +23,9 @@ public record PositionedItemStack(ItemStack stack, int slot, @Nullable GraveInve
     private static final String DATA_TAG = "Data";
     private static final String TAGS_TAG = "Tags";
 
-    public NbtCompound toNbt() {
+    public NbtCompound toNbt(RegistryWrapper.WrapperLookup lookup) {
         var nbt = new NbtCompound();
-        nbt.put(ITEM_TAG, stack.writeNbt(new NbtCompound()));
+        nbt.put(ITEM_TAG, stack.encode(lookup));
         nbt.putString(MASK_TAG, GravesApi.getInventoryMaskId(inventoryMask).toString());
         nbt.putInt(SLOT_TAG, slot);
         if (optionalData != null) {
@@ -41,9 +42,14 @@ public record PositionedItemStack(ItemStack stack, int slot, @Nullable GraveInve
         return nbt;
     }
 
-    public static PositionedItemStack fromNbt(NbtCompound nbt) {
+    public static PositionedItemStack fromNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup, DataFixer dataFixer, int dataVersion, int currentDataVersion) {
+        var stackData = nbt.getCompound(ITEM_TAG);
+        if (dataVersion < currentDataVersion) {
+            stackData = (NbtCompound) dataFixer.update(TypeReferences.ITEM_STACK, new Dynamic<>(NbtOps.INSTANCE, stackData), dataVersion, currentDataVersion).getValue();
+        }
+
         return new PositionedItemStack(
-                ItemStack.fromNbt(nbt.getCompound(ITEM_TAG)),
+                ItemStack.fromNbtOrEmpty(lookup, stackData),
                 nbt.getInt(SLOT_TAG),
                 GravesApi.getDefaultedInventoryMask(Identifier.tryParse(nbt.getString(MASK_TAG))),
                 nbt.get(DATA_TAG),

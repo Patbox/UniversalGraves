@@ -1,8 +1,7 @@
 package eu.pb4.graves.grave;
 
-import com.google.common.collect.Iterables;
 import com.mojang.authlib.GameProfile;
-import eu.pb4.graves.GravesMod;
+import com.mojang.datafixers.DataFixer;
 import eu.pb4.graves.config.Config;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.config.data.WrappedText;
@@ -12,7 +11,6 @@ import eu.pb4.graves.registry.GraveBlock;
 import eu.pb4.graves.registry.GraveBlockEntity;
 import eu.pb4.graves.ui.GraveGui;
 import me.lucko.fabric.api.permissions.v0.Permissions;
-import net.minecraft.block.entity.SkullBlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
@@ -21,6 +19,7 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -142,16 +141,16 @@ public final class Grave {
         return new Grave(GraveManager.INSTANCE.requestId(), player.getGameProfile(), player.getDataTracker().get(PlayerEntityAccessor.getPLAYER_MODEL_PARTS()), player.getMainArm(), position, world, GraveType.BLOCK, System.currentTimeMillis() / 1000, GraveManager.INSTANCE.getCurrentGameTime(), xp, deathCause, allowedUUIDs, itemStacks, true, minecraftDay);
     }
 
-    public NbtCompound writeNbt(NbtCompound nbt) {
+    public NbtCompound writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup) {
         if (this.gameProfile != null) {
-            nbt.put("GameProfile", NbtHelper.writeGameProfile(new NbtCompound(), this.gameProfile));
+            nbt.put("GameProfile", LegacyNbtHelper.writeGameProfile(new NbtCompound(), this.gameProfile));
         }
         nbt.putLong("Id", this.id);
         nbt.putInt("XP", this.xp);
         nbt.putLong("CreationTime", this.creationTime);
         nbt.putInt("ItemCount", this.itemCount);
         nbt.putInt("MinecraftDay", this.minecraftDay);
-        nbt.putString("DeathCause", Text.Serialization.toJsonString(this.deathCause));
+        nbt.putString("DeathCause", Text.Serialization.toJsonString(this.deathCause, lookup));
         nbt.putString("Type", this.type.name());
         nbt.putBoolean("IsProtectionEnabled", this.isProtectionEnabled);
         nbt.putBoolean("RequirePayment", this.requirePayment);
@@ -167,7 +166,7 @@ public final class Grave {
 
         var items = new NbtList();
         for (var item : this.items) {
-            items.add(item.toNbt());
+            items.add(item.toNbt(lookup));
         }
 
         nbt.put("Items", items);
@@ -176,7 +175,7 @@ public final class Grave {
         return nbt;
     }
 
-    public void readNbt(NbtCompound nbt) {
+    public void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup, DataFixer dataFixer, int dataVersion, int currentDataVersion) {
         try {
             if (nbt.contains("Id", NbtElement.LONG_TYPE)) {
                 this.id = nbt.getLong("Id");
@@ -184,12 +183,12 @@ public final class Grave {
                 this.id = GraveManager.INSTANCE.requestId();
             }
 
-            this.gameProfile = NbtHelper.toGameProfile(nbt.getCompound("GameProfile"));
+            this.gameProfile = LegacyNbtHelper.toGameProfile(nbt.getCompound("GameProfile"));
             this.xp = nbt.getInt("XP");
             this.creationTime = nbt.getLong("CreationTime");
             this.itemCount = nbt.getInt("ItemCount");
             this.minecraftDay = nbt.getInt("MinecraftDay");
-            this.deathCause = Text.Serialization.fromLenientJson(nbt.getString("DeathCause"));
+            this.deathCause = Text.Serialization.fromLenientJson(nbt.getString("DeathCause"), lookup);
             this.location = Location.fromNbt(nbt);
             this.allowedUUIDs.clear();
             this.requirePayment = nbt.getBoolean("RequirePayment");
@@ -217,7 +216,7 @@ public final class Grave {
             }
 
             for (var item : nbt.getList("Items", NbtElement.COMPOUND_TYPE)) {
-                var stack = PositionedItemStack.fromNbt((NbtCompound) item);
+                var stack = PositionedItemStack.fromNbt((NbtCompound) item, lookup, dataFixer, dataVersion, currentDataVersion);
                 this.items.add(stack);
                 this.addTaggedItem(stack);
             }

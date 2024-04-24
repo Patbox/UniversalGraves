@@ -5,7 +5,9 @@ import eu.pb4.graves.grave.Grave;
 import eu.pb4.graves.grave.GraveManager;
 import eu.pb4.graves.other.PlayerAdditions;
 import eu.pb4.polymer.core.api.item.PolymerItem;
-import net.minecraft.client.item.TooltipContext;
+import net.minecraft.client.item.TooltipType;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.LodestoneTrackerComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -19,6 +21,8 @@ import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 public class GraveCompassItem extends Item implements PolymerItem {
     public static Item INSTANCE = new GraveCompassItem();
 
@@ -28,16 +32,15 @@ public class GraveCompassItem extends Item implements PolymerItem {
 
     public static ItemStack create(long graveId, boolean toVanilla) {
         var stack = new ItemStack(INSTANCE);
-        stack.getOrCreateNbt().putLong("GraveId", graveId);
-        stack.getNbt().putBoolean("ConvertToVanilla", toVanilla);
+        stack.set(GraveCompassComponent.TYPE, new GraveCompassComponent(graveId, toVanilla));
         return stack;
     }
 
     @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
         ItemStack stack = user.getStackInHand(hand);
-        if (user instanceof ServerPlayerEntity serverPlayerEntity && ConfigManager.getConfig().interactions.useDeathCompassToOpenGui && stack.hasNbt() && stack.getNbt().contains("GraveId", NbtElement.LONG_TYPE)) {
-            Grave grave = GraveManager.INSTANCE.getId(user.getStackInHand(hand).getNbt().getLong("GraveId"));
+        if (user instanceof ServerPlayerEntity serverPlayerEntity && ConfigManager.getConfig().interactions.useDeathCompassToOpenGui && stack.contains(GraveCompassComponent.TYPE)) {
+            Grave grave = GraveManager.INSTANCE.getId(stack.get(GraveCompassComponent.TYPE).graveId());
             grave.openUi(serverPlayerEntity, false, false);
         }
         return TypedActionResult.pass(user.getStackInHand(hand));
@@ -51,21 +54,21 @@ public class GraveCompassItem extends Item implements PolymerItem {
     @Override
     public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
         if (entity instanceof ServerPlayerEntity player && !stack.isEmpty()) {
-            if (stack.hasNbt() && stack.getNbt().contains("GraveId", NbtElement.LONG_TYPE)) {
-                var grave = GraveManager.INSTANCE.getId(stack.getNbt().getLong("GraveId"));
+            if (stack.contains(GraveCompassComponent.TYPE)) {
+                var grave = GraveManager.INSTANCE.getId(stack.get(GraveCompassComponent.TYPE).graveId());
 
                 if (grave == null) {
                     var count = stack.getCount();
                     stack.setCount(0);
 
-                    if (stack.getNbt().getBoolean("ConvertToVanilla")) {
+                    if (stack.get(GraveCompassComponent.TYPE).convertToVanilla()) {
                         player.giveItemStack(new ItemStack(Items.COMPASS, count));
                     }
                 }
             } else {
                 var graveId = ((PlayerAdditions) entity).graves$lastGrave();
                 if (graveId != -1) {
-                    stack.getOrCreateNbt().putLong("GraveId", graveId);
+                    stack.set(GraveCompassComponent.TYPE, new GraveCompassComponent(graveId, false));
                 } else {
                     stack.setCount(0);
                 }
@@ -74,20 +77,16 @@ public class GraveCompassItem extends Item implements PolymerItem {
     }
 
     @Override
-    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipContext context, @Nullable ServerPlayerEntity player) {
+    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType context, @Nullable ServerPlayerEntity player) {
         var clientStack = PolymerItem.super.getPolymerItemStack(itemStack, context, player);
-        if (player != null && itemStack.hasNbt() && itemStack.getNbt().contains("GraveId", NbtElement.LONG_TYPE)) {
-            var grave = GraveManager.INSTANCE.getId(itemStack.getNbt().getLong("GraveId"));
+        if (player != null && itemStack.contains(GraveCompassComponent.TYPE)) {
+            var grave = GraveManager.INSTANCE.getId(itemStack.get(GraveCompassComponent.TYPE).graveId());
             if (grave != null) {
-                clientStack.getOrCreateNbt().putString("LodestoneDimension", grave.getLocation().world().toString());
-                var pos = new NbtCompound();
-                pos.putInt("X", grave.getLocation().x());
-                pos.putInt("Y", grave.getLocation().y());
-                pos.putInt("Z", grave.getLocation().z());
-                clientStack.getOrCreateNbt().put("LodestonePos", pos);
+                clientStack.set(DataComponentTypes.LODESTONE_TRACKER, new LodestoneTrackerComponent(Optional.of(grave.getLocation().asGlobalPos()), true));
             }
+        } else {
+            clientStack.set(DataComponentTypes.LODESTONE_TRACKER, new LodestoneTrackerComponent(Optional.empty(), true));
         }
-        clientStack.getOrCreateNbt().putBoolean("LodestoneTracked", true);
         return clientStack;
     }
 }

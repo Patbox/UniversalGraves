@@ -7,6 +7,8 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.component.DataComponentType;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -63,37 +65,25 @@ public class ContainerGraveBlock extends VisualGraveBlock {
     }
 
     @Override
-    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity entity, Hand hand, BlockHitResult hit) {
+    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity entity,  BlockHitResult hit) {
         if (entity instanceof ServerPlayerEntity player && !player.isSneaking()) {
             var blockEntityOptional = world.getBlockEntity(pos, ContainerGraveBlockEntity.BLOCK_ENTITY_TYPE);
 
             if (blockEntityOptional.isPresent() && blockEntityOptional.get().isPlayerMade) {
                 var grave = blockEntityOptional.get();
 
-                var itemStack = player.getStackInHand(hand);
+                var itemStack = player.getStackInHand(Hand.MAIN_HAND);
                 if (itemStack.getItem() == Items.FEATHER) {
                     grave.openEditScreen(player);
                 } else if (itemStack.getItem() == Items.PLAYER_HEAD) {
-                    if (itemStack.hasNbt() && itemStack.getNbt().contains(PlayerHeadItem.SKULL_OWNER_KEY, NbtElement.COMPOUND_TYPE)) {
+                    if (itemStack.contains(DataComponentTypes.PROFILE)) {
                         grave.setVisualData(new VisualGraveData(
-                                NbtHelper.toGameProfile(itemStack.getNbt().getCompound(PlayerHeadItem.SKULL_OWNER_KEY)),
+                                itemStack.get(DataComponentTypes.PROFILE).gameProfile(),
                                 grave.getGraveSkinModelLayers(),
                                 grave.getGraveMainArm(),
                                 grave.getGrave().deathCause(),
                                 grave.getGrave().creationTime(),
                                 grave.getGrave().location(), grave.getGrave().minecraftDay()), grave.replacedBlockState);
-                    } else if (itemStack.hasNbt() && itemStack.getNbt().contains(PlayerHeadItem.SKULL_OWNER_KEY, NbtElement.STRING_TYPE)) {
-                        player.getServer().getUserCache().findByNameAsync(itemStack.getNbt().getString(PlayerHeadItem.SKULL_OWNER_KEY)).thenAccept((profile) -> {
-                            if (profile.isPresent()) {
-                                grave.setVisualData(new VisualGraveData(
-                                        profile.get(),
-                                        grave.getGraveSkinModelLayers(),
-                                        grave.getGraveMainArm(),
-                                        grave.getGrave().deathCause(),
-                                        grave.getGrave().creationTime(),
-                                        grave.getGrave().location(), grave.getGrave().minecraftDay()), grave.replacedBlockState);
-                            }
-                        });
                     } else {
                         grave.setVisualData(new VisualGraveData(
                                 new GameProfile(Util.NIL_UUID, "Player"),
@@ -118,7 +108,7 @@ public class ContainerGraveBlock extends VisualGraveBlock {
                     }
 
                     world.setBlockState(pos, state.with(Properties.ROTATION, val));
-                } else if (hand == Hand.MAIN_HAND) {
+                } else {
                     var gui = new SimpleGui(ScreenHandlerType.GENERIC_3X3, player, false) {
                         @Override
                         public void onTick() {

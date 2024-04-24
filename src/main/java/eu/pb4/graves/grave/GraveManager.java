@@ -1,13 +1,15 @@
 package eu.pb4.graves.grave;
 
+import com.mojang.datafixers.DataFixer;
 import eu.pb4.graves.other.Location;
 import eu.pb4.graves.registry.GraveGameRules;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import net.minecraft.SharedConstants;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
@@ -19,7 +21,6 @@ import org.jetbrains.annotations.ApiStatus;
 import java.util.*;
 
 public final class GraveManager extends PersistentState {
-    public static final Type<GraveManager> TYPE = new Type<>(GraveManager::new, GraveManager::fromNbt, null);
     public static GraveManager INSTANCE;
 
     private final HashMap<UUID, Set<Grave>> byUuid = new HashMap<>();
@@ -31,6 +32,10 @@ public final class GraveManager extends PersistentState {
     private long currentGraveId = 0;
     private int protectionTime;
     private int breakingTime;
+
+    public static Type<GraveManager> getType(MinecraftServer server) {
+        return new Type<>(GraveManager::new, (a, b) -> GraveManager.fromNbt(a, b, server.getDataFixer()), null);
+    }
 
     public void add(Grave grave) {
         if (grave.getId() == -1) {
@@ -60,25 +65,27 @@ public final class GraveManager extends PersistentState {
     }
 
     @Override
-    public NbtCompound writeNbt(NbtCompound nbt) {
+    public NbtCompound writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup) {
         NbtList list = new NbtList();
 
         for (Grave grave : new ArrayList<>(this.graves)) {
             if (!grave.shouldNaturallyBreak()) {
-                list.add(grave.writeNbt(new NbtCompound()));
+                list.add(grave.writeNbt(new NbtCompound(), lookup));
             }
         }
         nbt.put("Graves", list);
-        nbt.putInt("Version", 2);
+        nbt.putInt("Version", 3);
+        nbt.putInt("GameVersion", SharedConstants.getGameVersion().getSaveVersion().getId());
         nbt.putLong("CurrentGameTime", this.currentGameTime);
         nbt.putLong("CurrentGrave", this.currentGraveId);
 
         return nbt;
     }
 
-    public static GraveManager fromNbt(NbtCompound nbt) {
+    public static GraveManager fromNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup, DataFixer dataFixer) {
         GraveManager manager = new GraveManager();
         GraveManager.INSTANCE = manager;
+        int dataVersion = nbt.getInt("Version") == 2 ? 3700 : nbt.getInt("GameVersion");
 
         manager.currentGameTime = nbt.getLong("CurrentGameTime");
         manager.currentGraveId = nbt.getLong("CurrentGrave");
@@ -86,7 +93,7 @@ public final class GraveManager extends PersistentState {
         NbtList graves = nbt.getList("Graves", NbtElement.COMPOUND_TYPE);
         for (NbtElement graveNbt : graves) {
             Grave graveInfo = new Grave();
-            graveInfo.readNbt((NbtCompound) graveNbt);
+            graveInfo.readNbt((NbtCompound) graveNbt, lookup, dataFixer, dataVersion, SharedConstants.getGameVersion().getSaveVersion().getId());
             manager.add(graveInfo);
         }
         return manager;
@@ -95,7 +102,7 @@ public final class GraveManager extends PersistentState {
     public Collection<Grave> getByUuid(UUID uuid) {
         var graveInfoList = this.byUuid.get(uuid);
         if (graveInfoList != null) {
-            graveInfoList.removeIf((g) -> g.shouldNaturallyBreak());
+            graveInfoList.removeIf(Grave::shouldNaturallyBreak);
             return graveInfoList;
         }
 

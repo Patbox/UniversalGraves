@@ -12,6 +12,7 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.*;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Arm;
@@ -53,17 +54,17 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
     }
 
     @Override
-    protected void writeNbt(NbtCompound nbt) {
-        super.writeNbt(nbt);
+    protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup) {
+        super.writeNbt(nbt, lookup);
         nbt.put("BlockState", NbtHelper.fromBlockState(this.replacedBlockState));
-        nbt.put("VisualData", this.visualData.toNbt());
+        nbt.put("VisualData", this.visualData.toNbt(lookup));
         nbt.putBoolean("AllowModification", this.isPlayerMade);
 
         if (this.textOverrides != null) {
             var list = new NbtList();
 
             for (var text : this.textOverrides) {
-                list.add(NbtString.of(Text.Serialization.toJsonString(text)));
+                list.add(NbtString.of(Text.Serialization.toJsonString(text, lookup)));
             }
 
             nbt.put("TextOverride", list);
@@ -72,16 +73,16 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
 
 
     @Override
-    public void readNbt(NbtCompound nbt) {
-        super.readNbt(nbt);
+    public void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup) {
+        super.readNbt(nbt, lookup);
         try {
-            this.visualData = VisualGraveData.fromNbt(nbt.getCompound("VisualData"));
+            this.visualData = VisualGraveData.fromNbt(nbt.getCompound("VisualData"), lookup);
             this.replacedBlockState = NbtHelper.toBlockState(Registries.BLOCK.getReadOnlyWrapper(), (NbtCompound) Objects.requireNonNull(nbt.get("BlockState")));
 
             if (nbt.contains("TextOverride", NbtElement.LIST_TYPE)) {
                 var textOverrides = new ArrayList<>();
                 for (var text : nbt.getList("TextOverride", NbtElement.STRING_TYPE)) {
-                    textOverrides.add(Text.Serialization.fromLenientJson(text.asString()));
+                    textOverrides.add(Text.Serialization.fromLenientJson(text.asString(), lookup));
                 }
                 this.textOverrides = textOverrides.toArray(new Text[0]);
             }

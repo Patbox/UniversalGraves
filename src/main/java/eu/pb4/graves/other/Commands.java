@@ -107,7 +107,7 @@ public class Commands {
     }
 
     private static int reloadConfig(CommandContext<ServerCommandSource> context) {
-        if (ConfigManager.loadConfig()) {
+        if (ConfigManager.loadConfig(context.getSource().getRegistryManager())) {
             context.getSource().sendFeedback(() -> Text.literal("Reloaded config!"), false);
         } else {
             context.getSource().sendError(Text.literal("Error occurred while reloading config!").formatted(Formatting.RED));

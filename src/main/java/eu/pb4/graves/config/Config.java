@@ -15,6 +15,7 @@ import eu.pb4.predicate.api.BuiltinPredicates;
 import eu.pb4.predicate.api.MinecraftPredicate;
 import eu.pb4.predicate.api.PredicateContext;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.component.ComponentMap;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
@@ -201,7 +202,7 @@ public class Config {
         @SerializedName("gravestone_item_base")
         public Item gravestoneItemBase = Items.SKELETON_SKULL;
         @SerializedName("gravestone_item_nbt")
-        public NbtCompound gravestoneItemNbt = new NbtCompound();
+        public ComponentMap gravestoneItemNbt = ComponentMap.EMPTY;
         public class CheckedModel {
             @SerializedName("require")
             public MinecraftPredicate predicate = BuiltinPredicates.operatorLevel(0);

@@ -20,7 +20,7 @@ public class TempBlock extends Block implements PolymerBlock {
     }
 
     @Override
-    public Block getPolymerBlock(BlockState state) {
-        return Blocks.AIR;
+    public BlockState getPolymerBlockState(BlockState state) {
+        return Blocks.AIR.getDefaultState();
     }
 }

@@ -214,13 +214,12 @@ public class GraveUtils {
 
     public static boolean hasSkippedEnchantment(ItemStack stack) {
         var config = ConfigManager.getConfig();
-        for (var enchant : stack.getEnchantments()) {
-            if (enchant instanceof NbtCompound compound) {
-                var key = EnchantmentHelper.getIdFromNbt(compound);
-                if (key != null && config.storage.skippedEnchantments.contains(key)) {
-                    return true;
-                }
+        for (var enchant : stack.getEnchantments().getEnchantments()) {
+            var key = enchant.getKey().get().getValue().toString();
+            if (key != null && config.storage.skippedEnchantments.contains(key)) {
+                return true;
             }
+
         }
         return false;
     }
@@ -253,7 +252,7 @@ public class GraveUtils {
                     if (--teleportTicks >= 0) {
                         if (!config.teleportation.allowMovingDuringTeleportation && !player.getPos().equals(currentPosition)) {
                             player.sendMessage(config.teleportation.text.teleportCancelledText.text());
-                            player.playSound(SoundEvents.ENTITY_SHULKER_HURT_CLOSED,
+                            player.playSoundToPlayer(SoundEvents.ENTITY_SHULKER_HURT_CLOSED,
                                     SoundCategory.MASTER, 1f, 0.5f);
                             finishedCallback.accept(false);
                             return;
@@ -263,7 +262,7 @@ public class GraveUtils {
 
                             player.teleport(world, x + 0.5D, y + 1.0D, z + 0.5D,
                                     player.getYaw(), player.getPitch());
-                            player.playSound(SoundEvents.ENTITY_ENDERMAN_TELEPORT,
+                            player.playSoundToPlayer(SoundEvents.ENTITY_ENDERMAN_TELEPORT,
                                     SoundCategory.MASTER, 1f, 1f);
                             ((PlayerAdditions) player).graves$setInvulnerable(true);
                         }

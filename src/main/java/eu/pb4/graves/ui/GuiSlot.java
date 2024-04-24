@@ -30,13 +30,17 @@ public record GuiSlot(@Nullable GuiElementInterface element, @Nullable Slot slot
         if (gui.canNextPage()) {
             return GuiSlot.of(
                     config.ui.nextButton.get(true).builder()
+                            .noDefaults()
+                            .hideDefaultTooltip()
                             .setCallback((x, y, z) -> {
                                 PagedGui.playClickSound(gui.getPlayer());
                                 gui.nextPage();
                             })
             );
         } else {
-            return GuiSlot.of(config.ui.nextButton.get(false).builder());
+            return GuiSlot.of(config.ui.nextButton.get(false).builder()
+                    .noDefaults()
+                    .hideDefaultTooltip());
         }
     }
 
@@ -46,6 +50,8 @@ public record GuiSlot(@Nullable GuiElementInterface element, @Nullable Slot slot
         if (gui.canPreviousPage()) {
             return GuiSlot.of(
                     config.ui.previousButton.get(true).builder()
+                            .noDefaults()
+                            .hideDefaultTooltip()
                             .setCallback((x, y, z) -> {
                                 PagedGui.playClickSound(gui.getPlayer());
                                 gui.previousPage();
@@ -53,13 +59,15 @@ public record GuiSlot(@Nullable GuiElementInterface element, @Nullable Slot slot
             );
         } else {
             return GuiSlot.of(config.ui.previousButton.get(false).builder()
+                    .noDefaults()
+                    .hideDefaultTooltip()
             );
         }
     }
 
     public static GuiSlot filler() {
         return GuiSlot.of(
-                ConfigManager.getConfig().ui.barButton.builder()
+                ConfigManager.getConfig().ui.barButton.builder().hideTooltip()
         );
     }
 
@@ -75,6 +83,8 @@ public record GuiSlot(@Nullable GuiElementInterface element, @Nullable Slot slot
         var config = ConfigManager.getConfig();
         return GuiSlot.of(
                 config.ui.backButton.builder()
+                        .noDefaults()
+                        .hideDefaultTooltip()
                         .setCallback((x, y, z, d) -> {
                             PagedGui.playClickSound(d.getPlayer());
                             back.run();

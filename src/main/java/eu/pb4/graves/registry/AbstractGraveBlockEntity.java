@@ -8,6 +8,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 
@@ -22,14 +23,14 @@ public abstract class AbstractGraveBlockEntity extends BlockEntity implements Mo
     }
 
     @Override
-    protected void writeNbt(NbtCompound nbt) {
-        super.writeNbt(nbt);
+    protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup) {
+        super.writeNbt(nbt, lookup);
         nbt.putString("GraveModel", this.model);
     }
 
     @Override
-    public void readNbt(NbtCompound nbt) {
-        super.readNbt(nbt);
+    public void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup) {
+        super.readNbt(nbt, lookup);
         this.model = nbt.getString("GraveModel");
         this.onModelChanged(this.model);
 
@@ -45,6 +46,8 @@ public abstract class AbstractGraveBlockEntity extends BlockEntity implements Mo
         this.onModelChanged(model);
         this.markDirty();
     }
+
+
 
     public abstract void onModelChanged(String model);
 

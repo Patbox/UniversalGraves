@@ -22,6 +22,7 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.text.Text;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Identifier;
@@ -64,17 +65,17 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity implements GraveH
     }
 
     @Override
-    protected void writeNbt(NbtCompound nbt) {
-        super.writeNbt(nbt);
+    protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup) {
+        super.writeNbt(nbt, lookup);
         nbt.put("BlockState", NbtHelper.fromBlockState(this.replacedBlockState));
-        nbt.put("VisualData", this.getClientData().toNbt());
+        nbt.put("VisualData", this.getClientData().toNbt(lookup));
         nbt.putLong("GraveId", this.graveId);
     }
 
 
     @Override
-    public void readNbt(NbtCompound nbt) {
-        super.readNbt(nbt);
+    public void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup) {
+        super.readNbt(nbt, lookup);
         try {
             if (nbt.contains("GraveId", NbtElement.LONG_TYPE)) {
                 this.graveId = nbt.getLong("GraveId");
@@ -82,7 +83,7 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity implements GraveH
             this.fetchGraveData();
 
             if (this.visualData == null) {
-                this.visualData = VisualGraveData.fromNbt(nbt.getCompound("VisualData"));
+                this.visualData = VisualGraveData.fromNbt(nbt.getCompound("VisualData"), lookup);
             }
 
             this.replacedBlockState = NbtHelper.toBlockState(Registries.BLOCK.getReadOnlyWrapper(), (NbtCompound) Objects.requireNonNull(nbt.get("BlockState")));

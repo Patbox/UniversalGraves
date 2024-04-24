@@ -1,6 +1,8 @@
 package eu.pb4.graves.other;
 
+import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonSerializationContext;
 import eu.pb4.graves.config.BaseGson;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -78,14 +80,14 @@ public record GenericCost<T>(Type<T> type, T object, int count) {
                 for (var i = 0; i < player.getInventory().size(); i++) {
                     var stack = player.getInventory().getStack(i);
 
-                    if (ItemStack.canCombine(stack, object)) {
+                    if (ItemStack.areItemsAndComponentsEqual(stack, object)) {
                         c += stack.getCount();
                     }
                 }
 
                 if (c >= count) {
                     if (take) {
-                        player.getInventory().remove((i) -> !i.isEmpty() && ItemStack.canCombine(i, object), count, GraveUtils.EMPTY_INVENTORY);
+                        player.getInventory().remove((i) -> !i.isEmpty() && ItemStack.areItemsAndComponentsEqual(i, object), count, GraveUtils.EMPTY_INVENTORY);
                     }
                     return true;
                 } else {
@@ -94,19 +96,19 @@ public record GenericCost<T>(Type<T> type, T object, int count) {
             }
 
             @Override
-            public ItemStack decodeConfig(JsonElement object) {
+            public ItemStack decodeConfig(JsonElement object, JsonDeserializationContext jsonDeserializationContext) {
                 if (object != null) {
-                    var x = BaseGson.GSON.fromJson(object, ItemStack.class);
+                    var x = jsonDeserializationContext.deserialize(object, ItemStack.class);
                     if (x != null) {
-                        return x;
+                        return (ItemStack) x;
                     }
                 }
                 return ItemStack.EMPTY;
             }
 
             @Override
-            public JsonElement encodeConfig(ItemStack object) {
-                return BaseGson.GSON.toJsonTree(object);
+            public JsonElement encodeConfig(ItemStack object, JsonSerializationContext jsonSerializationContext) {
+                return jsonSerializationContext.serialize(object);
             }
 
             @Override
@@ -137,12 +139,12 @@ public record GenericCost<T>(Type<T> type, T object, int count) {
             return new Type<>() {
 
                 @Override
-                public Object decodeConfig(JsonElement object) {
+                public Object decodeConfig(JsonElement object, JsonDeserializationContext jsonDeserializationContext) {
                     return null;
                 }
 
                 @Override
-                public JsonElement encodeConfig(Object object) {
+                public JsonElement encodeConfig(Object object, JsonSerializationContext jsonSerializationContext) {
                     return null;
                 }
 
@@ -172,8 +174,8 @@ public record GenericCost<T>(Type<T> type, T object, int count) {
             };
         }
 
-        T decodeConfig(@Nullable JsonElement object);
-        JsonElement encodeConfig(T object);
+        T decodeConfig(@Nullable JsonElement object, JsonDeserializationContext jsonDeserializationContext);
+        JsonElement encodeConfig(T object, JsonSerializationContext jsonSerializationContext);
         ItemStack getIcon(T object, int count);
         default Text toText(T object, int i) {
             return Text.empty().append(toName(object)).append(" × ").append("" + i);

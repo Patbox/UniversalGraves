@@ -58,11 +58,6 @@ public abstract class AbstractGraveBlock extends Block implements PolymerBlock, 
     }
 
     @Override
-    public Block getPolymerBlock(BlockState state) {
-        return Blocks.DIRT;
-    }
-
-    @Override
     public BlockState getPolymerBlockState(BlockState state, ServerPlayerEntity player) {
         return Blocks.BARRIER.getDefaultState().with(WATERLOGGED, state.get(WATERLOGGED));
     }
@@ -78,6 +73,11 @@ public abstract class AbstractGraveBlock extends Block implements PolymerBlock, 
     @Override
     public @Nullable ElementHolder createElementHolder(ServerWorld world, BlockPos pos, BlockState initialBlockState) {
         return new GraveModelHandler(initialBlockState, world);
+    }
+
+    @Override
+    public BlockState getPolymerBlockState(BlockState state) {
+        return Blocks.BARRIER.getDefaultState();
     }
 
     @Nullable

@@ -1,9 +1,12 @@
 package eu.pb4.graves.registry;
 
+import com.mojang.serialization.Codec;
 import eu.pb4.polymer.core.api.item.PolymerItem;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
-import net.minecraft.client.item.TooltipContext;
+import net.minecraft.client.item.TooltipType;
+import net.minecraft.component.DataComponentType;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -15,6 +18,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public final class IconItem extends Item implements PolymerItem {
+    public static final DataComponentType<Texture> TEXTURE = DataComponentType.<Texture>builder()
+            .codec(Codec.stringResolver(Texture::id, x -> Texture.BY_NAME.getOrDefault(x, Texture.INVALID))).build();
+
     public static final Item INSTANCE = new IconItem();
 
     protected IconItem() {
@@ -23,7 +29,7 @@ public final class IconItem extends Item implements PolymerItem {
 
     public static ItemStack of(Texture texture) {
         var stack = new ItemStack(INSTANCE);
-        stack.getOrCreateNbt().putString("Texture", texture.id);
+        stack.set(TEXTURE, texture);
         return stack;
     }
 
@@ -33,10 +39,10 @@ public final class IconItem extends Item implements PolymerItem {
     }
 
     @Override
-    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipContext context, @Nullable ServerPlayerEntity player) {
+    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType context, @Nullable ServerPlayerEntity player) {
         var stack = PolymerItemUtils.createItemStack(itemStack, player);
-        var texture = itemStack.hasNbt() ? itemStack.getNbt().getString("Texture") : "";
-        stack.getOrCreateNbt().put("SkullOwner", PolymerUtils.createSkullOwner(Texture.BY_NAME.getOrDefault(texture, Texture.INVALID).texture));
+        var texture = itemStack.getOrDefault(TEXTURE, Texture.INVALID);
+        stack.set(DataComponentTypes.PROFILE, PolymerUtils.createProfileComponent(texture.texture, null));
         return stack;
     }
 
@@ -60,6 +66,10 @@ public final class IconItem extends Item implements PolymerItem {
         Texture(String id, String texture) {
             this.texture = texture;
             this.id = id;
+        }
+
+        public String id() {
+            return this.id;
         }
     }
 }

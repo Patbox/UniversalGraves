@@ -1,9 +1,12 @@
 package eu.pb4.graves.other;
 
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.GlobalPos;
 
 public record Location(Identifier world, BlockPos blockPos) {
     public int x() { return this.blockPos.getX(); }
@@ -29,5 +32,9 @@ public record Location(Identifier world, BlockPos blockPos) {
 
     public static Location fromEntity(ServerPlayerEntity player) {
         return new Location(player.getWorld().getRegistryKey().getValue(), player.getBlockPos());
+    }
+
+    public GlobalPos asGlobalPos() {
+        return GlobalPos.create(RegistryKey.of(RegistryKeys.WORLD, this.world), this.blockPos);
     }
 }

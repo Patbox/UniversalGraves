@@ -7,7 +7,7 @@ import eu.pb4.graves.mixin.PlayerEntityAccessor;
 import eu.pb4.graves.other.VisualGraveData;
 import eu.pb4.polymer.core.api.item.PolymerItem;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.item.TooltipContext;
+import net.minecraft.client.item.TooltipType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -47,12 +47,12 @@ public class CointainerGraveBlockItem extends BlockItem implements PolymerItem {
     }
 
     @Override
-    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipContext context, @Nullable ServerPlayerEntity player) {
+    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType context, @Nullable ServerPlayerEntity player) {
         var out = PolymerItem.super.getPolymerItemStack(itemStack, context, player);
-        var conf = ConfigManager.getConfig().model.gravestoneItemNbt;
-        if (!conf.isEmpty()) {
-            out.getOrCreateNbt().copyFrom(conf);
-        }
+        //var conf = ConfigManager.getConfig().model.gravestoneItemNbt;
+        //if (!conf.isEmpty()) {
+        //    out.getOrCreateNbt().copyFrom(conf);
+        //}
         return out;
     }
 }

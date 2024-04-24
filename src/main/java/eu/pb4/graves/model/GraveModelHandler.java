@@ -17,6 +17,8 @@ import eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment;
 import eu.pb4.polymer.virtualentity.api.attachment.HolderAttachment;
 import eu.pb4.polymer.virtualentity.api.elements.*;
 import net.minecraft.block.BlockState;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.PlayerHeadItem;
@@ -143,7 +145,7 @@ public class GraveModelHandler extends ElementHolder {
             boolean canContinue = true;
             if (part.tags.contains(ModelTags.PLAYER_HEAD)) {
                 //this.playerHeadDisplays.add(itemDisplayElement);
-                itemDisplayElement.getItem().getOrCreateNbt().put(PlayerHeadItem.SKULL_OWNER_KEY, NbtHelper.writeGameProfile(new NbtCompound(), this.dataPrivider.getGraveGameProfile()));
+                itemDisplayElement.getItem().set(DataComponentTypes.PROFILE, new ProfileComponent(this.dataPrivider.getGraveGameProfile()));
                 canContinue = false;
             } else {
                 for (var tag : ModelTags.EQUIPMENT) {
