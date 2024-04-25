@@ -99,6 +99,10 @@ public class GravesMod implements ModInitializer {
         }
 
         ServerLifecycleEvents.SERVER_STARTING.register((server) -> ConfigManager.loadConfig(server.getRegistryManager()));
+        ServerLifecycleEvents.SERVER_STOPPED.register((server) -> {
+            GraveManager.INSTANCE = null;
+            ConfigManager.clearConfig();
+        });
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             CardboardWarning.checkAndAnnounce();
         });

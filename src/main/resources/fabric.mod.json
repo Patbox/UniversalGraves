@@ -16,6 +16,7 @@
   "license": "LGPLv3",
   "icon": "assets/logo.png",
   "environment": "*",
+  "accessWidener": "universalgraves.accesswidener",
   "entrypoints": {
     "main": [
       "eu.pb4.graves.GravesMod"

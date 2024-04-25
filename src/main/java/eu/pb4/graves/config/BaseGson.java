@@ -3,6 +3,7 @@ package eu.pb4.graves.config;
 import com.google.gson.*;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.JsonOps;
 import eu.pb4.graves.config.data.IconData;
 import eu.pb4.graves.config.data.WrappedDateFormat;
@@ -14,9 +15,13 @@ import eu.pb4.graves.other.GravesXPCalculation;
 import eu.pb4.graves.other.GenericCost;
 import eu.pb4.predicate.api.GsonPredicateSerializer;
 import eu.pb4.predicate.api.MinecraftPredicate;
+import net.minecraft.SharedConstants;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.component.ComponentMap;
+import net.minecraft.datafixer.Schemas;
+import net.minecraft.datafixer.TypeReferences;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
@@ -56,8 +61,9 @@ public class BaseGson {
                 .registerTypeHierarchyAdapter(EntityType.class, new RegistrySerializer<>(Registries.ENTITY_TYPE))
                 .registerTypeHierarchyAdapter(BlockEntityType.class, new RegistrySerializer<>(Registries.BLOCK_ENTITY_TYPE))
 
-                .registerTypeHierarchyAdapter(ItemStack.class, new CodecSerializer<>(ItemStack.CODEC, lookup))
+                //.registerTypeHierarchyAdapter(ItemStack.class, new CodecSerializer<>(ItemStack.CODEC, lookup))
                 .registerTypeHierarchyAdapter(ItemStack.class, new ItemStackSerializer(lookup))
+                .registerTypeHierarchyAdapter(ComponentMap.class, new CodecSerializer<>(ComponentMap.CODEC, lookup))
                 .registerTypeHierarchyAdapter(NbtCompound.class, new CodecSerializer<>(NbtCompound.CODEC, lookup))
                 .registerTypeHierarchyAdapter(BlockPos.class, new CodecSerializer<>(BlockPos.CODEC, lookup))
                 .registerTypeHierarchyAdapter(MinecraftPredicate.class, GsonPredicateSerializer.INSTANCE)
@@ -185,6 +191,10 @@ public class BaseGson {
         @Override
         public ItemStack deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
             if (jsonElement.isJsonObject()) {
+                if (jsonElement.getAsJsonObject().has("tag")) {
+                    jsonElement = Schemas.getFixer().update(TypeReferences.ITEM_STACK, new Dynamic<>(JsonOps.INSTANCE, jsonElement), 3700, SharedConstants.getGameVersion().getSaveVersion().getId()).getValue();
+                }
+
                 return ItemStack.CODEC.decode(RegistryOps.of(JsonOps.INSTANCE, lookup), jsonElement).result().orElse(Pair.of(ItemStack.EMPTY, null)).getFirst();
             } else {
                 return Registries.ITEM.get(Identifier.tryParse(jsonElement.getAsString())).getDefaultStack();

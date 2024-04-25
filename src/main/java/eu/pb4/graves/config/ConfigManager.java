@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ConfigManager {
-    public static final int VERSION = 3;
+    public static final int VERSION = 4;
     private static final Path BASE_CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("universal-graves/");
     private static final Path CONFIG_PATH = BASE_CONFIG_PATH.resolve("config.json");
     private static final Path MODELS_PATH = BASE_CONFIG_PATH.resolve("models/");
@@ -31,7 +31,7 @@ public class ConfigManager {
 
     public static Config getConfig() {
         if (CONFIG == null) {
-            loadConfig(DynamicRegistryManager.of(Registries.REGISTRIES));
+            return Config.DEFAULT;
         }
         return CONFIG;
     }
@@ -72,12 +72,13 @@ public class ConfigManager {
             }
 
             if (Files.exists(CONFIG_PATH)) {
-                config =gson.fromJson(Files.readString(CONFIG_PATH), Config.class);
+                config = gson.fromJson(Files.readString(CONFIG_PATH), Config.class);
             } else if (Files.exists(OLD_CONFIG_PATH)) {
-                config =gson.fromJson(Files.readString(OLD_CONFIG_PATH), LegacyConfigData.class).convert();
+                config = gson.fromJson(Files.readString(OLD_CONFIG_PATH), LegacyConfigData.class).convert();
             } else {
                 config = new Config();
             }
+            config.version = VERSION;
             config.fillMissing();
             overrideConfig(config, lookup);
             CONFIG = config;
@@ -107,5 +108,9 @@ public class ConfigManager {
         }
 
         return MODELS.getOrDefault(model, DefaultGraveModels.FALLBACK);
+    }
+
+    public static void clearConfig() {
+        CONFIG = null;
     }
 }

@@ -12,6 +12,7 @@
     "PlayerInventoryAccessor",
     "ServerPlayerEntityMixin",
     "ServerWorldMixin",
+    "datafixer.ItemStackComponentizationFixMixin",
     "datafixer.Schema1460Mixin"
   ],
   "client": [

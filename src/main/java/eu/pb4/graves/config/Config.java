@@ -26,6 +26,7 @@ import net.minecraft.util.Identifier;
 import java.util.*;
 
 public class Config {
+    public static final Config DEFAULT = new Config();
     public String _comment = "Before changing anything, see https://github.com/Patbox/UniversalGraves#configuration";
 
     @ConfigHidden
