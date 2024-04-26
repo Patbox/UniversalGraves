@@ -203,7 +203,7 @@ public class BaseGson {
 
         @Override
         public JsonElement serialize(ItemStack stack, Type type, JsonSerializationContext jsonSerializationContext) {
-            if (stack.getCount() == 1 && !stack.getComponentChanges().isEmpty()) {
+            if (stack.getCount() == 1 && stack.getComponentChanges().isEmpty()) {
                 return new JsonPrimitive(Registries.ITEM.getId(stack.getItem()).toString());
             }
 
