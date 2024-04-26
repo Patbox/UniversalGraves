@@ -15,6 +15,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
@@ -55,13 +56,14 @@ public class GraveCompassItem extends Item implements PolymerItem {
     public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
         if (entity instanceof ServerPlayerEntity player && !stack.isEmpty()) {
             if (stack.contains(GraveCompassComponent.TYPE)) {
-                var grave = GraveManager.INSTANCE.getId(stack.get(GraveCompassComponent.TYPE).graveId());
+                var compass = stack.get(GraveCompassComponent.TYPE);
+                var grave = GraveManager.INSTANCE.getId(compass.graveId());
 
                 if (grave == null) {
                     var count = stack.getCount();
                     stack.setCount(0);
 
-                    if (stack.get(GraveCompassComponent.TYPE).convertToVanilla()) {
+                    if (compass.convertToVanilla()) {
                         player.giveItemStack(new ItemStack(Items.COMPASS, count));
                     }
                 }
@@ -77,8 +79,13 @@ public class GraveCompassItem extends Item implements PolymerItem {
     }
 
     @Override
-    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType context, @Nullable ServerPlayerEntity player) {
-        var clientStack = PolymerItem.super.getPolymerItemStack(itemStack, context, player);
+    public boolean hasGlint(ItemStack stack) {
+        return true;
+    }
+
+    @Override
+    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType context, RegistryWrapper.WrapperLookup lookup, @Nullable ServerPlayerEntity player) {
+        var clientStack = PolymerItem.super.getPolymerItemStack(itemStack, context, lookup, player);
         if (player != null && itemStack.contains(GraveCompassComponent.TYPE)) {
             var grave = GraveManager.INSTANCE.getId(itemStack.get(GraveCompassComponent.TYPE).graveId());
             if (grave != null) {
