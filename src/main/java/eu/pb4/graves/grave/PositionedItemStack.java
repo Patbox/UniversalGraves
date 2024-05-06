@@ -25,7 +25,7 @@ public record PositionedItemStack(ItemStack stack, int slot, @Nullable GraveInve
 
     public NbtCompound toNbt(RegistryWrapper.WrapperLookup lookup) {
         var nbt = new NbtCompound();
-        nbt.put(ITEM_TAG, stack.encode(lookup));
+        nbt.put(ITEM_TAG, stack.encodeAllowEmpty(lookup));
         nbt.putString(MASK_TAG, GravesApi.getInventoryMaskId(inventoryMask).toString());
         nbt.putInt(SLOT_TAG, slot);
         if (optionalData != null) {
