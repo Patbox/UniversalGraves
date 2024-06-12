@@ -1,15 +1,15 @@
 package eu.pb4.graves.registry;
 
 import com.mojang.authlib.GameProfile;
-import eu.pb4.graves.config.Config;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.mixin.PlayerEntityAccessor;
 import eu.pb4.graves.other.VisualGraveData;
 import eu.pb4.polymer.core.api.item.PolymerItem;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.item.TooltipType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
+import net.minecraft.item.tooltip.TooltipType;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -47,12 +47,12 @@ public class CointainerGraveBlockItem extends BlockItem implements PolymerItem {
     }
 
     @Override
-    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType context, @Nullable ServerPlayerEntity player) {
-        var out = PolymerItem.super.getPolymerItemStack(itemStack, context, player);
-        //var conf = ConfigManager.getConfig().model.gravestoneItemNbt;
-        //if (!conf.isEmpty()) {
-        //    out.getOrCreateNbt().copyFrom(conf);
-        //}
+    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType context, RegistryWrapper.WrapperLookup lookup, @Nullable ServerPlayerEntity player) {
+        var out = PolymerItem.super.getPolymerItemStack(itemStack, context, lookup, player);
+        var conf = ConfigManager.getConfig().model.gravestoneItemNbt;
+        if (!conf.isEmpty()) {
+            out.applyComponentsFrom(conf);
+        }
         return out;
     }
 }

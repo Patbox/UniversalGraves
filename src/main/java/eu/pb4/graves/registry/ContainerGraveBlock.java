@@ -3,20 +3,17 @@ package eu.pb4.graves.registry;
 import com.mojang.authlib.GameProfile;
 import eu.pb4.graves.other.VisualGraveData;
 import eu.pb4.sgui.api.gui.SimpleGui;
+import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.component.DataComponentType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.item.PlayerHeadItem;
 import net.minecraft.item.ShovelItem;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtHelper;
 import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
 import net.minecraft.registry.Registries;
 import net.minecraft.screen.ScreenHandlerType;
@@ -28,6 +25,7 @@ import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.Util;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -36,7 +34,7 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 public class ContainerGraveBlock extends VisualGraveBlock {
-    public static ContainerGraveBlock INSTANCE = new ContainerGraveBlock(Settings.copy(GraveBlock.INSTANCE).hardness(4));
+    public static ContainerGraveBlock INSTANCE = new ContainerGraveBlock(AbstractBlock.Settings.create().nonOpaque().dynamicBounds().hardness(4));
 
     public ContainerGraveBlock(Settings settings) {
         super(settings);
@@ -62,6 +60,12 @@ public class ContainerGraveBlock extends VisualGraveBlock {
                 optional.get().textOverrides = new Text[]{Text.empty(), Text.empty(), Text.empty(), Text.empty()};
             }
         }
+    }
+
+    @Override
+    protected void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
+        ItemScatterer.onStateReplaced(state, newState, world, pos);
+        super.onStateReplaced(state, world, pos, newState, moved);
     }
 
     @Override

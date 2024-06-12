@@ -22,7 +22,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.ExperienceOrbEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
@@ -30,8 +29,6 @@ import net.minecraft.fluid.Fluids;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.MinecraftServer;
@@ -55,12 +52,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class GraveUtils {
     private static final ChunkTicketType<Grave> GRAVE_TICKED = ChunkTicketType.create("universal_graves", Comparator.comparing(Grave::getId), 5);
 
-    public static final Identifier REPLACEABLE_ID = new Identifier("universal_graves", "replaceable");
+    public static final Identifier REPLACEABLE_ID = Identifier.of("universal_graves", "replaceable");
     public static final TagKey<Block> REPLACEABLE_TAG = TagKey.of(RegistryKeys.BLOCK, REPLACEABLE_ID);
     public static final Inventory EMPTY_INVENTORY = new SimpleInventory(0);
     private static final Function<Map.Entry<Property<?>, Comparable<?>>, String> PROPERTY_MAP_PRINTER = new Function<>() {
@@ -278,7 +274,7 @@ public class GraveUtils {
         }
     }
 
-    public static void createGrave(ServerPlayerEntity player, DamageSource source) {
+    public static void createGrave(ServerPlayerEntity player, ServerWorld damageWorld, DamageSource source) {
         Config config = ConfigManager.getConfig();
 
 

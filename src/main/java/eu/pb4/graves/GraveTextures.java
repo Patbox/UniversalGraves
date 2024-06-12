@@ -16,8 +16,8 @@ import java.util.function.Supplier;
 
 
 public final class GraveTextures {
-    private static final Identifier IDENTIFIER = new Identifier("universal_graves", "has_rp");
-    private static final Supplier<Text> DEV_TEXTURE = () -> Text.literal("-1.").setStyle(Style.EMPTY.withColor(Formatting.WHITE).withFont(new Identifier("universal_graves", "gui")));
+    private static final Identifier IDENTIFIER = Identifier.of("universal_graves", "has_rp");
+    private static final Supplier<Text> DEV_TEXTURE = () -> Text.literal("-1.").setStyle(Style.EMPTY.withColor(Formatting.WHITE).withFont(Identifier.of("universal_graves", "gui")));
     private static final Supplier<Text> TEXTURE = GravesMod.DEV ? DEV_TEXTURE : Suppliers.memoize(DEV_TEXTURE::get);
 
     public static Text get(ServerPlayerEntity player, Text text) {

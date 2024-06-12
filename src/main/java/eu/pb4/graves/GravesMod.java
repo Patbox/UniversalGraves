@@ -50,16 +50,16 @@ public class GravesMod implements ModInitializer {
         FabricLoader loader = FabricLoader.getInstance();
         GenericModInfo.build(CONTAINER);
 
-        Registry.register(Registries.ITEM, new Identifier("universal_graves", "grave_compass"), GraveCompassItem.INSTANCE);
-        Registry.register(Registries.ITEM, new Identifier("universal_graves", "visual_grave"), CointainerGraveBlockItem.INSTANCE);
-        Registry.register(Registries.ITEM, new Identifier("universal_graves", "icon"), IconItem.INSTANCE);
-        Registry.register(Registries.BLOCK, new Identifier("universal_graves", "grave"), GraveBlock.INSTANCE);
-        Registry.register(Registries.BLOCK, new Identifier("universal_graves", "visual_grave"), VisualGraveBlock.INSTANCE);
-        Registry.register(Registries.BLOCK, new Identifier("universal_graves", "container_grave"), ContainerGraveBlock.INSTANCE);
-        Registry.register(Registries.BLOCK, new Identifier("universal_graves", "temp_block"), TempBlock.INSTANCE);
-        Registry.register(Registries.ENTITY_TYPE, new Identifier("universal_graves", "xp"), SafeXPEntity.TYPE);
-        Registry.register(Registries.DATA_COMPONENT_TYPE, new Identifier("universal_graves", "compass"), GraveCompassComponent.TYPE);
-        Registry.register(Registries.DATA_COMPONENT_TYPE, new Identifier("universal_graves", "texture"), IconItem.TEXTURE);
+        Registry.register(Registries.ITEM, Identifier.of("universal_graves", "grave_compass"), GraveCompassItem.INSTANCE);
+        Registry.register(Registries.ITEM, Identifier.of("universal_graves", "visual_grave"), CointainerGraveBlockItem.INSTANCE);
+        Registry.register(Registries.ITEM, Identifier.of("universal_graves", "icon"), IconItem.INSTANCE);
+        Registry.register(Registries.BLOCK, Identifier.of("universal_graves", "grave"), GraveBlock.INSTANCE);
+        Registry.register(Registries.BLOCK, Identifier.of("universal_graves", "visual_grave"), VisualGraveBlock.INSTANCE);
+        Registry.register(Registries.BLOCK, Identifier.of("universal_graves", "container_grave"), ContainerGraveBlock.INSTANCE);
+        Registry.register(Registries.BLOCK, Identifier.of("universal_graves", "temp_block"), TempBlock.INSTANCE);
+        Registry.register(Registries.ENTITY_TYPE, Identifier.of("universal_graves", "xp"), SafeXPEntity.TYPE);
+        Registry.register(Registries.DATA_COMPONENT_TYPE, Identifier.of("universal_graves", "compass"), GraveCompassComponent.TYPE);
+        Registry.register(Registries.DATA_COMPONENT_TYPE, Identifier.of("universal_graves", "texture"), IconItem.TEXTURE);
         PolymerItemUtils.markAsPolymer(GraveCompassComponent.TYPE, IconItem.TEXTURE);
         PolymerEntityUtils.registerType(SafeXPEntity.TYPE);
         GraveBlockEntity.BLOCK_ENTITY_TYPE = Registry.register(Registries.BLOCK_ENTITY_TYPE, "universal_graves:grave", FabricBlockEntityTypeBuilder.create(GraveBlockEntity::new, GraveBlock.INSTANCE).build(null));
@@ -81,9 +81,9 @@ public class GravesMod implements ModInitializer {
             PolymerResourcePackUtils.addModAssets("universal-graves");
         }
 
-        CommonProtection.register(new Identifier("universal_graves", "graves"), GraveProtectionProvider.INSTANCE);
+        CommonProtection.register(Identifier.of("universal_graves", "graves"), GraveProtectionProvider.INSTANCE);
 
-        GravesApi.registerInventoryMask(new Identifier("vanilla"), VanillaInventoryMask.INSTANCE);
+        GravesApi.registerInventoryMask(Identifier.of("vanilla"), VanillaInventoryMask.INSTANCE);
 
         if (loader.isModLoaded("goml")) {
             GomlCompat.register();

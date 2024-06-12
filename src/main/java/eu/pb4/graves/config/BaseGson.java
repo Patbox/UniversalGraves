@@ -55,7 +55,6 @@ public class BaseGson {
 
                 .registerTypeHierarchyAdapter(Item.class, new RegistrySerializer<>(Registries.ITEM))
                 .registerTypeHierarchyAdapter(Block.class, new RegistrySerializer<>(Registries.BLOCK))
-                .registerTypeHierarchyAdapter(Enchantment.class, new RegistrySerializer<>(Registries.ENCHANTMENT))
                 .registerTypeHierarchyAdapter(SoundEvent.class, new RegistrySerializer<>(Registries.SOUND_EVENT))
                 .registerTypeHierarchyAdapter(StatusEffect.class, new RegistrySerializer<>(Registries.STATUS_EFFECT))
                 .registerTypeHierarchyAdapter(EntityType.class, new RegistrySerializer<>(Registries.ENTITY_TYPE))
@@ -66,7 +65,7 @@ public class BaseGson {
                 .registerTypeHierarchyAdapter(ComponentMap.class, new CodecSerializer<>(ComponentMap.CODEC, lookup))
                 .registerTypeHierarchyAdapter(NbtCompound.class, new CodecSerializer<>(NbtCompound.CODEC, lookup))
                 .registerTypeHierarchyAdapter(BlockPos.class, new CodecSerializer<>(BlockPos.CODEC, lookup))
-                .registerTypeHierarchyAdapter(MinecraftPredicate.class, GsonPredicateSerializer.INSTANCE)
+                .registerTypeHierarchyAdapter(MinecraftPredicate.class, GsonPredicateSerializer.create(lookup))
                 .registerTypeHierarchyAdapter(Vec3d.class, new CodecSerializer<>(Vec3d.CODEC, lookup))
                 .registerTypeHierarchyAdapter(Vec2f.class, new CodecSerializer<>(Codec.list(Codec.DOUBLE).xmap(x -> new Vec2f(x.get(0).floatValue(), x.get(1).floatValue()), x -> List.of((double) x.x, (double) x.y)), lookup))
                 .registerTypeHierarchyAdapter(EntityDimensions.class, new CodecSerializer<>(Codec.list(Codec.DOUBLE).xmap(x -> EntityDimensions.fixed(x.get(0).floatValue(), x.get(1).floatValue()), x -> List.of((double) x.width(), (double) x.height())), lookup))

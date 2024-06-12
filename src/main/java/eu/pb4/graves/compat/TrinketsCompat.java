@@ -7,6 +7,7 @@ import dev.emi.trinkets.api.event.TrinketDropCallback;
 import eu.pb4.graves.GravesApi;
 import eu.pb4.graves.grave.GraveInventoryMask;
 import eu.pb4.graves.other.VanillaInventoryMask;
+import net.minecraft.component.EnchantmentEffectComponentTypes;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
@@ -20,7 +21,7 @@ public class TrinketsCompat extends VanillaInventoryMask {
     private static final String SLOT_TAG = "Slot";
 
     public static void register() {
-        GravesApi.registerInventoryMask(new Identifier("universal_graves", "trinkets"), INSTANCE);
+        GravesApi.registerInventoryMask(Identifier.of("universal_graves", "trinkets"), INSTANCE);
     }
 
     @Override
@@ -41,7 +42,7 @@ public class TrinketsCompat extends VanillaInventoryMask {
             }
 
             if (dropRule == TrinketEnums.DropRule.DEFAULT) {
-                if (EnchantmentHelper.hasVanishingCurse(stack)) {
+                if (EnchantmentHelper.hasAnyEnchantmentsWith(stack, EnchantmentEffectComponentTypes.PREVENT_EQUIPMENT_DROP)) {
                     dropRule = TrinketEnums.DropRule.DESTROY;
                 } else {
                     dropRule = TrinketEnums.DropRule.DROP;

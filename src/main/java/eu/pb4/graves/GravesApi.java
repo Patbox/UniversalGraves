@@ -13,6 +13,7 @@ import eu.pb4.graves.other.GraveUtils;
 import eu.pb4.graves.other.Location;
 import eu.pb4.graves.other.VanillaInventoryMask;
 import net.fabricmc.fabric.api.event.Event;
+import net.minecraft.component.EnchantmentEffectComponentTypes;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -47,7 +48,7 @@ public final class GravesApi {
         return !itemStack.isEmpty()
                 && PlayerGraveItemAddedEvent.EVENT.invoker().canAddItem(player, itemStack) != ActionResult.FAIL
                 && !GraveUtils.hasSkippedEnchantment(itemStack)
-                && !EnchantmentHelper.hasVanishingCurse(itemStack);
+                && !EnchantmentHelper.hasAnyEnchantmentsWith(itemStack, EnchantmentEffectComponentTypes.PREVENT_EQUIPMENT_DROP);
     }
 
     @Nullable

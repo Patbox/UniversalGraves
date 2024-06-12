@@ -48,7 +48,6 @@ repositories {
 
 loom {
 	accessWidenerPath = file("src/main/resources/universalgraves.accesswidener")
-
 }
 
 dependencies {
@@ -61,24 +60,24 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 
-	modImplementation include("eu.pb4:sgui:1.5.0+1.20.5")
-	modImplementation include("eu.pb4:placeholder-api:2.4.0-pre.1+1.20.5")
-	modImplementation include('xyz.nucleoid:server-translations-api:2.3.0+1.20.5-rc2')
-	modImplementation include('eu.pb4:polymer-core:0.8.0-beta.7+1.20.5')
-	modImplementation include('eu.pb4:polymer-resource-pack:0.8.0-beta.7+1.20.5')
-	modImplementation include('eu.pb4:polymer-virtual-entity:0.8.0-beta.7+1.20.5')
-	modImplementation include('eu.pb4:predicate-api:0.4.0+1.20.5')
+	modImplementation include("eu.pb4:sgui:1.6.0+1.21")
+	modImplementation include("eu.pb4:placeholder-api:2.4.0-pre.2+1.21")
+	modImplementation include('xyz.nucleoid:server-translations-api:2.3.1+1.21-pre2')
+	modImplementation include('eu.pb4:polymer-core:0.9.0+1.21-rc1')
+	modImplementation include('eu.pb4:polymer-resource-pack:0.9.0+1.21-rc1')
+	modImplementation include('eu.pb4:polymer-virtual-entity:0.9.0+1.21-rc1')
+	modImplementation include('eu.pb4:predicate-api:0.5.1+1.21')
 	modImplementation include("eu.pb4:common-protection-api:1.0.0")
 
 	modImplementation include("me.lucko:fabric-permissions-api:0.2-SNAPSHOT")
 
-	modCompileOnly "dev.emi:trinkets:3.7.1"
+	modCompileOnly "dev.emi:trinkets:3.9.0"
 	//modCompileOnly "modrinth.maven:trinkets:3.0.4"
 	modCompileOnly files("modsWithCompat/inventorio-1.17-fabric-1.6.2.jar")
 
 	modCompileOnly "draylar:get-off-my-lawn:1.17-1.4.0-beta"
 	modCompileOnly 'com.jamieswhiteshirt:rtree-3i-lite:0.3.0'
-	modCompileOnly "io.github.onyxstudios.Cardinal-Components-API:cardinal-components-base:3.0.0-nightly.21w19a"
+	modCompileOnly "org.ladysnake.cardinal-components-api:cardinal-components-base:6.1.0"
 
 	modCompileOnly("com.terraformersmc:modmenu:7.2.2")
 
@@ -102,7 +101,7 @@ tasks.withType(JavaCompile).configureEach {
 	it.options.encoding = "UTF-8"
 
 	// Minecraft 1.17 (21w19a) upwards uses Java 16.
-	it.options.release = 17
+	it.options.release = 21
 }
 
 java {

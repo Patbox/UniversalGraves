@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public record VisualGraveData(GameProfile gameProfile, byte visualSkinModelLayers, Arm mainArm, Text deathCause, long creationTime, Location location, int minecraftDay) {
-    public static final VisualGraveData DEFAULT = new VisualGraveData(Grave.DEFAULT_GAME_PROFILE, (byte) 0xFF, Arm.RIGHT, Grave.DEFAULT_DEATH_CAUSE, 0, new Location(new Identifier("the_void"), BlockPos.ORIGIN), -1);
+    public static final VisualGraveData DEFAULT = new VisualGraveData(Grave.DEFAULT_GAME_PROFILE, (byte) 0xFF, Arm.RIGHT, Grave.DEFAULT_DEATH_CAUSE, 0, new Location(Identifier.of("the_void"), BlockPos.ORIGIN), -1);
 
     public NbtCompound toNbt(RegistryWrapper.WrapperLookup lookup) {
         var nbt = new NbtCompound();

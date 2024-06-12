@@ -19,7 +19,7 @@ public class InventorioCompat implements GraveInventoryMask {
     public static final GraveInventoryMask INSTANCE = new InventorioCompat();
 
     public static void register() {
-        GravesApi.registerInventoryMask(new Identifier("universal_graves", "inventorio"), INSTANCE);
+        GravesApi.registerInventoryMask(Identifier.of("universal_graves", "inventorio"), INSTANCE);
     }
 
     @Override

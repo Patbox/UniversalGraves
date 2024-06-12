@@ -32,11 +32,4 @@ public abstract class ServerWorldMixin extends World {
             cir.setReturnValue(grave.getGrave().hasAccess(player));
         }
     }
-
-    @Inject(method = {"method_29204", "method_29201"}, at = @At("HEAD"), cancellable = true)
-    private static void grave_dontBreak(ServerWorld serverWorld, BlockPos pos, CallbackInfo ci) {
-        if (serverWorld.getBlockState(pos).getBlock() == GraveBlock.INSTANCE) {
-            ci.cancel();
-        }
-    }
 }

@@ -4,12 +4,13 @@ import com.mojang.serialization.Codec;
 import eu.pb4.polymer.core.api.item.PolymerItem;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
-import net.minecraft.client.item.TooltipType;
-import net.minecraft.component.DataComponentType;
+import net.minecraft.component.ComponentType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.item.tooltip.TooltipType;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,7 +19,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public final class IconItem extends Item implements PolymerItem {
-    public static final DataComponentType<Texture> TEXTURE = DataComponentType.<Texture>builder()
+    public static final ComponentType<Texture> TEXTURE = ComponentType.<Texture>builder()
             .codec(Codec.stringResolver(Texture::id, x -> Texture.BY_NAME.getOrDefault(x, Texture.INVALID))).build();
 
     public static final Item INSTANCE = new IconItem();
@@ -39,8 +40,8 @@ public final class IconItem extends Item implements PolymerItem {
     }
 
     @Override
-    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType context, @Nullable ServerPlayerEntity player) {
-        var stack = PolymerItemUtils.createItemStack(itemStack, player);
+    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType context, RegistryWrapper.WrapperLookup lookup, @Nullable ServerPlayerEntity player) {
+        var stack = PolymerItemUtils.createItemStack(itemStack, context, lookup, player);
         var texture = itemStack.getOrDefault(TEXTURE, Texture.INVALID);
         stack.set(DataComponentTypes.PROFILE, PolymerUtils.createProfileComponent(texture.texture, null));
         return stack;
