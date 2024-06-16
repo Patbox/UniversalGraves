@@ -63,9 +63,9 @@ dependencies {
 	modImplementation include("eu.pb4:sgui:1.6.0+1.21")
 	modImplementation include("eu.pb4:placeholder-api:2.4.0-pre.2+1.21")
 	modImplementation include('xyz.nucleoid:server-translations-api:2.3.1+1.21-pre2')
-	modImplementation include('eu.pb4:polymer-core:0.9.0+1.21-rc1')
-	modImplementation include('eu.pb4:polymer-resource-pack:0.9.0+1.21-rc1')
-	modImplementation include('eu.pb4:polymer-virtual-entity:0.9.0+1.21-rc1')
+	modImplementation include('eu.pb4:polymer-core:0.9.2+1.21')
+	modImplementation include('eu.pb4:polymer-resource-pack:0.9.2+1.21')
+	modImplementation include('eu.pb4:polymer-virtual-entity:0.9.2+1.21')
 	modImplementation include('eu.pb4:predicate-api:0.5.1+1.21')
 	modImplementation include("eu.pb4:common-protection-api:1.0.0")
 
@@ -156,6 +156,11 @@ curseforge {
 			addGameVersion((project.minecraft_version.contains("-") ? ((String) project.minecraft_version.split("-")[0] + "-Snapshot") : project.minecraft_version))
 			addGameVersion "Fabric"
 			addGameVersion "Quilt"
+
+			relations {
+				requiredDependency "polymer"
+			}
+
 			mainArtifact(remapJar)
 
 			afterEvaluate {
@@ -182,6 +187,9 @@ if (System.getenv("MODRINTH")) {
 		gameVersions = [((String) project.minecraft_version)]
 		changelog = System.getenv("CHANGELOG")
 		loaders = ["fabric"/*, "quilt"*/]
+		dependencies {
+			required.project "polymer"
+		}
 	}
 
 	remapJar {
