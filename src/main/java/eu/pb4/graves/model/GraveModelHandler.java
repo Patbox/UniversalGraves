@@ -7,7 +7,6 @@ import eu.pb4.graves.model.parts.EntityModelPart;
 import eu.pb4.graves.model.parts.ItemDisplayModelPart;
 import eu.pb4.graves.model.parts.ModelPart;
 import eu.pb4.graves.model.parts.TextDisplayModelPart;
-import eu.pb4.graves.other.DynamicNode;
 import eu.pb4.graves.registry.AbstractGraveBlock;
 import eu.pb4.graves.registry.GraveBlock;
 import eu.pb4.placeholders.api.ParserContext;
@@ -21,9 +20,6 @@ import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.PlayerHeadItem;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtHelper;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -138,7 +134,7 @@ public class GraveModelHandler extends ElementHolder {
 
             this.textsWithPlaceholders.add(new TextsWithPlaceholders(node, textDisplayElement));
 
-            textDisplayElement.setText(node.toText(ParserContext.of(DynamicNode.NODES, this.dataPrivider::getGravePlaceholder)));
+            textDisplayElement.setText(node.toText(ParserContext.of(WrappedText.DYNAMIC_NODES, this.dataPrivider::getGravePlaceholder)));
         }
 
         if (part instanceof ItemDisplayModelPart itemDisplayModelPart && element instanceof ItemDisplayElement itemDisplayElement) {
@@ -249,7 +245,7 @@ public class GraveModelHandler extends ElementHolder {
 
                 var placeholders = (Function<String, Text>) this.dataPrivider::getGravePlaceholder;
                 for (var text : textsWithPlaceholders) {
-                    text.displayElement.setText(text.node().toText(ParserContext.of(DynamicNode.NODES, placeholders)));
+                    text.displayElement.setText(text.node().toText(ParserContext.of(WrappedText.DYNAMIC_NODES, placeholders)));
                 }
 
                 for (int i = 0; i < this.itemDisplays.size(); i++) {

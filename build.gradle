@@ -1,3 +1,16 @@
+buildscript {
+	dependencies {
+		classpath "de.guntram.mcmod:crowdin-translate:1.4+1.19.3"
+	}
+	repositories {
+		maven {
+			name = 'CrowdinTranslate source'
+			url = "https://minecraft.guntram.de/maven/"
+		}
+	}
+}
+
+
 plugins {
 	id 'fabric-loom' version '1.6.+'
 	id 'maven-publish'
@@ -11,6 +24,14 @@ targetCompatibility = JavaVersion.VERSION_21
 archivesBaseName = project.archives_base_name
 version = project.mod_version
 group = project.maven_group
+
+
+apply plugin: 'de.guntram.mcmod.crowdin-translate'
+crowdintranslate.crowdinProjectName = 'patbox-mods'
+crowdintranslate.jsonSourceName = 'universal_graves'
+crowdintranslate.minecraftProjectName = '../data/universal_graves'
+crowdintranslate.verbose = false
+
 
 repositories {
 	// Add repositories to retrieve artifacts from in here.
@@ -61,11 +82,11 @@ dependencies {
 
 
 	modImplementation include("eu.pb4:sgui:1.6.0+1.21")
-	modImplementation include("eu.pb4:placeholder-api:2.4.0-pre.2+1.21")
+	modImplementation include("eu.pb4:placeholder-api:2.4.1+1.21")
 	modImplementation include('xyz.nucleoid:server-translations-api:2.3.1+1.21-pre2')
-	modImplementation include('eu.pb4:polymer-core:0.9.2+1.21')
-	modImplementation include('eu.pb4:polymer-resource-pack:0.9.2+1.21')
-	modImplementation include('eu.pb4:polymer-virtual-entity:0.9.2+1.21')
+	modImplementation include('eu.pb4:polymer-core:0.9.7+1.21')
+	modImplementation include('eu.pb4:polymer-resource-pack:0.9.7+1.21')
+	modImplementation include('eu.pb4:polymer-virtual-entity:0.9.7+1.21')
 	modImplementation include('eu.pb4:predicate-api:0.5.1+1.21')
 	modImplementation include("eu.pb4:common-protection-api:1.0.0")
 

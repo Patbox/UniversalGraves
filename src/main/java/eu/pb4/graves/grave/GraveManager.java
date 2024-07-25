@@ -1,6 +1,7 @@
 package eu.pb4.graves.grave;
 
 import com.mojang.datafixers.DataFixer;
+import eu.pb4.graves.GravesMod;
 import eu.pb4.graves.other.Location;
 import eu.pb4.graves.registry.GraveGameRules;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
@@ -22,13 +23,12 @@ import java.util.*;
 
 public final class GraveManager extends PersistentState {
     public static GraveManager INSTANCE;
-
     private final HashMap<UUID, Set<Grave>> byUuid = new HashMap<>();
     private final HashMap<Location, Grave> byLocation = new HashMap<>();
     private final Long2ObjectMap<Grave> byId = new Long2ObjectOpenHashMap<>();
     private final HashSet<Grave> graves = new HashSet<>();
     private long ticker;
-    private long currentGameTime;
+    private long currentGameTime = 0;
     private long currentGraveId = 0;
     private int protectionTime;
     private int breakingTime;
@@ -149,7 +149,7 @@ public final class GraveManager extends PersistentState {
                     grave.tick(server);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                GravesMod.LOGGER.error("Failed to tick grave!", e);
             }
         }
     }

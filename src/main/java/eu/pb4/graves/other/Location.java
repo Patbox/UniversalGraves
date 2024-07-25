@@ -37,4 +37,8 @@ public record Location(Identifier world, BlockPos blockPos) {
     public GlobalPos asGlobalPos() {
         return GlobalPos.create(RegistryKey.of(RegistryKeys.WORLD, this.world), this.blockPos);
     }
+
+    public Location withPos(BlockPos pos) {
+        return new Location(world, pos);
+    }
 }

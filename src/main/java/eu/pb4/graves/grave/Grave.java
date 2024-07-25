@@ -546,6 +546,16 @@ public final class Grave {
             return;
         }
 
+        if (config.placement.activelyMoveInsideBorder && config.placement.moveInsideBorder) {
+            var world = server.getWorld(RegistryKey.of(RegistryKeys.WORLD, this.getLocation().world()));
+            if (world != null && !world.getWorldBorder().contains(this.location.blockPos())) {
+                var newPos = GraveUtils.findGravePosition(this.gameProfile, null, world, this.location.blockPos(), config.placement.maxPlacementDistance, config.placement.replaceAnyBlock);
+                if (newPos.result().canCreate()) {
+                    this.moveTo(server, this.location.withPos(newPos.pos()));
+                }
+            }
+        }
+
         if (!this.utilProtectionChangeMessage && !this.isProtected()) {
             this.utilProtectionChangeMessage = true;
             if (!config.texts.messageProtectionEnded.isEmpty()) {

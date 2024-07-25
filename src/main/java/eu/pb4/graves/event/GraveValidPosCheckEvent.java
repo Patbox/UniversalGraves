@@ -1,5 +1,6 @@
 package eu.pb4.graves.event;
 
+import com.mojang.authlib.GameProfile;
 import eu.pb4.graves.other.GraveUtils;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
@@ -23,5 +24,5 @@ public interface GraveValidPosCheckEvent {
                     return result;
                 });
 
-    GraveUtils.BlockResult isValid(ServerPlayerEntity player, ServerWorld world, BlockPos pos);
+    GraveUtils.BlockResult isValid(GameProfile player, ServerWorld world, BlockPos pos);
 }

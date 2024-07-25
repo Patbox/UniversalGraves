@@ -217,7 +217,7 @@ public class GraveGui extends PagedGui {
             }
         }
 
-        if (this.canModify && (this.canTake && (config.interactions.allowRemoteGraveBreaking || Permissions.check(player, "graves.can_break_remotely", 3)))) {
+        if (this.canModify || (this.canTake && (config.interactions.allowRemoteGraveBreaking || Permissions.check(player, "graves.can_break_remotely", 3)))) {
             if (this.actionTimeRemoveProtect != -1) {
                 return GuiSlot.of(config.ui.breakGraveButton.get(false).builder()
                         .setCallback((x, y, z) -> {

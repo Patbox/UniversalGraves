@@ -1,14 +1,13 @@
 package eu.pb4.graves.registry;
 
 import com.mojang.authlib.GameProfile;
+import eu.pb4.graves.GravesMod;
 import eu.pb4.graves.config.Config;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.grave.Grave;
 import eu.pb4.graves.grave.GraveHolder;
 import eu.pb4.graves.grave.GraveManager;
-import eu.pb4.graves.grave.PositionedItemStack;
 import eu.pb4.graves.model.GraveModelHandler;
-import eu.pb4.graves.other.VanillaInventoryMask;
 import eu.pb4.graves.other.VisualGraveData;
 import eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment;
 import net.minecraft.block.Block;
@@ -20,7 +19,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
-import net.minecraft.nbt.NbtList;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.text.Text;
@@ -41,6 +39,7 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity implements GraveH
     private VisualGraveData visualData = VisualGraveData.DEFAULT;
     private long graveId = -1;
     private GraveModelHandler model;
+    private int selfDestructTimer = 0;
     private Map<String, Text> cachedPlaceholders;
 
     public GraveBlockEntity(BlockPos pos, BlockState state) {
@@ -61,6 +60,7 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity implements GraveH
         } else {
             this.graveId = -1;
         }
+        this.selfDestructTimer = 0;
         this.markDirty();
     }
 
@@ -85,7 +85,7 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity implements GraveH
             if (this.visualData == null) {
                 this.visualData = VisualGraveData.fromNbt(nbt.getCompound("VisualData"), lookup);
             }
-
+            this.selfDestructTimer = 0;
             this.replacedBlockState = NbtHelper.toBlockState(Registries.BLOCK.getReadOnlyWrapper(), (NbtCompound) Objects.requireNonNull(nbt.get("BlockState")));
         } catch (Exception e) {
             this.visualData = VisualGraveData.DEFAULT;
@@ -115,7 +115,11 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity implements GraveH
         if (self.data == null) {
             if (world.getTime() % 10 == 0) {
                 self.fetchGraveData();
+            } else if (self.selfDestructTimer++ > 10 * 20) {
+                GravesMod.LOGGER.warn("Failed to load grave at {}! Removing it!", pos.toShortString());
+                world.setBlockState(pos, self.replacedBlockState);
             }
+
             return;
         }
 

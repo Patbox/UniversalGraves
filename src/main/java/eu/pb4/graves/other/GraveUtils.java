@@ -1,6 +1,7 @@
 package eu.pb4.graves.other;
 
 
+import com.mojang.authlib.GameProfile;
 import eu.pb4.common.protection.api.CommonProtection;
 import eu.pb4.graves.GravesApi;
 import eu.pb4.graves.GravesMod;
@@ -22,6 +23,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.ExperienceOrbEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
@@ -56,8 +58,8 @@ import java.util.function.Function;
 public class GraveUtils {
     private static final ChunkTicketType<Grave> GRAVE_TICKED = ChunkTicketType.create("universal_graves", Comparator.comparing(Grave::getId), 5);
 
-    public static final Identifier REPLACEABLE_ID = Identifier.of("universal_graves", "replaceable");
-    public static final TagKey<Block> REPLACEABLE_TAG = TagKey.of(RegistryKeys.BLOCK, REPLACEABLE_ID);
+    public static final TagKey<Block> REPLACEABLE_TAG = TagKey.of(RegistryKeys.BLOCK, Identifier.of("universal_graves", "replaceable"));
+    public static final TagKey<Enchantment> BLOCKED_ENCHANTMENTS_TAG = TagKey.of(RegistryKeys.ENCHANTMENT, Identifier.of("universal_graves", "blocked_enchantments"));
     public static final Inventory EMPTY_INVENTORY = new SimpleInventory(0);
     private static final Function<Map.Entry<Property<?>, Comparable<?>>, String> PROPERTY_MAP_PRINTER = new Function<>() {
         public String apply(@Nullable Map.Entry<Property<?>, Comparable<?>> entry) {
@@ -75,16 +77,24 @@ public class GraveUtils {
     };
 
     public static BlockCheckResult findGravePosition(ServerPlayerEntity player, ServerWorld world, BlockPos blockPos, int maxDistance, boolean anyBlock) {
+        return findGravePosition(player.getGameProfile(), player, world, blockPos, maxDistance, anyBlock);
+    }
+    public static BlockCheckResult findGravePosition(GameProfile profile, @Nullable ServerPlayerEntity player, ServerWorld world, BlockPos blockPos, int maxDistance, boolean anyBlock) {
         var border = world.getWorldBorder();
-        blockPos = BlockPos.ofFloored(MathHelper.clamp(blockPos.getX(), border.getBoundWest() + 1, border.getBoundEast() - 1), MathHelper.clamp(blockPos.getY(), world.getBottomY(), world.getTopY() - 1), MathHelper.clamp(blockPos.getZ(), border.getBoundNorth() + 1, border.getBoundSouth() - 1));
         var config = ConfigManager.getConfig();
+
+        if (config.placement.moveInsideBorder) {
+            blockPos = BlockPos.ofFloored(MathHelper.clamp(blockPos.getX(), border.getBoundWest() + 1, border.getBoundEast() - 1), MathHelper.clamp(blockPos.getY(), world.getBottomY(), world.getTopY() - 1), MathHelper.clamp(blockPos.getZ(), border.getBoundNorth() + 1, border.getBoundSouth() - 1));
+        } else {
+            blockPos = blockPos.withY(MathHelper.clamp(blockPos.getY(), world.getBottomY(), world.getTopY() - 1));
+        }
         if (config.placement.generateOnGround) {
             while (world.getBlockState(blockPos).isAir() && world.getBottomY() + 2 < blockPos.getY()) {
                 blockPos = blockPos.down();
             }
         }
 
-        var result = isValidPos(player, world, border, blockPos, false, config);
+        var result = isValidPos(profile, player, world, border, blockPos, false, config);
         if (result.allow) {
             return new BlockCheckResult(blockPos, result);
         } else if (result == BlockResult.BLOCK_FLUID) {
@@ -93,25 +103,25 @@ public class GraveUtils {
                 x.move(0, 1, 0);
             }
             blockPos = x.toImmutable();
-            result = isValidPos(player, world, border, blockPos, false, config);
+            result = isValidPos(profile, player, world, border, blockPos, false, config);
             if (result.allow) {
                 return new BlockCheckResult(blockPos, result);
             }
         }
 
-        var checkResult = findPos(player, world, blockPos, maxDistance, false, 0, config);
+        var checkResult = findPos(profile, player, world, blockPos, maxDistance, false, 0, config);
 
         if (!checkResult.result.allow && anyBlock) {
-            checkResult = findPos(player, world, blockPos, maxDistance, true, 0, config);
+            checkResult = findPos(profile, player, world, blockPos, maxDistance, true, 0, config);
         }
 
         return checkResult;
     }
 
-    private static BlockCheckResult findPos(ServerPlayerEntity player, ServerWorld world, BlockPos blockPos, int maxDistance, boolean allowAnyBlock, int iteration, Config config) {
+    private static BlockCheckResult findPos(GameProfile profile,  @Nullable ServerPlayerEntity player, ServerWorld world, BlockPos blockPos, int maxDistance, boolean allowAnyBlock, int iteration, Config config) {
         int line = 1;
         var border = world.getWorldBorder();
-        BlockResult result = isValidPos(player, world, border, blockPos, allowAnyBlock, config);
+        BlockResult result = isValidPos(profile, player, world, border, blockPos, allowAnyBlock, config);
 
         if (result.allow) {
             return new BlockCheckResult(blockPos, result);
@@ -131,7 +141,7 @@ public class GraveUtils {
                             continue;
                         }
 
-                        tempResult = isValidPos(player, world, border, pos, allowAnyBlock, config);
+                        tempResult = isValidPos(profile, player, world, border, pos, allowAnyBlock, config);
                         if (tempResult.priority >= result.priority) {
                             result = tempResult;
                         }
@@ -145,7 +155,7 @@ public class GraveUtils {
         }
 
         if (config.placement.shiftLocationOnFailure && iteration < config.placement.maxShiftCount) {
-            return findPos(player, world, blockPos.offset(Direction.random(Random.create()), config.placement.shiftDistance), maxDistance, allowAnyBlock, iteration + 1, config);
+            return findPos(profile, player, world, blockPos.offset(Direction.random(Random.create()), config.placement.shiftDistance), maxDistance, allowAnyBlock, iteration + 1, config);
         }
 
         return new BlockCheckResult(null, result);
@@ -160,10 +170,10 @@ public class GraveUtils {
     }
 
 
-    private static BlockResult isValidPos(ServerPlayerEntity player, ServerWorld world, WorldBorder border, BlockPos pos, boolean anyBlock, Config config) {
+    private static BlockResult isValidPos(GameProfile profile, @Nullable ServerPlayerEntity player, ServerWorld world, WorldBorder border, BlockPos pos, boolean anyBlock, Config config) {
         BlockState state = world.getBlockState(pos);
 
-        if (canReplaceState(state, anyBlock) && border.contains(pos) && pos.getY() >= world.getBottomY() && pos.getY() < world.getTopY()) {
+        if (canReplaceState(state, anyBlock) && (!config.placement.moveInsideBorder || border.contains(pos)) && pos.getY() >= world.getBottomY() && pos.getY() < world.getTopY()) {
             if (config.placement.generateOnTopOfFluids && state.getFluidState().getFluid() != Fluids.EMPTY && world.getBlockState(pos.up()).getFluidState().getFluid() != Fluids.EMPTY) {
                 return BlockResult.BLOCK_FLUID;
             }
@@ -179,12 +189,12 @@ public class GraveUtils {
 
             //noinspection ConstantConditions
             for (var id : CommonProtection.getProviderIds()) {
-                if (config.placement.blockInProtection.get(id) == Boolean.TRUE && !Objects.requireNonNull(CommonProtection.getProvider(id)).canPlaceBlock(world, pos, player.getGameProfile(), player)) {
+                if (config.placement.blockInProtection.get(id) == Boolean.TRUE && !Objects.requireNonNull(CommonProtection.getProvider(id)).canPlaceBlock(world, pos, profile, player)) {
                     return BlockResult.BLOCK_CLAIM;
                 }
             }
 
-            return GraveValidPosCheckEvent.EVENT.invoker().isValid(player, world, pos);
+            return GraveValidPosCheckEvent.EVENT.invoker().isValid(profile, world, pos);
         } else {
             return BlockResult.BLOCK;
         }
@@ -211,11 +221,14 @@ public class GraveUtils {
     public static boolean hasSkippedEnchantment(ItemStack stack) {
         var config = ConfigManager.getConfig();
         for (var enchant : stack.getEnchantments().getEnchantments()) {
-            var key = enchant.getKey().get().getValue().toString();
-            if (key != null && config.storage.skippedEnchantments.contains(key)) {
+            if (enchant.isIn(BLOCKED_ENCHANTMENTS_TAG)) {
                 return true;
             }
 
+            var key = enchant.getKey().get().getValue();
+            if (key != null && config.storage.skippedEnchantments.contains(key)) {
+                return true;
+            }
         }
         return false;
     }

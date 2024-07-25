@@ -16,10 +16,10 @@ import eu.pb4.predicate.api.MinecraftPredicate;
 import eu.pb4.predicate.api.PredicateContext;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.component.ComponentMap;
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
@@ -52,7 +52,7 @@ public class Config {
         @SerializedName("non_owner_protection_time")
         public int protectionTime = 900;
         @SerializedName("self_destruction_time")
-        public int breakingTime = 1800;
+        public int breakingTime = -1;
         @SerializedName("drop_items_on_expiration")
         public boolean dropItemsAfterExpiring = true;
         @SerializedName("attackers_bypass_protection")
@@ -80,7 +80,7 @@ public class Config {
         @SerializedName("allow_remote_breaking")
         public boolean allowRemoteGraveBreaking = true;
         @SerializedName("allow_remote_unlocking")
-        public boolean allowRemoteGraveUnlocking;
+        public boolean allowRemoteGraveUnlocking = false;
     }
 
     @ConfigCategory
@@ -128,6 +128,12 @@ public class Config {
         public boolean createVisualGrave = false;
         @SerializedName("restore_replaced_block_after_player_breaking")
         public boolean restoreBlockAfterPlayerBreaking = true;
+
+        @SerializedName("move_inside_world_border")
+        public boolean moveInsideBorder = true;
+
+        @SerializedName("actively_move_inside_world_border")
+        public boolean activelyMoveInsideBorder = false;
 
         @SerializedName("cancel_creation_for_damage_types")
         public HashMap<Identifier, WrappedText> ignoredDamageTypes = new HashMap<>();
@@ -300,7 +306,7 @@ public class Config {
 
     public static class Texts {
         @SerializedName("grave_created")
-        public WrappedText messageGraveCreated = ofText("<white><lang:'text.graves.created_at_expire':'<yellow>${position}':'<gray>${world}':'<red>${break_time}'>");
+        public WrappedText messageGraveCreated = ofText("<white><lang:'text.graves.created_at':'<yellow>${position}':'<gray>${world}':'<red>${break_time}'>");
         @SerializedName("protection_ended")
         public WrappedText messageProtectionEnded = ofText("<red><lang:'text.graves.no_longer_protected':'<gold>${position}':'<white>${world}':'<yellow>${item_count}'>");
         @SerializedName("grave_expired")
