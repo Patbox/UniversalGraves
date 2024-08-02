@@ -72,7 +72,7 @@ public record AccessoriesCompat() implements GraveInventoryMask {
 
             if (dropRule == DropRule.DROP) {
                 var nbt = new NbtCompound();
-                nbt.putString(TYPE_TAG, TYPE_TAG);
+                nbt.putString(TYPE_TAG, type);
                 nbt.putString(SLOT_TAG, slotName);
 
                 consumer.addItem(stack.copy(), i, nbt);
