@@ -1,5 +1,6 @@
 package eu.pb4.graves.registry;
 
+import eu.pb4.graves.GravesMod;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.grave.Grave;
 import eu.pb4.graves.other.VisualGraveData;
@@ -68,12 +69,15 @@ public class GraveBlock extends AbstractGraveBlock implements BlockEntityProvide
         if (blockEntity instanceof GraveBlockEntity graveBlockEntity && graveBlockEntity.getGrave() != null && graveBlockEntity.getGrave().canTakeFrom(player)) {
             try {
                 var grave = graveBlockEntity.getGrave();
+                if (ConfigManager.getConfig().interactions.breakingTakesItems && grave.isOwner(player)) {
+                    grave.quickEquip(player);
+                }
                 grave.destroyGrave(player.getServer(), player);
                 if (ConfigManager.getConfig().placement.restoreBlockAfterPlayerBreaking) {
                     graveBlockEntity.breakBlock();
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                GravesMod.LOGGER.error("Exception occurred while breaking grave!", e);
             }
         }
         return super.onBreak(world, pos, state, player);

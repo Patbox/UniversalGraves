@@ -13,7 +13,7 @@ public class GraveGameRules {
             GameRuleRegistry.register("universal_graves:breaking_time", GameRules.Category.PLAYER, GameRuleFactory.createIntRule(-2, -2));
 
 
-    public static final int getProtectionTime(MinecraftServer server) {
+    public static int getProtectionTime(MinecraftServer server) {
         var rule = server.getOverworld().getGameRules().get(PROTECTION_TIME).get();
 
         if (rule == -2) {
@@ -23,7 +23,7 @@ public class GraveGameRules {
         }
     }
 
-    public static final int getBreakingTime(MinecraftServer server) {
+    public static int getBreakingTime(MinecraftServer server) {
         var rule = server.getOverworld().getGameRules().get(BREAKING_TIME).get();
 
         if (rule == -2) {
@@ -31,5 +31,9 @@ public class GraveGameRules {
         } else {
             return rule;
         }
+    }
+
+    public static void register() {
+
     }
 }

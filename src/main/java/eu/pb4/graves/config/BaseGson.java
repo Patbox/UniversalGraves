@@ -50,15 +50,15 @@ import java.util.function.Function;
 public class BaseGson {
 
     public static Gson getGson(RegistryWrapper.WrapperLookup lookup) {
-        return new GsonBuilder().disableHtmlEscaping().setPrettyPrinting()
+        return new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().enableComplexMapKeySerialization()
                 .registerTypeHierarchyAdapter(Identifier.class, new Identifier.Serializer())
 
-                .registerTypeHierarchyAdapter(Item.class, new RegistrySerializer<>(Registries.ITEM))
-                .registerTypeHierarchyAdapter(Block.class, new RegistrySerializer<>(Registries.BLOCK))
-                .registerTypeHierarchyAdapter(SoundEvent.class, new RegistrySerializer<>(Registries.SOUND_EVENT))
-                .registerTypeHierarchyAdapter(StatusEffect.class, new RegistrySerializer<>(Registries.STATUS_EFFECT))
-                .registerTypeHierarchyAdapter(EntityType.class, new RegistrySerializer<>(Registries.ENTITY_TYPE))
-                .registerTypeHierarchyAdapter(BlockEntityType.class, new RegistrySerializer<>(Registries.BLOCK_ENTITY_TYPE))
+                .registerTypeHierarchyAdapter(Item.class, CodecSerializer.registry(Registries.ITEM, lookup))
+                .registerTypeHierarchyAdapter(Block.class, CodecSerializer.registry(Registries.BLOCK, lookup))
+                .registerTypeHierarchyAdapter(SoundEvent.class, CodecSerializer.registry(Registries.SOUND_EVENT, lookup))
+                .registerTypeHierarchyAdapter(StatusEffect.class, CodecSerializer.registry(Registries.STATUS_EFFECT, lookup))
+                .registerTypeHierarchyAdapter(EntityType.class, CodecSerializer.registry(Registries.ENTITY_TYPE, lookup))
+                .registerTypeHierarchyAdapter(BlockEntityType.class, CodecSerializer.registry(Registries.BLOCK_ENTITY_TYPE, lookup))
 
                 //.registerTypeHierarchyAdapter(ItemStack.class, new CodecSerializer<>(ItemStack.CODEC, lookup))
                 .registerTypeHierarchyAdapter(ItemStack.class, new ItemStackSerializer(lookup))
@@ -225,22 +225,11 @@ public class BaseGson {
         }
     }
 
-    private record RegistrySerializer<T>(Registry<T> registry) implements JsonSerializer<T>, JsonDeserializer<T> {
-        @Override
-        public T deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-            if (json.isJsonPrimitive()) {
-                return this.registry.get(Identifier.tryParse(json.getAsString()));
-            }
-            return null;
-        }
-
-        @Override
-        public JsonElement serialize(T src, Type typeOfSrc, JsonSerializationContext context) {
-            return new JsonPrimitive("" + this.registry.getId(src));
-        }
-    }
-
     private record CodecSerializer<T>(Codec<T> codec, RegistryWrapper.WrapperLookup lookup) implements JsonSerializer<T>, JsonDeserializer<T> {
+        public static <T> CodecSerializer<T> registry(Registry<T> registry, RegistryWrapper.WrapperLookup lookup) {
+            return new CodecSerializer<>(registry.getCodec(), lookup);
+        }
+
         @Override
         public T deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
             try {

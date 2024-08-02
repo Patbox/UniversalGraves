@@ -1,21 +1,15 @@
 package eu.pb4.graves.compat;
 
+import de.rubixdev.inventorio.api.InventorioAPI;
 import eu.pb4.graves.GravesApi;
-import eu.pb4.graves.event.PlayerGraveItemAddedEvent;
 import eu.pb4.graves.grave.GraveInventoryMask;
-import eu.pb4.graves.mixin.PlayerInventoryAccessor;
-import eu.pb4.graves.other.GraveUtils;
-import me.lizardofoz.inventorio.api.InventorioAPI;
-import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
 
-import java.util.function.BiConsumer;
 
-public class InventorioCompat implements GraveInventoryMask {
+public record InventorioCompat() implements GraveInventoryMask {
     public static final GraveInventoryMask INSTANCE = new InventorioCompat();
 
     public static void register() {

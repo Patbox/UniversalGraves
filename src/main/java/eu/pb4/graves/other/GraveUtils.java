@@ -61,21 +61,6 @@ public class GraveUtils {
     public static final TagKey<Block> REPLACEABLE_TAG = TagKey.of(RegistryKeys.BLOCK, Identifier.of("universal_graves", "replaceable"));
     public static final TagKey<Enchantment> BLOCKED_ENCHANTMENTS_TAG = TagKey.of(RegistryKeys.ENCHANTMENT, Identifier.of("universal_graves", "blocked_enchantments"));
     public static final Inventory EMPTY_INVENTORY = new SimpleInventory(0);
-    private static final Function<Map.Entry<Property<?>, Comparable<?>>, String> PROPERTY_MAP_PRINTER = new Function<>() {
-        public String apply(@Nullable Map.Entry<Property<?>, Comparable<?>> entry) {
-            if (entry == null) {
-                return "<NULL>";
-            } else {
-                Property<?> property = entry.getKey();
-                return property.getName() + "=" + this.nameValue(property, entry.getValue());
-            }
-        }
-
-        private <T extends Comparable<T>> String nameValue(Property<T> property, Comparable<?> value) {
-            return property.name((T) value);
-        }
-    };
-
     public static BlockCheckResult findGravePosition(ServerPlayerEntity player, ServerWorld world, BlockPos blockPos, int maxDistance, boolean anyBlock) {
         return findGravePosition(player.getGameProfile(), player, world, blockPos, maxDistance, anyBlock);
     }
@@ -339,7 +324,11 @@ public class GraveUtils {
                     List<PositionedItemStack> items = new ArrayList<>();
 
                     for (var mask : GravesApi.getAllInventoryMasks()) {
-                        mask.addToGrave(player, (stack, slot, nbt, tags) -> items.add(new PositionedItemStack(stack, slot, mask, nbt, Set.of(tags))));
+                        try {
+                            mask.addToGrave(player, (stack, slot, nbt, tags) -> items.add(new PositionedItemStack(stack, slot, mask, nbt, Set.of(tags))));
+                        } catch (Throwable e) {
+                            GravesMod.LOGGER.error("Failed to add items from '" + mask.getId() + "'!", e);
+                        }
                     }
 
                     int experience = 0;

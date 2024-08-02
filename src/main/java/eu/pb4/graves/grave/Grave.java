@@ -602,9 +602,7 @@ public final class Grave {
                 }
                 for (var item : this.items) {
                     if (!item.isEmpty()) {
-                        if (item.inventoryMask() != null) {
-                            item.inventoryMask().moveToPlayerClosest(player, item.stack(), item.slot(), item.optionalData());
-                        } else {
+                        if (item.inventoryMask() == null || !item.inventoryMask().moveToPlayerClosest(player, item.stack(), item.slot(), item.optionalData())) {
                             VanillaInventoryMask.INSTANCE.moveToPlayerClosest(player, item.stack(), -1, null);
                         }
                     }
@@ -643,8 +641,12 @@ public final class Grave {
     public ItemStack getTaggedItem(Identifier identifier) {
         var list = this.taggedStacks.get(identifier);
         if (list != null && !list.isEmpty()) {
-            return list.get(0).stack();
+            return list.getFirst().stack();
         }
         return ItemStack.EMPTY;
+    }
+
+    public boolean isOwner(ServerPlayerEntity player) {
+        return this.gameProfile != null && player.getUuid().equals(this.gameProfile.getId());
     }
 }

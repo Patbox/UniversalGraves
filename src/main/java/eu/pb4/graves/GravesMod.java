@@ -1,10 +1,7 @@
 package eu.pb4.graves;
 
 import eu.pb4.common.protection.api.CommonProtection;
-import eu.pb4.graves.compat.GomlCompat;
-import eu.pb4.graves.compat.InventorioCompat;
-import eu.pb4.graves.compat.SaveGearOnDeathCompat;
-import eu.pb4.graves.compat.TrinketsCompat;
+import eu.pb4.graves.compat.*;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.grave.GraveManager;
 import eu.pb4.graves.other.Commands;
@@ -13,7 +10,7 @@ import eu.pb4.graves.other.VanillaInventoryMask;
 import eu.pb4.graves.registry.*;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
-import eu.pb4.polymer.core.api.item.PolymerItemUtils;
+import eu.pb4.polymer.core.api.other.PolymerComponent;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
@@ -21,14 +18,12 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
-import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -60,11 +55,11 @@ public class GravesMod implements ModInitializer {
         Registry.register(Registries.ENTITY_TYPE, Identifier.of("universal_graves", "xp"), SafeXPEntity.TYPE);
         Registry.register(Registries.DATA_COMPONENT_TYPE, Identifier.of("universal_graves", "compass"), GraveCompassComponent.TYPE);
         Registry.register(Registries.DATA_COMPONENT_TYPE, Identifier.of("universal_graves", "texture"), IconItem.TEXTURE);
-        PolymerItemUtils.markAsPolymer(GraveCompassComponent.TYPE, IconItem.TEXTURE);
+        PolymerComponent.registerDataComponent(GraveCompassComponent.TYPE, IconItem.TEXTURE);
         PolymerEntityUtils.registerType(SafeXPEntity.TYPE);
-        GraveBlockEntity.BLOCK_ENTITY_TYPE = Registry.register(Registries.BLOCK_ENTITY_TYPE, "universal_graves:grave", FabricBlockEntityTypeBuilder.create(GraveBlockEntity::new, GraveBlock.INSTANCE).build(null));
-        VisualGraveBlockEntity.BLOCK_ENTITY_TYPE = Registry.register(Registries.BLOCK_ENTITY_TYPE, "universal_graves:visual_grave", FabricBlockEntityTypeBuilder.create(VisualGraveBlockEntity::new, VisualGraveBlock.INSTANCE).build(null));
-        ContainerGraveBlockEntity.BLOCK_ENTITY_TYPE = Registry.register(Registries.BLOCK_ENTITY_TYPE, "universal_graves:container_grave", FabricBlockEntityTypeBuilder.create(ContainerGraveBlockEntity::new, ContainerGraveBlock.INSTANCE).build(null));
+        GraveBlockEntity.BLOCK_ENTITY_TYPE = Registry.register(Registries.BLOCK_ENTITY_TYPE, "universal_graves:grave", BlockEntityType.Builder.create(GraveBlockEntity::new, GraveBlock.INSTANCE).build());
+        VisualGraveBlockEntity.BLOCK_ENTITY_TYPE = Registry.register(Registries.BLOCK_ENTITY_TYPE, "universal_graves:visual_grave", BlockEntityType.Builder.create(VisualGraveBlockEntity::new, VisualGraveBlock.INSTANCE).build());
+        ContainerGraveBlockEntity.BLOCK_ENTITY_TYPE = Registry.register(Registries.BLOCK_ENTITY_TYPE, "universal_graves:container_grave", BlockEntityType.Builder.create(ContainerGraveBlockEntity::new, ContainerGraveBlock.INSTANCE).build());
         Commands.register();
         PolymerBlockUtils.registerBlockEntity(GraveBlockEntity.BLOCK_ENTITY_TYPE, VisualGraveBlockEntity.BLOCK_ENTITY_TYPE, ContainerGraveBlockEntity.BLOCK_ENTITY_TYPE);
 
@@ -75,7 +70,7 @@ public class GravesMod implements ModInitializer {
         });
 
         GraveTextures.initialize();
-        new GraveGameRules();
+        GraveGameRules.register();
 
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) {
             PolymerResourcePackUtils.addModAssets("universal-graves");
@@ -91,8 +86,15 @@ public class GravesMod implements ModInitializer {
         if (loader.isModLoaded("inventorio")) {
             InventorioCompat.register();
         }
+
+        var hasAccessories = loader.isModLoaded("accessories");
+
+        if (hasAccessories) {
+            AccessoriesCompat.register();
+        }
+
         if (loader.isModLoaded("trinkets")) {
-            TrinketsCompat.register();
+            TrinketsCompat.register(hasAccessories);
         }
         if (loader.isModLoaded("sgod")) {
             SaveGearOnDeathCompat.register();
@@ -121,7 +123,11 @@ public class GravesMod implements ModInitializer {
             var copied = new ArrayList<>(DO_ON_NEXT_TICK);
             DO_ON_NEXT_TICK.clear();
             for (var c : copied) {
-                c.run();
+                try {
+                    c.run();
+                } catch (Throwable e) {
+                    GravesMod.LOGGER.error("Error occurred while executing delayed task!", e);
+                }
             }
         });
     }

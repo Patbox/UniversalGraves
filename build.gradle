@@ -44,6 +44,8 @@ repositories {
 	maven { url 'https://api.modrinth.com/maven' }
 	maven { url 'https://jitpack.io' }
 	maven { url "https://maven.shedaniel.me/" }
+	maven { url 'https://maven.wispforest.io/releases' }
+	maven { url 'https://maven.su5ed.dev/releases' }
 	maven {
 		name = "TerraformersMC"
 		url = "https://maven.terraformersmc.com/"
@@ -84,19 +86,19 @@ dependencies {
 	modImplementation include("eu.pb4:sgui:1.6.0+1.21")
 	modImplementation include("eu.pb4:placeholder-api:2.4.1+1.21")
 	modImplementation include('xyz.nucleoid:server-translations-api:2.3.1+1.21-pre2')
-	modImplementation include('eu.pb4:polymer-core:0.9.7+1.21')
-	modImplementation include('eu.pb4:polymer-resource-pack:0.9.7+1.21')
-	modImplementation include('eu.pb4:polymer-virtual-entity:0.9.7+1.21')
+	modImplementation include('eu.pb4:polymer-core:0.9.8+1.21')
+	modImplementation include('eu.pb4:polymer-resource-pack:0.9.8+1.21')
+	modImplementation include('eu.pb4:polymer-virtual-entity:0.9.8+1.21')
 	modImplementation include('eu.pb4:predicate-api:0.5.1+1.21')
 	modImplementation include("eu.pb4:common-protection-api:1.0.0")
 
 	modImplementation include("me.lucko:fabric-permissions-api:0.2-SNAPSHOT")
 
-	modCompileOnly "dev.emi:trinkets:3.9.0"
-	//modCompileOnly "modrinth.maven:trinkets:3.0.4"
-	modCompileOnly files("modsWithCompat/inventorio-1.17-fabric-1.6.2.jar")
+	modCompileOnly "dev.emi:trinkets:3.10.0"
+	modCompileOnly "maven.modrinth:inventorio:1.10.3+1.20.2"
+	modCompileOnly "io.wispforest:accessories-fabric:1.0.0-beta.11+1.21"
 
-	modCompileOnly "draylar:get-off-my-lawn:1.17-1.4.0-beta"
+	modCompileOnly "maven.modrinth:goml-reserved:1.13.1+1.21"
 	modCompileOnly 'com.jamieswhiteshirt:rtree-3i-lite:0.3.0'
 	modCompileOnly "org.ladysnake.cardinal-components-api:cardinal-components-base:6.1.0"
 

@@ -1,10 +1,13 @@
 package eu.pb4.graves.mixin;
 
+import eu.pb4.graves.GravesMod;
 import eu.pb4.graves.other.GraveUtils;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -19,8 +22,10 @@ public abstract class LivingEntityMixin {
         if (((Object) this) instanceof ServerPlayerEntity player) {
             try {
                 GraveUtils.createGrave(player, world, damageSource);
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Throwable e) {
+                player.sendMessage(Text.literal("Failed to create a grave due to an exception! See logs for more information and report it!").formatted(Formatting.RED));
+                player.sendMessage(Text.literal(e.toString()).formatted(Formatting.RED));
+                GravesMod.LOGGER.error("Failed to create a grave due to an exception!", e);
             }
         }
     }

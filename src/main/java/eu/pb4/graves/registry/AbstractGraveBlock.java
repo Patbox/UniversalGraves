@@ -80,6 +80,11 @@ public abstract class AbstractGraveBlock extends Block implements PolymerBlock, 
         return Blocks.BARRIER.getDefaultState();
     }
 
+    @Override
+    public BlockState getPolymerBreakEventBlockState(BlockState state, ServerPlayerEntity player) {
+        return Blocks.PLAYER_HEAD.getDefaultState();
+    }
+
     @Nullable
     protected abstract Grave getGraveData(World world, BlockPos pos);
 

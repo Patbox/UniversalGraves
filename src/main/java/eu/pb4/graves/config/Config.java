@@ -75,6 +75,8 @@ public class Config {
         public boolean clickGraveToOpenGui = true;
         @SerializedName("shift_and_use_quick_pickup")
         public boolean shiftClickTakesItems = true;
+        @SerializedName("break_quick_pickup")
+        public boolean breakingTakesItems = true;
         @SerializedName("allow_remote_protection_removal")
         public boolean allowRemoteProtectionRemoval = true;
         @SerializedName("allow_remote_breaking")

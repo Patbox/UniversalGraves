@@ -1,0 +1,5 @@
+- Added support for [Accessories](https://modrinth.com/mod/accessories) mod.
+- Breaking a grave as it's owner, it will first try to quick-pickup it before dropping everything. It can be disabled in config.
+- Made error/exception catching within grave creation more robust, allowing for displaying more information
+and lower chance of losing entire inventory (for example when other mod changes it's api or implements it incorrectly).
+- Fixed serialization of entity type's in config, fixing disabling graves when killed by selected entity.
