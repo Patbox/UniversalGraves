@@ -87,14 +87,12 @@ public class GravesMod implements ModInitializer {
             InventorioCompat.register();
         }
 
-        var hasAccessories = loader.isModLoaded("accessories");
-
-        if (hasAccessories) {
+        if (loader.isModLoaded("accessories")) {
             AccessoriesCompat.register();
         }
 
         if (loader.isModLoaded("trinkets")) {
-            TrinketsCompat.register(hasAccessories);
+            TrinketsCompat.register(loader.isModLoaded("tclayer"));
         }
         if (loader.isModLoaded("sgod")) {
             SaveGearOnDeathCompat.register();
