@@ -14,17 +14,20 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
-public class TrinketsCompat extends VanillaInventoryMask {
-    public static final GraveInventoryMask INSTANCE = new TrinketsCompat();
+public record TrinketsCompat(boolean preventAddition) implements GraveInventoryMask {
     private static final String GROUP_TAG = "Group";
     private static final String SLOT_TAG = "Slot";
 
-    public static void register() {
-        GravesApi.registerInventoryMask(new Identifier("universal_graves", "trinkets"), INSTANCE);
+    public static void register(boolean preventAddition) {
+        GravesApi.registerInventoryMask(new Identifier("universal_graves", "trinkets"), new TrinketsCompat(preventAddition));
     }
 
     @Override
     public void addToGrave(ServerPlayerEntity player, ItemConsumer consumer) {
+        if (preventAddition) {
+            return;
+        }
+
         TrinketsApi.getTrinketComponent(player).ifPresent(trinkets -> trinkets.forEach((ref, stack) -> {
             if (stack.isEmpty() || !GravesApi.canAddItem(player, stack)) {
                 return;
@@ -68,8 +71,7 @@ public class TrinketsCompat extends VanillaInventoryMask {
 
         if (inventory != null) {
             if (inventory.getStack(slot).isEmpty()) {
-                inventory.setStack(slot, stack.copy());
-                stack.setCount(0);
+                inventory.setStack(slot, stack.copyAndEmpty());
                 return true;
             }
         }
@@ -88,8 +90,7 @@ public class TrinketsCompat extends VanillaInventoryMask {
 
             for (int i = 0; i < size; i++) {
                 if (inventory.getStack(i).isEmpty()) {
-                    inventory.setStack(i, stack.copy());
-                    stack.setCount(0);
+                    inventory.setStack(i, stack.copyAndEmpty());
                     return true;
                 }
             }

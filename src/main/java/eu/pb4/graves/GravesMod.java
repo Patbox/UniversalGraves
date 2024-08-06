@@ -1,10 +1,7 @@
 package eu.pb4.graves;
 
 import eu.pb4.common.protection.api.CommonProtection;
-import eu.pb4.graves.compat.GomlCompat;
-import eu.pb4.graves.compat.InventorioCompat;
-import eu.pb4.graves.compat.SaveGearOnDeathCompat;
-import eu.pb4.graves.compat.TrinketsCompat;
+import eu.pb4.graves.compat.*;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.grave.GraveManager;
 import eu.pb4.graves.other.Commands;
@@ -87,8 +84,11 @@ public class GravesMod implements ModInitializer {
         if (loader.isModLoaded("inventorio")) {
             InventorioCompat.register();
         }
+        if (loader.isModLoaded("accessories")) {
+            AccessoriesCompat.register();
+        }
         if (loader.isModLoaded("trinkets")) {
-            TrinketsCompat.register();
+            TrinketsCompat.register(loader.isModLoaded("tclayer"));
         }
         if (loader.isModLoaded("sgod")) {
             SaveGearOnDeathCompat.register();
@@ -113,7 +113,11 @@ public class GravesMod implements ModInitializer {
             var copied = new ArrayList<>(DO_ON_NEXT_TICK);
             DO_ON_NEXT_TICK.clear();
             for (var c : copied) {
-                c.run();
+                try {
+                    c.run();
+                } catch (Throwable e) {
+                    GravesMod.LOGGER.error("Error occurred while executing delayed task!", e);
+                }
             }
         });
     }

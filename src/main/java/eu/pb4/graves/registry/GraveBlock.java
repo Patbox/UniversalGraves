@@ -1,5 +1,6 @@
 package eu.pb4.graves.registry;
 
+import eu.pb4.graves.GravesMod;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.grave.Grave;
 import eu.pb4.graves.other.VisualGraveData;
@@ -72,7 +73,7 @@ public class GraveBlock extends AbstractGraveBlock implements BlockEntityProvide
                     graveBlockEntity.breakBlock();
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                GravesMod.LOGGER.error("Exception occurred while breaking grave!", e);
             }
         }
         super.onBreak(world, pos, state, player);

@@ -331,7 +331,11 @@ public class GraveUtils {
                     List<PositionedItemStack> items = new ArrayList<>();
 
                     for (var mask : GravesApi.getAllInventoryMasks()) {
-                        mask.addToGrave(player, (stack, slot, nbt, tags) -> items.add(new PositionedItemStack(stack, slot, mask, nbt, Set.of(tags))));
+                        try {
+                            mask.addToGrave(player, (stack, slot, nbt, tags) -> items.add(new PositionedItemStack(stack, slot, mask, nbt, Set.of(tags))));
+                        } catch (Throwable e) {
+                            GravesMod.LOGGER.error("Failed to add items from '{}'!", mask.getId(), e);
+                        }
                     }
 
                     int experience = 0;
