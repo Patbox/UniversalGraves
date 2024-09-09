@@ -433,6 +433,7 @@ public final class Grave {
                 var old = Grave.this.items.set(index, new PositionedItemStack(element, -1, VanillaInventoryMask.INSTANCE, null, Set.of()));
                 if (old != null) {
                     Grave.this.removeTaggedItem(old);
+                    GraveManager.INSTANCE.markDirty();
                     return old.stack();
                 }
                 return ItemStack.EMPTY;
@@ -441,11 +442,13 @@ public final class Grave {
             public void add(int value, ItemStack element) {
                 Validate.notNull(element);
                 Grave.this.items.add(value, new PositionedItemStack(element, -1, VanillaInventoryMask.INSTANCE, null, Set.of()));
+                GraveManager.INSTANCE.markDirty();
             }
 
             public ItemStack remove(int index) {
                 var x = Grave.this.items.remove(index);
                 Grave.this.removeTaggedItem(x);
+                GraveManager.INSTANCE.markDirty();
                 return x.stack();
             }
 
@@ -455,8 +458,9 @@ public final class Grave {
 
             public void clear() {
                 Grave.this.items.clear();
+                GraveManager.INSTANCE.markDirty();
             }
-        });
+        }, GraveManager.INSTANCE::markDirty);
     }
 
     public void tick(MinecraftServer server) {
@@ -611,9 +615,11 @@ public final class Grave {
                 this.xp = 0;
                 this.tryBreak(player.getServer(), player);
                 this.updateSelf(player.getServer());
+                GraveManager.INSTANCE.markDirty();
             }
         } catch (Exception e) {
             e.printStackTrace();
+            GraveManager.INSTANCE.markDirty();
         }
     }
 
