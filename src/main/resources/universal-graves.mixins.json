@@ -2,7 +2,7 @@
   "required": true,
   "minVersion": "0.8",
   "package": "eu.pb4.graves.mixin",
-  "compatibilityLevel": "JAVA_16",
+  "compatibilityLevel": "JAVA_21",
   "mixins": [
     "CreateBlockBreakingKineticBlockEntity",
     "EndPlatformFeatureMixin",
@@ -12,6 +12,7 @@
     "PlayerEntityAccessor",
     "PlayerInventoryAccessor",
     "ServerPlayerEntityMixin",
+    "ServerPlayerInteractionManagerMixin",
     "ServerWorldMixin",
     "datafixer.ItemStackComponentizationFixMixin",
     "datafixer.Schema1460Mixin"
