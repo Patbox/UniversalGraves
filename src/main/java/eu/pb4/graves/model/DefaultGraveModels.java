@@ -29,6 +29,7 @@ public class DefaultGraveModels {
         consumer.accept("corpse_player", corpsePlayer());
         consumer.accept("corpse_zombie", corpseZombie());
         consumer.accept("soul", soul());
+        consumer.accept("ender", ender());
     }
 
     public static GraveModel debug() {
@@ -112,6 +113,78 @@ public class DefaultGraveModels {
         return model;
     }
 
+    public static GraveModel ender() {
+        var model = new GraveModel();
+        {
+            var eye = new EntityModelPart();
+            var pearl = new EntityModelPart();
+
+            eye.entityType = EntityType.EYE_OF_ENDER;
+            eye.position = Vec3d.ZERO;
+            eye.tags.add(ModelTags.IF_PROTECTED);
+
+            pearl.entityType = EntityType.ENDER_PEARL;
+            pearl.position = Vec3d.ZERO;
+            pearl.tags.add(ModelTags.IF_UNPROTECTED);
+
+            model.elements.add(eye);
+            model.elements.add(pearl);
+        }
+
+        {
+            var particle = new ParticleModelPart();
+            particle.particleEffect = ParticleTypes.SOUL_FIRE_FLAME;
+            particle.delta = new Vector3f(0.2f);
+            particle.speed = 0.01f;
+            particle.count = 2;
+            particle.waitDuration = 3;
+            model.elements.add(particle);
+        }
+
+        {
+            var lock = new ItemDisplayModelPart();
+            lock.transformation = new AffineTransformation(
+                    new Matrix4f().translate(0, -0.44f, 0.3f).scale(0.35f, 0.35f, 0.1f)
+            );
+            lock.transformation.getTranslation();
+            lock.viewRange = 0.2f;
+            lock.billboardMode = DisplayEntity.BillboardMode.CENTER;
+
+            lock.tags.add(ModelTags.IF_REQUIRE_PAYMENT);
+            lock.itemStack = IconItem.of(IconItem.Texture.REMOVE_PROTECTION);
+
+            model.elements.add(lock);
+        }
+
+        {
+            var lockText = new TextDisplayModelPart();
+            lockText.transformation = new AffineTransformation(
+                    new Matrix4f().translate(0, -0.31f, 0.3f).scale(0.35f)
+            );
+            lockText.textShadow = true;
+            lockText.transformation.getTranslation();
+            lockText.viewRange = 0.2f;
+            lockText.billboardMode = DisplayEntity.BillboardMode.CENTER;
+
+            lockText.tags.add(ModelTags.IF_REQUIRE_PAYMENT);
+            lockText.text = TaggedText.of("<yellow>${cost}");
+
+            model.elements.add(lockText);
+        }
+
+        addGenericText(model, customText -> {
+            customText.transformation = new AffineTransformation(
+                    new Matrix4f().translate(0, 0.25f, 0).scale(0.4f)
+            );
+            customText.textWidth = 9999;
+            customText.textShadow = true;
+            customText.brightness = new Brightness(15, 15);
+            customText.billboardMode = DisplayEntity.BillboardMode.CENTER;
+            customText.viewRange = 0.5f;
+        });
+
+        return model;
+    }
 
     public static GraveModel corpseZombie() {
         var model = new GraveModel();
