@@ -10,6 +10,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -75,7 +76,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Pl
     }
 
     @Inject(method = "isInvulnerableTo", at = @At("HEAD"), cancellable = true)
-    private void graves$isInvulnerableTo(DamageSource damageSource, CallbackInfoReturnable<Boolean> cir) {
+    private void graves$isInvulnerableTo(ServerWorld world, DamageSource source, CallbackInfoReturnable<Boolean> cir) {
          if (this.graves$isInvulnerable) {
              cir.setReturnValue(true);
          }

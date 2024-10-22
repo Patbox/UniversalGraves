@@ -9,6 +9,7 @@ import eu.pb4.graves.mixin.PlayerEntityAccessor;
 import eu.pb4.graves.other.*;
 import eu.pb4.graves.registry.GraveBlock;
 import eu.pb4.graves.registry.GraveBlockEntity;
+import eu.pb4.graves.registry.GravesRegistry;
 import eu.pb4.graves.ui.GraveGui;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.entity.player.PlayerEntity;
@@ -307,11 +308,11 @@ public final class Grave {
     }
 
     public boolean canTakeFrom(PlayerEntity entity) {
-        return this.canTakeFrom(entity.getGameProfile()) || (entity.isCreative() && Permissions.check(entity, "graves.can_open_others", 3));
+        return this.canTakeFrom(entity.getGameProfile()) || (entity.isCreative() && Permissions.check(entity.getCommandSource((ServerWorld) entity.getWorld()), "graves.can_open_others", 3));
     }
 
     public boolean hasAccess(PlayerEntity entity) {
-        return hasAccess(entity.getGameProfile()) || (entity.isCreative() && Permissions.check(entity, "graves.can_open_others", 3));
+        return hasAccess(entity.getGameProfile()) || (entity.isCreative() && Permissions.check(entity.getCommandSource((ServerWorld) entity.getWorld()), "graves.can_open_others", 3));
     }
 
     public boolean hasAccess(GameProfile profile) {
@@ -380,7 +381,7 @@ public final class Grave {
             var state = world.getBlockState(location.blockPos());
 
             if (GraveUtils.canReplaceState(state, ConfigManager.getConfig().placement.replaceAnyBlock)
-                    && world.getWorldBorder().contains(location.blockPos()) && location.y() >= world.getBottomY() && location.y() < world.getTopY()) {
+                    && world.getWorldBorder().contains(location.blockPos()) && location.y() >= world.getBottomY() && location.y() <= world.getTopYInclusive()) {
 
                 var old = this.location;
                 this.setLocation(location);
@@ -398,7 +399,7 @@ public final class Grave {
                     }
                 }
 
-                world.setBlockState(location.blockPos(), GraveBlock.INSTANCE.getDefaultState());
+                world.setBlockState(location.blockPos(), GravesRegistry.GRAVE_BLOCK.getDefaultState());
 
                 if (world.getBlockEntity(location.blockPos()) instanceof GraveBlockEntity entity) {
                     entity.setGrave(this, state);

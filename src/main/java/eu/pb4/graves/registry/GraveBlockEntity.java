@@ -86,7 +86,7 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity implements GraveH
                 this.visualData = VisualGraveData.fromNbt(nbt.getCompound("VisualData"), lookup);
             }
             this.selfDestructTimer = 0;
-            this.replacedBlockState = NbtHelper.toBlockState(Registries.BLOCK.getReadOnlyWrapper(), (NbtCompound) Objects.requireNonNull(nbt.get("BlockState")));
+            this.replacedBlockState = NbtHelper.toBlockState(Registries.BLOCK, (NbtCompound) Objects.requireNonNull(nbt.get("BlockState")));
         } catch (Exception e) {
             this.visualData = VisualGraveData.DEFAULT;
         }
@@ -170,7 +170,7 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity implements GraveH
     public void breakBlock(boolean canCreateVisual) {
         assert world != null;
         if (canCreateVisual && ConfigManager.getConfig().placement.createVisualGrave) {
-            world.setBlockState(pos, VisualGraveBlock.INSTANCE.getStateWithProperties(this.getCachedState()));
+            world.setBlockState(pos,  GravesRegistry.VISUAL_GRAVE_BLOCK.getStateWithProperties(this.getCachedState()));
 
             if (world.getBlockEntity(pos) instanceof VisualGraveBlockEntity blockEntity) {
                 blockEntity.setVisualData(this.getClientData(), this.replacedBlockState);

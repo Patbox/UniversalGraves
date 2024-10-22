@@ -5,12 +5,8 @@
     "bsb"
   ],
   "key": {
-    "b": {
-      "item": "minecraft:stone_bricks"
-    },
-    "s": {
-      "tag": "minecraft:signs"
-    }
+    "b": "minecraft:stone_bricks",
+    "s": "#minecraft:signs"
   },
   "result": {
     "id": "universal_graves:visual_grave"

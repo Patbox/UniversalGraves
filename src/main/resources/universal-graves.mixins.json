@@ -12,7 +12,6 @@
     "PlayerEntityAccessor",
     "PlayerInventoryAccessor",
     "ServerPlayerEntityMixin",
-    "ServerPlayerInteractionManagerMixin",
     "ServerWorldMixin",
     "datafixer.ItemStackComponentizationFixMixin",
     "datafixer.Schema1460Mixin"

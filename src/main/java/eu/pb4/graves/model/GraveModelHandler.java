@@ -9,6 +9,7 @@ import eu.pb4.graves.model.parts.ModelPart;
 import eu.pb4.graves.model.parts.TextDisplayModelPart;
 import eu.pb4.graves.registry.AbstractGraveBlock;
 import eu.pb4.graves.registry.GraveBlock;
+import eu.pb4.graves.registry.GravesRegistry;
 import eu.pb4.placeholders.api.ParserContext;
 import eu.pb4.placeholders.api.node.TextNode;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
@@ -82,7 +83,7 @@ public class GraveModelHandler extends ElementHolder {
             flags.add(isProtected ? ModelTags.IF_UNPROTECTED : ModelTags.IF_PROTECTED);
             flags.add(this.dataPrivider.isGravePlayerMade() ? ModelTags.IF_NOT_PLAYER_MADE : ModelTags.IF_PLAYER_MADE);
             flags.add(this.dataPrivider.isGravePaymentRequired() ? ModelTags.IF_NOT_REQUIRE_PAYMENT : ModelTags.IF_REQUIRE_PAYMENT);
-            flags.add(this.blockState.isOf(GraveBlock.INSTANCE) ? ModelTags.IF_VISUAL : ModelTags.IF_NOT_VISUAL);
+            flags.add(this.blockState.isOf(GravesRegistry.GRAVE_BLOCK) ? ModelTags.IF_VISUAL : ModelTags.IF_NOT_VISUAL);
 
 
             if (!isProtected || GraveManager.INSTANCE.getProtectionTime() <= 0) {

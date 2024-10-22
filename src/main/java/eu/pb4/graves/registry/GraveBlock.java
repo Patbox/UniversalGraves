@@ -5,12 +5,14 @@ import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.grave.Grave;
 import eu.pb4.graves.other.VisualGraveData;
 import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.property.Properties;
@@ -25,12 +27,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
-@SuppressWarnings({"deprecation"})
 public class GraveBlock extends AbstractGraveBlock implements BlockEntityProvider {
-    public static GraveBlock INSTANCE = new GraveBlock();
-
-    private GraveBlock() {
-        super(AbstractBlock.Settings.create().dropsNothing().nonOpaque().dynamicBounds().strength(2, 999));
+    public GraveBlock(Block.Settings settings) {
+        super(settings.dropsNothing().nonOpaque().dynamicBounds().strength(2, 999));
         this.setDefaultState(this.getStateManager().getDefaultState().with(Properties.WATERLOGGED, false));
     }
 
@@ -110,13 +109,13 @@ public class GraveBlock extends AbstractGraveBlock implements BlockEntityProvide
                         return ActionResult.PASS;
                     }
                 }
-                return ActionResult.SUCCESS;
+                return ActionResult.SUCCESS_SERVER;
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
-        return ActionResult.SUCCESS;
+        return ActionResult.SUCCESS_SERVER;
     }
 
     @Nullable

@@ -9,47 +9,54 @@ import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.LodestoneTrackerComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.item.*;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Style;
+import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.TypedActionResult;
+import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.packettweaker.PacketContext;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class GraveCompassItem extends Item implements PolymerItem {
-    public static Item INSTANCE = new GraveCompassItem();
-
-    public GraveCompassItem() {
-        super(new Settings().maxCount(1));
+    public GraveCompassItem(Settings settings) {
+        super(settings.maxCount(1));
     }
 
     public static ItemStack create(long graveId, boolean toVanilla) {
-        var stack = new ItemStack(INSTANCE);
+        var stack = new ItemStack(GravesRegistry.GRAVE_COMPASS_ITEM);
         stack.set(GraveCompassComponent.TYPE, new GraveCompassComponent(graveId, toVanilla));
         return stack;
     }
 
     @Override
-    public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
+    public ActionResult use(World world, PlayerEntity user, Hand hand) {
         ItemStack stack = user.getStackInHand(hand);
         if (user instanceof ServerPlayerEntity serverPlayerEntity && ConfigManager.getConfig().interactions.useDeathCompassToOpenGui && stack.contains(GraveCompassComponent.TYPE)) {
             Grave grave = GraveManager.INSTANCE.getId(stack.get(GraveCompassComponent.TYPE).graveId());
             grave.openUi(serverPlayerEntity, false, false);
         }
-        return TypedActionResult.pass(user.getStackInHand(hand));
+        return ActionResult.PASS;
     }
 
     @Override
-    public Item getPolymerItem(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
+    public Item getPolymerItem(ItemStack itemStack, PacketContext context) {
         return Items.COMPASS;
+    }
+
+
+    @Override
+    public @Nullable Identifier getPolymerItemModel(ItemStack stack, PacketContext context) {
+        return null;
     }
 
     @Override
@@ -84,15 +91,23 @@ public class GraveCompassItem extends Item implements PolymerItem {
     }
 
     @Override
-    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType context, RegistryWrapper.WrapperLookup lookup, @Nullable ServerPlayerEntity player) {
-        var clientStack = PolymerItem.super.getPolymerItemStack(itemStack, context, lookup, player);
-        if (player != null && itemStack.contains(GraveCompassComponent.TYPE)) {
+    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipType, PacketContext context) {
+        var clientStack = PolymerItem.super.getPolymerItemStack(itemStack, tooltipType, context);
+        if (itemStack.contains(GraveCompassComponent.TYPE)) {
             var grave = GraveManager.INSTANCE.getId(itemStack.get(GraveCompassComponent.TYPE).graveId());
             if (grave != null) {
                 clientStack.set(DataComponentTypes.LODESTONE_TRACKER, new LodestoneTrackerComponent(Optional.of(grave.getLocation().asGlobalPos()), true));
             }
         } else {
             clientStack.set(DataComponentTypes.LODESTONE_TRACKER, new LodestoneTrackerComponent(Optional.empty(), true));
+        }
+
+        if (!clientStack.contains(DataComponentTypes.CUSTOM_NAME)) {
+            if (
+                    (clientStack.contains(DataComponentTypes.LODESTONE_TRACKER))
+            ) {
+                clientStack.set(DataComponentTypes.CUSTOM_NAME, Text.empty().append(itemStack.getItemName()).setStyle(Style.EMPTY.withItalic(false)));
+            }
         }
         return clientStack;
     }

@@ -34,8 +34,6 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 public class ContainerGraveBlock extends VisualGraveBlock {
-    public static ContainerGraveBlock INSTANCE = new ContainerGraveBlock(AbstractBlock.Settings.create().nonOpaque().dynamicBounds().hardness(4));
-
     public ContainerGraveBlock(Settings settings) {
         super(settings);
     }
@@ -137,11 +135,11 @@ public class ContainerGraveBlock extends VisualGraveBlock {
                             pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 1, world.random.nextFloat() * 0.1F + 0.9F, world.random.nextLong()));
                 }
 
-                return ActionResult.SUCCESS;
+                return ActionResult.SUCCESS_SERVER;
             }
         }
 
-        return entity.isSneaking() ? ActionResult.PASS : ActionResult.SUCCESS;
+        return entity.isSneaking() ? ActionResult.PASS : ActionResult.SUCCESS_SERVER;
     }
 
 }

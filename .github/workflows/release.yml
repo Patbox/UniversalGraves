@@ -30,14 +30,14 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        run: ./gradlew downloadTranslations build
+        run: ./gradlew build
         env:
           MODRINTH: ${{ secrets.MODRINTH }}
           CURSEFORGE: ${{ secrets.CURSEFORGE }}
           CHANGELOG: ${{ github.event.release.body }}
 
       - name: Upload GitHub release
-        uses: AButler/upload-release-assets@v2.0
+        uses: AButler/upload-release-assets@v3.0
         with:
           files: 'build/libs/*.jar;!build/libs/*-sources.jar;!build/libs/*-dev.jar'
           repo-token: ${{ secrets.GITHUB_TOKEN }}

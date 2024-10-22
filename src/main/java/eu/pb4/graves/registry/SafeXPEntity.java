@@ -10,14 +10,20 @@ import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ExperienceOrbEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 public class SafeXPEntity extends ExperienceOrbEntity implements PolymerEntity {
-    public static EntityType<Entity> TYPE = FabricEntityTypeBuilder.create().entityFactory(SafeXPEntity::new).fireImmune().disableSummon().dimensions(EntityDimensions.fixed(0.5F, 0.5F)).trackRangeChunks(6).trackedUpdateRate(20).build();
+    public static EntityType<Entity> TYPE = FabricEntityTypeBuilder.create().entityFactory(SafeXPEntity::new).fireImmune().disableSummon().dimensions(EntityDimensions.fixed(0.5F, 0.5F)).trackRangeChunks(6).trackedUpdateRate(20).build(
+            RegistryKey.of(RegistryKeys.ENTITY_TYPE, Identifier.of("universal_graves", "xp"))
+    );
     public SafeXPEntity(World world, double x, double y, double z, int amount) {
         this(TYPE, world);
         this.setPosition(x, y, z);
@@ -27,6 +33,7 @@ public class SafeXPEntity extends ExperienceOrbEntity implements PolymerEntity {
     }
 
     public SafeXPEntity(EntityType<Entity> entityType, World world) {
+        //noinspection unchecked
         super((EntityType<? extends ExperienceOrbEntity>) (Object) entityType, world);
     }
 
@@ -49,7 +56,7 @@ public class SafeXPEntity extends ExperienceOrbEntity implements PolymerEntity {
     }
 
     @Override
-    public EntityType<?> getPolymerEntityType(ServerPlayerEntity player) {
+    public EntityType<?> getPolymerEntityType(PacketContext context) {
         return EntityType.EXPERIENCE_ORB;
     }
 }

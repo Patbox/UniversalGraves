@@ -29,7 +29,6 @@ import java.util.Map;
 
 @SuppressWarnings({"deprecation"})
 public class VisualGraveBlock extends AbstractGraveBlock implements BlockEntityProvider {
-    public static VisualGraveBlock INSTANCE = new VisualGraveBlock(Settings.copy(GraveBlock.INSTANCE).hardness(4).dropsNothing());
 
     public VisualGraveBlock(AbstractBlock.Settings settings) {
         super(settings);

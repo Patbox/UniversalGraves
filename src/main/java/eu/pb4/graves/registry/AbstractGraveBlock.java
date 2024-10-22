@@ -32,6 +32,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.Map;
 
@@ -58,7 +59,7 @@ public abstract class AbstractGraveBlock extends Block implements PolymerBlock, 
     }
 
     @Override
-    public BlockState getPolymerBlockState(BlockState state, ServerPlayerEntity player) {
+    public BlockState getPolymerBlockState(BlockState state, PacketContext context) {
         return Blocks.BARRIER.getDefaultState().with(WATERLOGGED, state.get(WATERLOGGED));
     }
 
@@ -76,12 +77,7 @@ public abstract class AbstractGraveBlock extends Block implements PolymerBlock, 
     }
 
     @Override
-    public BlockState getPolymerBlockState(BlockState state) {
-        return Blocks.BARRIER.getDefaultState();
-    }
-
-    @Override
-    public BlockState getPolymerBreakEventBlockState(BlockState state, ServerPlayerEntity player) {
+    public BlockState getPolymerBreakEventBlockState(BlockState state, PacketContext context) {
         return Blocks.PLAYER_HEAD.getDefaultState();
     }
 

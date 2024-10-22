@@ -46,7 +46,7 @@ public class EntityModelPart extends ModelPart<EntityElement<?>, EntityModelPart
 
     @Override
     public EntityElement<?> construct(ServerWorld world) {
-        var entity = entityType == EntityType.PLAYER ? createPlayer(world) : entityType.create(world);
+        var entity = entityType == EntityType.PLAYER ? createPlayer(world) : entityType.create(world, SpawnReason.COMMAND);
 
         if (nbtCompound != null) {
             entity.readNbt(this.nbtCompound);
@@ -96,7 +96,7 @@ public class EntityModelPart extends ModelPart<EntityElement<?>, EntityModelPart
 
         @Override
         public void startWatching(ServerPlayerEntity player, Consumer<Packet<ClientPlayPacketListener>> packetConsumer) {
-            var entry = new PlayerListS2CPacket.Entry(this.entity().getUuid(), this.profile, false, -1, GameMode.SURVIVAL, null, null);
+            var entry = new PlayerListS2CPacket.Entry(this.entity().getUuid(), this.profile, false, -1, GameMode.SURVIVAL, null, 0, null);
             {
                 var packet = PolymerEntityUtils.createMutablePlayerListPacket(EnumSet.of(PlayerListS2CPacket.Action.ADD_PLAYER, PlayerListS2CPacket.Action.UPDATE_GAME_MODE, PlayerListS2CPacket.Action.UPDATE_LISTED));
                 packet.getEntries().add(entry);

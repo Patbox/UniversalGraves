@@ -68,7 +68,7 @@ public class Commands {
     private static int list(CommandContext<ServerCommandSource> context, boolean canModify) throws CommandSyntaxException {
         ServerPlayerEntity player = context.getSource().getPlayer();
         try {
-            new GraveListGui(player, player.getGameProfile(), canModify, Permissions.check(player, "universal_graves.fetch_grave", 3)).open();
+            new GraveListGui(player, player.getGameProfile(), canModify, Permissions.check(context.getSource(), "universal_graves.fetch_grave", 3)).open();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -77,7 +77,7 @@ public class Commands {
 
     private static int listOthers(CommandContext<ServerCommandSource> context, boolean canModify) throws CommandSyntaxException {
         ServerPlayerEntity player = context.getSource().getPlayer();
-        List<GameProfile> profiles = new ArrayList(context.getArgument("player", GameProfileArgumentType.GameProfileArgument.class).getNames(context.getSource()));
+        List<GameProfile> profiles = new ArrayList<>(context.getArgument("player", GameProfileArgumentType.GameProfileArgument.class).getNames(context.getSource()));
 
         if (profiles.size() == 0) {
             context.getSource().sendFeedback(() -> Text.literal("This player doesn't exist!"), false);
@@ -87,7 +87,7 @@ public class Commands {
             return 0;
         }
         try {
-            new GraveListGui(player, profiles.get(0), canModify, canModify && Permissions.check(player, "universal_graves.fetch_grave.others", 3)).open();
+            new GraveListGui(player, profiles.get(0), canModify, canModify && Permissions.check(context.getSource(), "universal_graves.fetch_grave.others", 3)).open();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -98,7 +98,7 @@ public class Commands {
     private static int listAll(CommandContext<ServerCommandSource> context, boolean canModify) throws CommandSyntaxException {
         ServerPlayerEntity player = context.getSource().getPlayer();
         try {
-            new AllGraveListGui(player, canModify, canModify && Permissions.check(player, "universal_graves.fetch_grave.others", 3)).open();
+            new AllGraveListGui(player, canModify, canModify && Permissions.check(context.getSource(), "universal_graves.fetch_grave.others", 3)).open();
         } catch (Exception e) {
             e.printStackTrace();
         }

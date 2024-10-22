@@ -177,7 +177,7 @@ public class GraveGui extends PagedGui {
 
     private GuiSlot getUnlockGrave() {
         var config = ConfigManager.getConfig();
-        if (this.grave.isPaymentRequired() && (config.interactions.allowRemoteGraveUnlocking || Permissions.check(player, "graves.can_unlock_remotely", 3))) {
+        if (this.grave.isPaymentRequired() && (config.interactions.allowRemoteGraveUnlocking || Permissions.check(player.getCommandSource(), "graves.can_unlock_remotely", 3))) {
             return GuiSlot.of(ConfigManager.getConfig().ui.unlockButton.get(config.interactions.cost.checkCost(player))
                     .builder(ConfigManager.getConfig().interactions.cost.getPlaceholders())
                     .setCallback((x, y, z) -> {
@@ -196,7 +196,7 @@ public class GraveGui extends PagedGui {
 
     private GuiSlot getRemoveProtection() {
         var config = ConfigManager.getConfig();
-        if (this.grave.isProtected() && (this.hasAccess && (config.interactions.allowRemoteProtectionRemoval || Permissions.check(player, "graves.can_remove_protection_remotely", 3)))) {
+        if (this.grave.isProtected() && (this.hasAccess && (config.interactions.allowRemoteProtectionRemoval || Permissions.check(player.getCommandSource(), "graves.can_remove_protection_remotely", 3)))) {
             if (this.actionTimeRemoveProtect != -1) {
                 return GuiSlot.of(config.ui.removeProtectionButton.get(false).builder()
                         .setCallback((x, y, z) -> {
@@ -217,7 +217,7 @@ public class GraveGui extends PagedGui {
             }
         }
 
-        if (this.canModify || (this.canTake && (config.interactions.allowRemoteGraveBreaking || Permissions.check(player, "graves.can_break_remotely", 3)))) {
+        if (this.canModify || (this.canTake && (config.interactions.allowRemoteGraveBreaking || Permissions.check(player.getCommandSource(), "graves.can_break_remotely", 3)))) {
             if (this.actionTimeRemoveProtect != -1) {
                 return GuiSlot.of(config.ui.breakGraveButton.get(false).builder()
                         .setCallback((x, y, z) -> {

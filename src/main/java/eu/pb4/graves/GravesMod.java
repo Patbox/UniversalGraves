@@ -18,6 +18,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.block.entity.BlockEntityType;
@@ -45,28 +46,12 @@ public class GravesMod implements ModInitializer {
         FabricLoader loader = FabricLoader.getInstance();
         GenericModInfo.build(CONTAINER);
 
-        Registry.register(Registries.ITEM, Identifier.of("universal_graves", "grave_compass"), GraveCompassItem.INSTANCE);
-        Registry.register(Registries.ITEM, Identifier.of("universal_graves", "visual_grave"), CointainerGraveBlockItem.INSTANCE);
-        Registry.register(Registries.ITEM, Identifier.of("universal_graves", "icon"), IconItem.INSTANCE);
-        Registry.register(Registries.BLOCK, Identifier.of("universal_graves", "grave"), GraveBlock.INSTANCE);
-        Registry.register(Registries.BLOCK, Identifier.of("universal_graves", "visual_grave"), VisualGraveBlock.INSTANCE);
-        Registry.register(Registries.BLOCK, Identifier.of("universal_graves", "container_grave"), ContainerGraveBlock.INSTANCE);
-        Registry.register(Registries.BLOCK, Identifier.of("universal_graves", "temp_block"), TempBlock.INSTANCE);
-        Registry.register(Registries.ENTITY_TYPE, Identifier.of("universal_graves", "xp"), SafeXPEntity.TYPE);
-        Registry.register(Registries.DATA_COMPONENT_TYPE, Identifier.of("universal_graves", "compass"), GraveCompassComponent.TYPE);
-        Registry.register(Registries.DATA_COMPONENT_TYPE, Identifier.of("universal_graves", "texture"), IconItem.TEXTURE);
-        PolymerComponent.registerDataComponent(GraveCompassComponent.TYPE, IconItem.TEXTURE);
-        PolymerEntityUtils.registerType(SafeXPEntity.TYPE);
-        GraveBlockEntity.BLOCK_ENTITY_TYPE = Registry.register(Registries.BLOCK_ENTITY_TYPE, "universal_graves:grave", BlockEntityType.Builder.create(GraveBlockEntity::new, GraveBlock.INSTANCE).build());
-        VisualGraveBlockEntity.BLOCK_ENTITY_TYPE = Registry.register(Registries.BLOCK_ENTITY_TYPE, "universal_graves:visual_grave", BlockEntityType.Builder.create(VisualGraveBlockEntity::new, VisualGraveBlock.INSTANCE).build());
-        ContainerGraveBlockEntity.BLOCK_ENTITY_TYPE = Registry.register(Registries.BLOCK_ENTITY_TYPE, "universal_graves:container_grave", BlockEntityType.Builder.create(ContainerGraveBlockEntity::new, ContainerGraveBlock.INSTANCE).build());
+
+        GravesRegistry.register();
         Commands.register();
-        PolymerBlockUtils.registerBlockEntity(GraveBlockEntity.BLOCK_ENTITY_TYPE, VisualGraveBlockEntity.BLOCK_ENTITY_TYPE, ContainerGraveBlockEntity.BLOCK_ENTITY_TYPE);
 
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register((e) -> {
-            if (!Thread.currentThread().getName().contains("client")) {
-                e.add(CointainerGraveBlockItem.INSTANCE);
-            }
+            e.add(GravesRegistry.CONTAINER_GRAVE_ITEM);
         });
 
         GraveTextures.initialize();

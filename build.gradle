@@ -1,18 +1,5 @@
-buildscript {
-	dependencies {
-		classpath "de.guntram.mcmod:crowdin-translate:1.4+1.19.3"
-	}
-	repositories {
-		maven {
-			name = 'CrowdinTranslate source'
-			url = "https://minecraft.guntram.de/maven/"
-		}
-	}
-}
-
-
 plugins {
-	id 'fabric-loom' version '1.6.+'
+	id 'fabric-loom' version '1.7.+'
 	id 'maven-publish'
 	id "com.modrinth.minotaur" version "2.+"
 	id 'com.matthewprenger.cursegradle' version '1.4.0'
@@ -24,13 +11,6 @@ targetCompatibility = JavaVersion.VERSION_21
 archivesBaseName = project.archives_base_name
 version = project.mod_version
 group = project.maven_group
-
-
-apply plugin: 'de.guntram.mcmod.crowdin-translate'
-crowdintranslate.crowdinProjectName = 'patbox-mods'
-crowdintranslate.jsonSourceName = 'universal_graves'
-crowdintranslate.minecraftProjectName = '../data/universal_graves'
-crowdintranslate.verbose = false
 
 
 repositories {
@@ -83,16 +63,17 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 
-	modImplementation include("eu.pb4:sgui:1.6.0+1.21")
-	modImplementation include("eu.pb4:placeholder-api:2.4.1+1.21")
-	modImplementation include('xyz.nucleoid:server-translations-api:2.3.1+1.21-pre2')
-	modImplementation include('eu.pb4:polymer-core:0.9.14+1.21.1')
-	modImplementation include('eu.pb4:polymer-resource-pack:0.9.14+1.21.1')
-	modImplementation include('eu.pb4:polymer-virtual-entity:0.9.14+1.21.1')
-	modImplementation include('eu.pb4:predicate-api:0.5.1+1.21')
+	modImplementation include("eu.pb4:sgui:1.7.1+1.21.2")
+	modImplementation include("eu.pb4:placeholder-api:2.5.0+1.21.2")
+	modImplementation include('xyz.nucleoid:server-translations-api:2.4.0+1.21.2-rc1')
+	modImplementation include('eu.pb4:polymer-core:0.10.0+1.21.2')
+	modImplementation include('eu.pb4:polymer-resource-pack:0.10.0+1.21.2')
+	modImplementation include('eu.pb4:polymer-virtual-entity:0.10.0+1.21.2')
+	modImplementation include('eu.pb4:predicate-api:0.6.0+1.21.2')
 	modImplementation include("eu.pb4:common-protection-api:1.0.0")
 
-	modImplementation include("me.lucko:fabric-permissions-api:0.2-SNAPSHOT")
+	//modImplementation include("me.lucko:fabric-permissions-api:0.2-SNAPSHOT")
+	modImplementation include("com.github.sakura-ryoko:fabric-permissions-api:dev~snapshot-jitpack-SNAPSHOT")
 
 	modCompileOnly "dev.emi:trinkets:3.10.0"
 	modCompileOnly "maven.modrinth:inventorio:1.10.3+1.20.2"

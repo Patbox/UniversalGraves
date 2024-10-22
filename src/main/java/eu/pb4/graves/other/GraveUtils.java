@@ -13,10 +13,7 @@ import eu.pb4.graves.event.PlayerGraveCreationEvent;
 import eu.pb4.graves.grave.Grave;
 import eu.pb4.graves.grave.GraveManager;
 import eu.pb4.graves.grave.PositionedItemStack;
-import eu.pb4.graves.registry.GraveBlock;
-import eu.pb4.graves.registry.GraveBlockEntity;
-import eu.pb4.graves.registry.SafeXPEntity;
-import eu.pb4.graves.registry.TempBlock;
+import eu.pb4.graves.registry.*;
 import eu.pb4.predicate.api.PredicateContext;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.block.Block;
@@ -69,9 +66,9 @@ public class GraveUtils {
         var config = ConfigManager.getConfig();
 
         if (config.placement.moveInsideBorder) {
-            blockPos = BlockPos.ofFloored(MathHelper.clamp(blockPos.getX(), border.getBoundWest() + 1, border.getBoundEast() - 1), MathHelper.clamp(blockPos.getY(), world.getBottomY(), world.getTopY() - 1), MathHelper.clamp(blockPos.getZ(), border.getBoundNorth() + 1, border.getBoundSouth() - 1));
+            blockPos = BlockPos.ofFloored(MathHelper.clamp(blockPos.getX(), border.getBoundWest() + 1, border.getBoundEast() - 1), MathHelper.clamp(blockPos.getY(), world.getBottomY(), world.getTopYInclusive()), MathHelper.clamp(blockPos.getZ(), border.getBoundNorth() + 1, border.getBoundSouth() - 1));
         } else {
-            blockPos = blockPos.withY(MathHelper.clamp(blockPos.getY(), world.getBottomY(), world.getTopY() - 1));
+            blockPos = blockPos.withY(MathHelper.clamp(blockPos.getY(), world.getBottomY(), world.getTopYInclusive()));
         }
         if (config.placement.generateOnGround) {
             while (world.getBlockState(blockPos).isAir() && world.getBottomY() + 2 < blockPos.getY()) {
@@ -158,7 +155,7 @@ public class GraveUtils {
     private static BlockResult isValidPos(GameProfile profile, @Nullable ServerPlayerEntity player, ServerWorld world, WorldBorder border, BlockPos pos, boolean anyBlock, Config config) {
         BlockState state = world.getBlockState(pos);
 
-        if (canReplaceState(state, anyBlock) && (!config.placement.moveInsideBorder || border.contains(pos)) && pos.getY() >= world.getBottomY() && pos.getY() < world.getTopY()) {
+        if (canReplaceState(state, anyBlock) && (!config.placement.moveInsideBorder || border.contains(pos)) && pos.getY() >= world.getBottomY() && pos.getY() < world.getTopYInclusive() + 1) {
             if (config.placement.generateOnTopOfFluids && state.getFluidState().getFluid() != Fluids.EMPTY && world.getBlockState(pos.up()).getFluidState().getFluid() != Fluids.EMPTY) {
                 return BlockResult.BLOCK_FLUID;
             }
@@ -255,7 +252,8 @@ public class GraveUtils {
                             player.sendMessage(config.teleportation.text.teleportLocationText.with(Map.of("position", Text.translatable("chat.coordinates", x, y, z))));
 
                             player.teleport(world, x + 0.5D, y + 1.0D, z + 0.5D,
-                                    player.getYaw(), player.getPitch());
+                                    Set.of(),
+                                    player.getYaw(), player.getPitch(), true);
                             player.playSoundToPlayer(SoundEvents.ENTITY_ENDERMAN_TELEPORT,
                                     SoundCategory.MASTER, 1f, 1f);
                             ((PlayerAdditions) player).graves$setInvulnerable(true);
@@ -276,7 +274,7 @@ public class GraveUtils {
         Config config = ConfigManager.getConfig();
 
 
-        if (player.getWorld().getGameRules().getBoolean(GameRules.KEEP_INVENTORY)
+        if (damageWorld.getGameRules().getBoolean(GameRules.KEEP_INVENTORY)
                 || config.placement.blacklistedWorlds.contains(player.getWorld().getRegistryKey().getValue())
                 || config.placement.maxGraveCount == 0
         ) {
@@ -370,7 +368,7 @@ public class GraveUtils {
                     ((PlayerAdditions) player).graves$setLastGrave(grave.getId());
                     var oldBlockState = world.getBlockState(gravePos);
                     var fluidState = world.getFluidState(gravePos);
-                    world.setBlockState(gravePos, TempBlock.INSTANCE.getDefaultState());
+                    world.setBlockState(gravePos, GravesRegistry.TEMP_BLOCK.getDefaultState());
 
                     world.getChunkManager().addTicket(GRAVE_TICKED, new ChunkPos(gravePos), 2, grave);
 
@@ -378,9 +376,9 @@ public class GraveUtils {
                         WrappedText text2;
                         Map<String, Text> placeholders2 = placeholders;
 
-                        var storedBlockState = world.getBlockState(gravePos).getBlock() == TempBlock.INSTANCE ? oldBlockState : Blocks.AIR.getDefaultState();
+                        var storedBlockState = world.getBlockState(gravePos).getBlock() == GravesRegistry.TEMP_BLOCK ? oldBlockState : Blocks.AIR.getDefaultState();
 
-                        world.setBlockState(gravePos, GraveBlock.INSTANCE.getDefaultState().with(Properties.ROTATION, player.getRandom().nextInt(15))
+                        world.setBlockState(gravePos, GravesRegistry.GRAVE_BLOCK.getDefaultState().with(Properties.ROTATION, player.getRandom().nextInt(15))
                                 .with(Properties.WATERLOGGED, fluidState.isOf(Fluids.WATER)));
                         BlockEntity entity = world.getBlockEntity(gravePos);
 
@@ -440,7 +438,7 @@ public class GraveUtils {
     }
 
     public static boolean canReplaceState(BlockState state, boolean dontValidateWithTag) {
-        return state.getBlock() != TempBlock.INSTANCE && !state.hasBlockEntity() && (state.isAir() || dontValidateWithTag || state.isIn(REPLACEABLE_TAG));
+        return state.getBlock() != GravesRegistry.TEMP_BLOCK && !state.hasBlockEntity() && (state.isAir() || dontValidateWithTag || state.isIn(REPLACEABLE_TAG));
     }
 
     public static void grandExperience(PlayerEntity player, int experience) {

@@ -12,7 +12,9 @@ import net.minecraft.item.Items;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -22,29 +24,32 @@ public final class IconItem extends Item implements PolymerItem {
     public static final ComponentType<Texture> TEXTURE = ComponentType.<Texture>builder()
             .codec(Codec.stringResolver(Texture::id, x -> Texture.BY_NAME.getOrDefault(x, Texture.INVALID))).build();
 
-    public static final Item INSTANCE = new IconItem();
-
-    protected IconItem() {
-        super(new Settings());
+    public IconItem(Settings settings) {
+        super(settings);
     }
 
     public static ItemStack of(Texture texture) {
-        var stack = new ItemStack(INSTANCE);
+        var stack = new ItemStack(GravesRegistry.ICON_ITEM);
         stack.set(TEXTURE, texture);
         return stack;
     }
 
     @Override
-    public Item getPolymerItem(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
+    public Item getPolymerItem(ItemStack itemStack, PacketContext context) {
         return Items.PLAYER_HEAD;
     }
 
     @Override
-    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType context, RegistryWrapper.WrapperLookup lookup, @Nullable ServerPlayerEntity player) {
-        var stack = PolymerItemUtils.createItemStack(itemStack, context, lookup, player);
+    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType tooltipType, PacketContext context) {
+        var stack = PolymerItemUtils.createItemStack(itemStack, tooltipType, context);
         var texture = itemStack.getOrDefault(TEXTURE, Texture.INVALID);
         stack.set(DataComponentTypes.PROFILE, PolymerUtils.createProfileComponent(texture.texture, null));
         return stack;
+    }
+
+    @Override
+    public @Nullable Identifier getPolymerItemModel(ItemStack stack, PacketContext context) {
+        return null;
     }
 
     public enum Texture {
