@@ -101,7 +101,7 @@ public class ParticleModelPart extends ModelPart<ParticleModelPart.ParticleEleme
             if (this.tick++ % this.waitDuration == 0) {
                 if (this.packet == null) {
                     var pos = Objects.requireNonNull(this.getHolder()).getPos().add(this.getOffset());
-                    this.packet = new ParticleS2CPacket(this.particleEffect, false, pos.x, pos.y, pos.z, this.delta.x, this.delta.y, this.delta.z, this.speed, this.count);
+                    this.packet = new ParticleS2CPacket(this.particleEffect, false, false, pos.x, pos.y, pos.z, this.delta.x, this.delta.y, this.delta.z, this.speed, this.count);
                 }
 
                 Objects.requireNonNull(this.getHolder()).sendPacket(this.packet);

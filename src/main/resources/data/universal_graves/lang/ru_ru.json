@@ -1,6 +1,6 @@
 {
   "text.graves.grave_of": "Могила %s",
-  "text.graves.items_xp": "Предметы: %s XP: %s",
+  "text.graves.items_xp": "Предметы: %s опыт: %s",
   "text.graves.items": "Предметы: %s",
   "text.graves.protected_time": "Защищена ещё %s",
   "text.graves.protected_time_sign": "Защищена ещё",
@@ -8,27 +8,25 @@
   "text.graves.break_time_sign": "Уничтожится через",
   "text.graves.not_protected": "Не защищена!",
   "text.graves.players_grave": "Могила %s",
+  "text.graves.admin_graves": "Все могилы",
   "text.graves.gui_title": "Ваши могилы",
-  "text.graves.no_longer_protected": "Ваша могила на %s (%s), содержащая %s предмет(ов) больше не защищена!",
+  "text.graves.no_longer_protected": "Ваша могила на %s (%s), содержащая %s предмет(ов), больше не защищена!",
   "text.graves.expired": "Истёк срок действия вашей могилы на %s (%s), содержащей %s предмет(ов)!",
   "text.graves.somebody_broke": "Кто-то сломал вашу могилу на %s (%s), содержащую %s предмет(ов)!",
   "text.graves.created_at": "Создана могила на %s (%s)",
-  "text.graves.created_at_expire": "Создана могила на %s (%s). Срок действия: %s",
-  "text.graves.creation_failed": "Не удалось создать могилу! Ваши вещи разбросаны на %s (%s)",
+  "text.graves.created_at_expire": "Создана могила на %s (%s). Срок её действия истечёт в %s\",",
+  "text.graves.creation_failed": "Не удалось создать могилу! Ваши вещи выброшены на %s (%s)",
   "text.graves.creation_failed_void": "Могила не создана, так как вы умерли в бездне!",
-  "text.graves.creation_failed_pvp": "Могила не создана, так как вас убил игрок! Ваши вещи разбросаны на %s (%s)",
-  "text.graves.creation_failed_claim": "Могила не создана, так как вы были в чужих владениях! Ваши вещи разбросаны на %s (%s)",
+  "text.graves.creation_failed_pvp": "Могила не создана, так как вас убил игрок! Ваши вещи выброшены на %s (%s)",
+  "text.graves.creation_failed_claim": "Могила не создана, так как вы были в чужих владениях! Ваши вещи выброшены на %s (%s)",
   "text.graves.grave_unlock_payment.no_access": "У вас нет доступа к этой могиле!",
   "text.graves.grave_unlock_payment.accepted": "Вы разблокировали могилу!",
   "text.graves.grave_unlock_payment.failed": "У вас недостаточно валюты для разблокировки могилы! Требуется: %s",
-
   "text.graves.damage_source_info": "Вы получили урон от: %s",
   "text.graves.damage_source_info.enabled": "Отображение следующих источников урона включено! Введите команду снова, чтобы отключить его.",
   "text.graves.damage_source_info.disabled": "Отображение следующих источников урона отключено!",
-
   "text.graves.about.version": "Версия: %s",
   "text.graves.about.contributors": "Вкладчики",
-
   "text.graves.gui.next_page": "След. стр.",
   "text.graves.gui.previous_page": "Пред. стр",
   "text.graves.gui.remove_protection": "Снять защиту",
@@ -41,25 +39,21 @@
   "text.graves.gui.unlock_grave": "Разблокировать могилу",
   "text.graves.gui.fetch": "Переместить могилу к вам",
   "text.graves.gui.fetch_failed": "Не удалось переместить могилу к вам!",
-
   "text.graves.gui.cant_reverse": "Это действие необратимо!",
   "text.graves.gui.click_to_confirm": "Нажмите ещё раз для подтверждения",
-
   "text.graves.teleport.teleport_timer": "Телепортируем через %s секунд, не двигайтесь!",
   "text.graves.teleport.teleport_timer_moving": "Телепортируем через %s секунд",
   "text.graves.teleport.teleport_location": "Телепортируем на %s",
   "text.graves.teleport.teleport_cancelled": "Телепортация отменена",
-
   "item.universal_graves.grave_compass": "Могильный компас",
   "block.universal_graves.grave": "Могила",
   "block.universal_graves.visual_grave": "Опустошённая могила",
-  "block.universal_graves.container_grave": "Могильный камень",
-
+  "block.universal_graves.container_grave": "Надгробие",
   "gamerule.universal_graves:protection_time": "Время защиты могилы от других игроков",
   "gamerule.universal_graves:breaking_time": "Срок действия могилы",
-
   "text.graves.cost.level": "Уровней",
   "text.graves.cost.creative": "Творческий режим",
   "text.graves.cost.free": "Бесплатно",
-  "text.graves.cost.item": "Предметов"
+  "text.graves.cost.item": "Предметов",
+  "screen.graves.settings": "Настройки универсальных могил"
 }

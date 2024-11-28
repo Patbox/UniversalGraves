@@ -17,37 +17,29 @@
   "text.graves.creation_failed_void": "공허에서 사망하여 무덤을 생성할 수 없습니다.",
   "text.graves.creation_failed_pvp": "유저에게 사망하여 무덤을 생성할 수 없습니다. %s (%s)에 아이템이 드롭되었습니다.",
   "text.graves.creation_failed_claim": "보호구역에서 사망하여 무덤을 생성할 수 없습니다. %s (%s)에 아이템이 드롭되었습니다.",
-
   "text.graves.damage_source_info": "피해: %s",
   "text.graves.damage_source_info.enabled": "피해 표시를 활성화합니다! 비활성화 하려면 명령어를 한번 더 입력하세요.",
   "text.graves.damage_source_info.disabled": "피해 표시를 비활성화합니다!",
-
   "text.graves.gui.next_page": "다음 페이지",
   "text.graves.gui.previous_page": "이전 페이지",
   "text.graves.gui.remove_protection": "보호해제",
   "text.graves.gui.break_grave": "파괴하기",
   "text.graves.gui.quick_pickup": "현재 위치로 무덤 가져오기",
   "text.graves.gui.teleport": "무덤으로 이동",
-  "text.graves.gui.teleport.not_enough": "재료가 부족합니다.",
   "text.graves.gui.cost": "소모 재료:",
   "text.graves.gui.fetch": "무덤을 여기로 가져옵니다.",
   "text.graves.gui.fetch_failed": "무덤을 여기로 가져올 수 없습니다.",
-
   "text.graves.gui.cant_reverse": "이 작업은 되돌릴 수 없습니다!",
   "text.graves.gui.click_to_confirm": "확인하려면 클릭",
-
   "text.graves.teleport.teleport_timer": "%s초 뒤에 텔레포트합니다. 움직이지 마세요!",
   "text.graves.teleport.teleport_timer_moving": "%s초 뒤에 텔레포트합니다",
   "text.graves.teleport.teleport_location": "%s로 텔레포트",
   "text.graves.teleport.teleport_cancelled": "텔레포트가 취소되었습니다.",
-
   "item.universal_graves.grave_compass": "무덤 나침반",
   "block.universal_graves.grave": "무덤",
   "block.universal_graves.visual_grave": "비석",
-
   "gamerule.universal_graves:protection_time": "다른 사용자로부터 무덤 보호시간",
   "gamerule.universal_graves:breaking_time": "무덤 만료시간",
-
   "text.graves.cost.level": "경험치",
   "text.graves.cost.free": "무료",
   "text.graves.cost.item": "아이템"

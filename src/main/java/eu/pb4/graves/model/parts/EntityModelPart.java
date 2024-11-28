@@ -96,7 +96,7 @@ public class EntityModelPart extends ModelPart<EntityElement<?>, EntityModelPart
 
         @Override
         public void startWatching(ServerPlayerEntity player, Consumer<Packet<ClientPlayPacketListener>> packetConsumer) {
-            var entry = new PlayerListS2CPacket.Entry(this.entity().getUuid(), this.profile, false, -1, GameMode.SURVIVAL, null, 0, null);
+            var entry = new PlayerListS2CPacket.Entry(this.entity().getUuid(), this.profile, false, -1, GameMode.SURVIVAL, null, false, 0, null);
             {
                 var packet = PolymerEntityUtils.createMutablePlayerListPacket(EnumSet.of(PlayerListS2CPacket.Action.ADD_PLAYER, PlayerListS2CPacket.Action.UPDATE_GAME_MODE, PlayerListS2CPacket.Action.UPDATE_LISTED));
                 packet.getEntries().add(entry);

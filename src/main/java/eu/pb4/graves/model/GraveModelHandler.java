@@ -202,7 +202,7 @@ public class GraveModelHandler extends ElementHolder {
 
     private boolean updateYawFor(VirtualElement element, ModelPart part) {
         if (part.tags.contains(ModelTags.ROUND_YAW_TO_90)) {
-            yaw = Direction.fromRotation(yaw).asRotation();
+            yaw = Direction.fromHorizontalDegrees(yaw).getPositiveHorizontalDegrees();
         }
         boolean ret = false;
 

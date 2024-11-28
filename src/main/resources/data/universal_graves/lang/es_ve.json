@@ -18,40 +18,31 @@
   "text.graves.creation_failed_void": "La tumba no fue creada porque has muerto en el vacío!",
   "text.graves.creation_failed_pvp": "La tumba no fue creada porque un jugador te mató! Tus ítems fueron arrojados en %s (%s)",
   "text.graves.creation_failed_claim": "La tumba no fue creada porque estabas en terreno protegido! Tus ítems fueron arrojados en %s (%s)",
-
   "text.graves.damage_source_info": "Fuiste dañado por: %s",
   "text.graves.damage_source_info.enabled": "Se activó la visualización de la fuente del próximo daño! Usa este comando otra vez para desactivarla.",
   "text.graves.damage_source_info.disabled": "Se desactivó la visualización de la fuente del daño!",
-
   "text.graves.about.version": "Versión: %s",
   "text.graves.about.contributors": "Colaboradores",
-
   "text.graves.gui.next_page": "Página Siguiente",
   "text.graves.gui.previous_page": "Página Anterior",
   "text.graves.gui.remove_protection": "Quitar Protección",
   "text.graves.gui.break_grave": "Destruir Tumba",
   "text.graves.gui.quick_pickup": "Recoger Todos los Ítems",
   "text.graves.gui.teleport": "Teletransportar hacia la tumba",
-  "text.graves.gui.teleport.not_enough": "Recursos insuficientes!",
   "text.graves.gui.cost": "Costo:",
   "text.graves.gui.fetch": "Mover tumba hacia tu posición",
   "text.graves.gui.fetch_failed": "No se pudo mover la tumba hacia tu posición!",
-
   "text.graves.gui.cant_reverse": "No puedes revertir esta acción!",
   "text.graves.gui.click_to_confirm": "Haz clic otra vez para confirmar",
-
   "text.graves.teleport.teleport_timer": "Teletransportando en %s segundos, no te muevas!",
   "text.graves.teleport.teleport_timer_moving": "Teletransportando en %s segundos",
   "text.graves.teleport.teleport_location": "Teletransportando hacia %s",
   "text.graves.teleport.teleport_cancelled": "Se canceló la teletransportación",
-
   "item.universal_graves.grave_compass": "Brújula de Tumba",
   "block.universal_graves.grave": "Tumba",
   "block.universal_graves.visual_grave": "Lápida",
-
   "gamerule.universal_graves:protection_time": "Tiempo de protección de la tumba contra otros jugadores",
   "gamerule.universal_graves:breaking_time": "Tiempo de expiración de la tumba",
-
   "text.graves.cost.level": "Niveles de Experiencia",
   "text.graves.cost.creative": "Creativo",
   "text.graves.cost.free": "Gratis",
