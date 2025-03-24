@@ -54,13 +54,13 @@ public record VisualGraveData(GameProfile gameProfile, byte visualSkinModelLayer
 
     public static VisualGraveData fromNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup) {
         return new VisualGraveData(
-                LegacyNbtHelper.toGameProfile(nbt.getCompound("GameProfile")),
-                nbt.contains("SkinModelParts", NbtElement.BYTE_TYPE) ? nbt.getByte("SkinModelParts") : (byte) 0xFF,
-                nbt.contains("MainArm", NbtElement.BYTE_TYPE) ? (nbt.getByte("MainArm") == Arm.LEFT.getId() ? Arm.LEFT : Arm.RIGHT) : Arm.RIGHT,
-                Text.Serialization.fromJson(nbt.getString("DeathCause"), lookup),
-                nbt.getLong("CreationTime"),
+                LegacyNbtHelper.toGameProfile(nbt.getCompoundOrEmpty("GameProfile")),
+                nbt.contains("SkinModelParts") ? nbt.getByte("SkinModelParts", (byte) 0xFF) : (byte) 0xFF,
+                nbt.contains("MainArm") ? (nbt.getByte("MainArm", (byte) 0) == Arm.LEFT.getId() ? Arm.LEFT : Arm.RIGHT) : Arm.RIGHT,
+                Text.Serialization.fromJson(nbt.getString("DeathCause", ""), lookup),
+                nbt.getLong("CreationTime", 0),
                 Location.fromNbt(nbt),
-                nbt.getInt("MinecraftDay")
+                nbt.getInt("MinecraftDay", 0)
         );
     }
 }

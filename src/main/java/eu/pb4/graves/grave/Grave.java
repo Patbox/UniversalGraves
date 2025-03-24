@@ -15,10 +15,7 @@ import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtHelper;
-import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.*;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.MinecraftServer;
@@ -28,6 +25,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.ItemScatterer;
+import net.minecraft.util.Uuids;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
@@ -160,7 +158,7 @@ public final class Grave {
 
         var allowedUUIDs = new NbtList();
         for (var uuid : this.allowedUUIDs) {
-            allowedUUIDs.add(NbtHelper.fromUuid(uuid));
+            allowedUUIDs.add(Uuids.STRICT_CODEC.encodeStart(NbtOps.INSTANCE, uuid).getOrThrow());
         }
 
         nbt.put("AllowedUUIDs", allowedUUIDs);
@@ -178,55 +176,55 @@ public final class Grave {
 
     public void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup, DataFixer dataFixer, int dataVersion, int currentDataVersion) {
         try {
-            if (nbt.contains("Id", NbtElement.LONG_TYPE)) {
-                this.id = nbt.getLong("Id");
+            if (nbt.contains("Id")) {
+                this.id = nbt.getLong("Id", -1);
             } else {
                 this.id = GraveManager.INSTANCE.requestId();
             }
 
-            this.gameProfile = LegacyNbtHelper.toGameProfile(nbt.getCompound("GameProfile"));
-            this.xp = nbt.getInt("XP");
-            this.creationTime = nbt.getLong("CreationTime");
-            this.itemCount = nbt.getInt("ItemCount");
-            this.minecraftDay = nbt.getInt("MinecraftDay");
-            this.deathCause = Text.Serialization.fromLenientJson(nbt.getString("DeathCause"), lookup);
+            this.gameProfile = LegacyNbtHelper.toGameProfile(nbt.getCompoundOrEmpty("GameProfile"));
+            this.xp = nbt.getInt("XP", 0);
+            this.creationTime = nbt.getLong("CreationTime", 0);
+            this.itemCount = nbt.getInt("ItemCount", 0);
+            this.minecraftDay = nbt.getInt("MinecraftDay", 0);
+            this.deathCause = Text.Serialization.fromLenientJson(nbt.getString("DeathCause", ""), lookup);
             this.location = Location.fromNbt(nbt);
             this.allowedUUIDs.clear();
-            this.requirePayment = nbt.getBoolean("RequirePayment");
+            this.requirePayment = nbt.getBoolean("RequirePayment", false);
 
-            if (nbt.contains("Type", NbtElement.STRING_TYPE)) {
-                this.type = GraveType.byName(nbt.getString("Type"));
+            if (nbt.contains("Type")) {
+                this.type = GraveType.byName(nbt.getString("Type", ""));
             } else {
                 this.type = GraveType.BLOCK;
             }
 
-            if (nbt.contains("TickCreationTime", NbtElement.LONG_TYPE)) {
-                this.gameCreationTime = nbt.getLong("TickCreationTime");
+            if (nbt.contains("TickCreationTime")) {
+                this.gameCreationTime = nbt.getLong("TickCreationTime", 0);
             } else {
                 this.gameCreationTime = GraveManager.INSTANCE.getCurrentGameTime();
             }
 
-            if (nbt.contains("IsProtectionEnabled", NbtElement.BYTE_TYPE)) {
-                this.isProtectionEnabled = nbt.getBoolean("IsProtectionEnabled");
+            if (nbt.contains("IsProtectionEnabled")) {
+                this.isProtectionEnabled = nbt.getBoolean("IsProtectionEnabled", false);
             } else {
                 this.isProtectionEnabled = true;
             }
 
-            for (var nbtUUID : nbt.getList("AllowedUUIDs", NbtElement.INT_ARRAY_TYPE)) {
-                this.allowedUUIDs.add(NbtHelper.toUuid(nbtUUID));
+            for (var nbtUUID : nbt.getListOrEmpty("AllowedUUIDs")) {
+                this.allowedUUIDs.add(Uuids.CODEC.decode(NbtOps.INSTANCE, nbtUUID).getOrThrow().getFirst());
             }
 
-            for (var item : nbt.getList("Items", NbtElement.COMPOUND_TYPE)) {
+            for (var item : nbt.getListOrEmpty("Items")) {
                 var stack = PositionedItemStack.fromNbt((NbtCompound) item, lookup, dataFixer, dataVersion, currentDataVersion);
                 this.items.add(stack);
                 this.addTaggedItem(stack);
             }
-            if (nbt.contains("SkinModelParts", NbtElement.BYTE_TYPE)) {
-                this.skinModelParts = nbt.getByte("SkinModelParts");
+            if (nbt.contains("SkinModelParts")) {
+                this.skinModelParts = nbt.getByte("SkinModelParts", (byte) 0);
             }
 
-            if (nbt.contains("MainArm", NbtElement.BYTE_TYPE)) {
-                this.mainArm = nbt.getByte("MainArm") == Arm.LEFT.getId() ? Arm.LEFT : Arm.RIGHT;
+            if (nbt.contains("MainArm")) {
+                this.mainArm = nbt.getByte("MainArm", (byte) 0) == Arm.LEFT.getId() ? Arm.LEFT : Arm.RIGHT;
             }
 
             this.updateDisplay();

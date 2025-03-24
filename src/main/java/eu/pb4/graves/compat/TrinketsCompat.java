@@ -66,8 +66,8 @@ public record TrinketsCompat(boolean preventAddition) implements GraveInventoryM
 
     @Override
     public boolean moveToPlayerExactly(ServerPlayerEntity player, ItemStack stack, int slot, NbtElement extraData) {
-        var groupId = ((NbtCompound) extraData).getString(GROUP_TAG);
-        var slotId = ((NbtCompound) extraData).getString(SLOT_TAG);
+        var groupId = ((NbtCompound) extraData).getString(GROUP_TAG, "");
+        var slotId = ((NbtCompound) extraData).getString(SLOT_TAG, "");
 
         var inventory = getInventory(player, groupId, slotId);
 
@@ -82,8 +82,8 @@ public record TrinketsCompat(boolean preventAddition) implements GraveInventoryM
 
     @Override
     public boolean moveToPlayerClosest(ServerPlayerEntity player, ItemStack stack, int slot, NbtElement data) {
-        var groupId = ((NbtCompound) data).getString(GROUP_TAG);
-        var slotId = ((NbtCompound) data).getString(SLOT_TAG);
+        var groupId = ((NbtCompound) data).getString(GROUP_TAG, "");
+        var slotId = ((NbtCompound) data).getString(SLOT_TAG, "");
 
         var inventory = getInventory(player, groupId, slotId);
 

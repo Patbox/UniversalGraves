@@ -39,11 +39,11 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Pl
 
     @Inject(method = "readCustomDataFromNbt", at = @At("TAIL"))
     private void graves$loadNbt(NbtCompound nbt, CallbackInfo ci) {
-        if (nbt.contains("LastGraveId", NbtElement.LONG_TYPE)) {
-            this.graves$location = nbt.getLong("LastGraveId");
+        if (nbt.contains("LastGraveId")) {
+            this.graves$location = nbt.getLong("LastGraveId", -1);
         }
 
-        this.graves$hasCompass = nbt.getBoolean("HasGraveCompass");
+        this.graves$hasCompass = nbt.getBoolean("HasGraveCompass", false);
     }
 
     @Inject(method = "writeCustomDataToNbt", at = @At("TAIL"))

@@ -1,5 +1,6 @@
 package eu.pb4.graves.registry;
 
+import eu.pb4.graves.other.GraveUtils;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.api.other.PolymerComponent;
@@ -67,6 +68,6 @@ public interface GravesRegistry {
         VisualGraveBlockEntity.BLOCK_ENTITY_TYPE = Registry.register(Registries.BLOCK_ENTITY_TYPE, "universal_graves:visual_grave", FabricBlockEntityTypeBuilder.create(VisualGraveBlockEntity::new,VISUAL_GRAVE_BLOCK).build());
         ContainerGraveBlockEntity.BLOCK_ENTITY_TYPE = Registry.register(Registries.BLOCK_ENTITY_TYPE, "universal_graves:container_grave", FabricBlockEntityTypeBuilder.create(ContainerGraveBlockEntity::new, CONTAINER_GRAVE_BLOCK).build());
         PolymerBlockUtils.registerBlockEntity(GraveBlockEntity.BLOCK_ENTITY_TYPE, VisualGraveBlockEntity.BLOCK_ENTITY_TYPE, ContainerGraveBlockEntity.BLOCK_ENTITY_TYPE);
-
+        Registry.register(Registries.TICKET_TYPE, "universal_graves:grave", GraveUtils.GRAVE_TICKED);
     }
 }

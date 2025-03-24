@@ -7,15 +7,19 @@ import eu.pb4.graves.registry.GraveGameRules;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.SharedConstants;
+import net.minecraft.datafixer.DataFixTypes;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.dynamic.Codecs;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.PersistentState;
+import net.minecraft.world.PersistentStateType;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -33,8 +37,14 @@ public final class GraveManager extends PersistentState {
     private int protectionTime;
     private int breakingTime;
 
-    public static Type<GraveManager> getType(MinecraftServer server) {
-        return new Type<>(GraveManager::new, (a, b) -> GraveManager.fromNbt(a, b, server.getDataFixer()), null);
+
+    public static PersistentStateType<GraveManager> getType() {
+        return new PersistentStateType<>("universal-graves", (PersistentState.Context ctx) -> new GraveManager(),
+                (PersistentState.Context ctx) ->  Codecs.fromOps(NbtOps.INSTANCE)
+                        .xmap(
+                                nbt -> fromNbt((NbtCompound) nbt, ctx.getWorldOrThrow().getRegistryManager(), ctx.getWorldOrThrow().getServer().getDataFixer()),
+                                manager -> manager.writeNbt(new NbtCompound(), ctx.getWorldOrThrow().getRegistryManager())),
+                null);
     }
 
     public void add(Grave grave) {
@@ -64,7 +74,6 @@ public final class GraveManager extends PersistentState {
         }
     }
 
-    @Override
     public NbtCompound writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup) {
         NbtList list = new NbtList();
 
@@ -85,13 +94,12 @@ public final class GraveManager extends PersistentState {
     public static GraveManager fromNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup, DataFixer dataFixer) {
         GraveManager manager = new GraveManager();
         GraveManager.INSTANCE = manager;
-        int dataVersion = nbt.getInt("Version") == 2 ? 3700 : nbt.getInt("GameVersion");
+        int dataVersion = nbt.getInt("GameVersion", 3700);
 
-        manager.currentGameTime = nbt.getLong("CurrentGameTime");
-        manager.currentGraveId = nbt.getLong("CurrentGrave");
+        manager.currentGameTime = nbt.getLong("CurrentGameTime", 0);
+        manager.currentGraveId = nbt.getLong("CurrentGrave", 0);
 
-        NbtList graves = nbt.getList("Graves", NbtElement.COMPOUND_TYPE);
-        for (NbtElement graveNbt : graves) {
+        for (var graveNbt : nbt.getListOrEmpty("Graves")) {
             Grave graveInfo = new Grave();
             graveInfo.readNbt((NbtCompound) graveNbt, lookup, dataFixer, dataVersion, SharedConstants.getGameVersion().getSaveVersion().getId());
             manager.add(graveInfo);

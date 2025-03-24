@@ -62,6 +62,12 @@ public class EntityModelPart extends ModelPart<EntityElement<?>, EntityModelPart
 
     private PlayerEntity createPlayer(World world) {
         return new PlayerEntity(world, BlockPos.ORIGIN, 0, new GameProfile(UUID.randomUUID(), "")) {
+            @Nullable
+            @Override
+            public GameMode getGameMode() {
+                return null;
+            }
+
             @Override
             public boolean isSpectator() {
                 return false;

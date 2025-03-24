@@ -53,7 +53,7 @@ import java.util.*;
 import java.util.function.Function;
 
 public class GraveUtils {
-    private static final ChunkTicketType<Grave> GRAVE_TICKED = ChunkTicketType.create("universal_graves", Comparator.comparing(Grave::getId), 5);
+    public static final ChunkTicketType GRAVE_TICKED = new ChunkTicketType(5, false, ChunkTicketType.Use.LOADING);
 
     public static final TagKey<Block> REPLACEABLE_TAG = TagKey.of(RegistryKeys.BLOCK, Identifier.of("universal_graves", "replaceable"));
     public static final TagKey<Enchantment> BLOCKED_ENCHANTMENTS_TAG = TagKey.of(RegistryKeys.ENCHANTMENT, Identifier.of("universal_graves", "blocked_enchantments"));
@@ -370,7 +370,7 @@ public class GraveUtils {
                     var fluidState = world.getFluidState(gravePos);
                     world.setBlockState(gravePos, GravesRegistry.TEMP_BLOCK.getDefaultState());
 
-                    world.getChunkManager().addTicket(GRAVE_TICKED, new ChunkPos(gravePos), 2, grave);
+                    world.getChunkManager().addTicket(GRAVE_TICKED, new ChunkPos(gravePos), 2);
 
                     GravesMod.DO_ON_NEXT_TICK.add(() -> {
                         WrappedText text2;

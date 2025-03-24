@@ -46,7 +46,6 @@ public class GravesMod implements ModInitializer {
         FabricLoader loader = FabricLoader.getInstance();
         GenericModInfo.build(CONTAINER);
 
-
         GravesRegistry.register();
         Commands.register();
 
@@ -94,7 +93,7 @@ public class GravesMod implements ModInitializer {
 
         ServerWorldEvents.LOAD.register(((server, world) -> {
             if (world == server.getOverworld()) {
-                GraveManager.INSTANCE = world.getPersistentStateManager().getOrCreate(GraveManager.getType(server), "universal-graves");
+                GraveManager.INSTANCE = world.getPersistentStateManager().getOrCreate(GraveManager.getType());
                 GraveManager.INSTANCE.setServer(server);
             }
         }));

@@ -102,7 +102,7 @@ public interface ImplementedInventory extends Inventory {
 
     default boolean canInsert(ItemStack stack) {
         boolean bl = false;
-        Iterator var3 = this.getItems().iterator();
+        var var3 = this.getItems().iterator();
 
         while(var3.hasNext()) {
             ItemStack itemStack = (ItemStack)var3.next();

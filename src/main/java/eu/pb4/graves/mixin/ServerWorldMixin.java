@@ -2,6 +2,7 @@ package eu.pb4.graves.mixin;
 
 import eu.pb4.graves.registry.GraveBlock;
 import eu.pb4.graves.registry.GraveBlockEntity;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -26,10 +27,10 @@ public abstract class ServerWorldMixin extends World {
         super(properties, registryRef, registryManager, dimensionEntry, isClient, debugWorld, seed, maxChainedNeighborUpdates);
     }
 
-    @Inject(method = "canPlayerModifyAt", at = @At("HEAD"), cancellable = true)
-    private void grave_disallowGraveBreaking(PlayerEntity player, BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
+    @Inject(method = "canEntityModifyAt", at = @At("HEAD"), cancellable = true)
+    private void grave_disallowGraveBreaking(Entity entity, BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
         if (this.getBlockEntity(pos) instanceof GraveBlockEntity grave && grave.getGrave() != null) {
-            cir.setReturnValue(grave.getGrave().hasAccess(player));
+            cir.setReturnValue(entity instanceof PlayerEntity player && grave.getGrave().hasAccess(player));
         }
     }
 }

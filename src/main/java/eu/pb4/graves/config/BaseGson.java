@@ -51,7 +51,7 @@ public class BaseGson {
 
     public static Gson getGson(RegistryWrapper.WrapperLookup lookup) {
         return new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().enableComplexMapKeySerialization()
-                .registerTypeHierarchyAdapter(Identifier.class, new Identifier.Serializer())
+                .registerTypeHierarchyAdapter(Identifier.class, new CodecSerializer<>(Identifier.CODEC, lookup))
 
                 .registerTypeHierarchyAdapter(Item.class, CodecSerializer.registry(Registries.ITEM, lookup))
                 .registerTypeHierarchyAdapter(Block.class, CodecSerializer.registry(Registries.BLOCK, lookup))

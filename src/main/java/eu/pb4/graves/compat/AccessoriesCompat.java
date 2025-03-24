@@ -83,8 +83,8 @@ public record AccessoriesCompat() implements GraveInventoryMask {
 
     @Override
     public boolean moveToPlayerExactly(ServerPlayerEntity player, ItemStack stack, int slot, NbtElement extraData) {
-        var typeId = ((NbtCompound) extraData).getString(TYPE_TAG);
-        var slotId = ((NbtCompound) extraData).getString(SLOT_TAG);
+        var typeId = ((NbtCompound) extraData).getString(TYPE_TAG, "");
+        var slotId = ((NbtCompound) extraData).getString(SLOT_TAG, "");
 
         var inventory = getInventory(player, typeId, slotId);
 
@@ -99,8 +99,8 @@ public record AccessoriesCompat() implements GraveInventoryMask {
 
     @Override
     public boolean moveToPlayerClosest(ServerPlayerEntity player, ItemStack stack, int slot, NbtElement data) {
-        var type = ((NbtCompound) data).getString(TYPE_TAG);
-        var slotId = ((NbtCompound) data).getString(SLOT_TAG);
+        var type = ((NbtCompound) data).getString(TYPE_TAG, "");
+        var slotId = ((NbtCompound) data).getString(SLOT_TAG, "");
 
         var inventory = getInventory(player, type, slotId);
 

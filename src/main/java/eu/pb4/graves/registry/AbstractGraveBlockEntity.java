@@ -31,7 +31,7 @@ public abstract class AbstractGraveBlockEntity extends BlockEntity implements Mo
     @Override
     public void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup) {
         super.readNbt(nbt, lookup);
-        this.model = nbt.getString("GraveModel");
+        this.model = nbt.getString("GraveModel", "default");
         this.onModelChanged(this.model);
 
     }

@@ -21,22 +21,22 @@ public final class LegacyNbtHelper {
 
     @Nullable
     public static GameProfile toGameProfile(NbtCompound nbt) {
-        UUID uUID = nbt.containsUuid("Id") ? nbt.getUuid("Id") : Util.NIL_UUID;
-        String string = nbt.getString("Name");
+        UUID uUID = nbt.contains("Id") ? nbt.get("Id", Uuids.STRICT_CODEC).orElse(Util.NIL_UUID) : Util.NIL_UUID;
+        String string = nbt.getString("Name", "");
 
         try {
             GameProfile gameProfile = new GameProfile(uUID, string);
-            if (nbt.contains("Properties", NbtElement.COMPOUND_TYPE)) {
-                NbtCompound nbtCompound = nbt.getCompound("Properties");
+            if (nbt.contains("Properties")) {
+                NbtCompound nbtCompound = nbt.getCompoundOrEmpty("Properties");
 
                 for (String string2 : nbtCompound.getKeys()) {
-                    NbtList nbtList = nbtCompound.getList(string2, NbtElement.COMPOUND_TYPE);
+                    NbtList nbtList = nbtCompound.getListOrEmpty(string2);
 
                     for (int i = 0; i < nbtList.size(); ++i) {
-                        NbtCompound nbtCompound2 = nbtList.getCompound(i);
-                        String string3 = nbtCompound2.getString("Value");
-                        if (nbtCompound2.contains("Signature", NbtElement.STRING_TYPE)) {
-                            gameProfile.getProperties().put(string2, new com.mojang.authlib.properties.Property(string2, string3, nbtCompound2.getString("Signature")));
+                        NbtCompound nbtCompound2 = nbtList.getCompoundOrEmpty(i);
+                        String string3 = nbtCompound2.getString("Value", "");
+                        if (nbtCompound2.contains("Signature")) {
+                            gameProfile.getProperties().put(string2, new com.mojang.authlib.properties.Property(string2, string3, nbtCompound2.getString("Signature", "")));
                         } else {
                             gameProfile.getProperties().put(string2, new com.mojang.authlib.properties.Property(string2, string3));
                         }
@@ -56,7 +56,7 @@ public final class LegacyNbtHelper {
         }
 
         if (!profile.getId().equals(Util.NIL_UUID)) {
-            nbt.putUuid("Id", profile.getId());
+            nbt.put("Id", Uuids.STRICT_CODEC, profile.getId());
         }
 
         if (!profile.getProperties().isEmpty()) {
@@ -105,7 +105,7 @@ public final class LegacyNbtHelper {
     }
 
     public static BlockPos toBlockPos(NbtCompound nbt) {
-        return new BlockPos(nbt.getInt("X"), nbt.getInt("Y"), nbt.getInt("Z"));
+        return new BlockPos(nbt.getInt("X", 0), nbt.getInt("Y", 0), nbt.getInt("Z", 0));
     }
 
     public static NbtCompound fromBlockPos(BlockPos pos) {

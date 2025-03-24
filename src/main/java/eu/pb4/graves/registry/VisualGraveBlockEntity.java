@@ -76,13 +76,13 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
     public void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup) {
         super.readNbt(nbt, lookup);
         try {
-            this.visualData = VisualGraveData.fromNbt(nbt.getCompound("VisualData"), lookup);
+            this.visualData = VisualGraveData.fromNbt(nbt.getCompoundOrEmpty("VisualData"), lookup);
             this.replacedBlockState = NbtHelper.toBlockState(Registries.BLOCK, (NbtCompound) Objects.requireNonNull(nbt.get("BlockState")));
 
-            if (nbt.contains("TextOverride", NbtElement.LIST_TYPE)) {
+            if (nbt.contains("TextOverride")) {
                 var textOverrides = new ArrayList<>();
-                for (var text : nbt.getList("TextOverride", NbtElement.STRING_TYPE)) {
-                    textOverrides.add(Text.Serialization.fromLenientJson(text.asString(), lookup));
+                for (var text : nbt.getListOrEmpty("TextOverride")) {
+                    textOverrides.add(Text.Serialization.fromLenientJson(text.asString().get(), lookup));
                 }
                 this.textOverrides = textOverrides.toArray(new Text[0]);
             }

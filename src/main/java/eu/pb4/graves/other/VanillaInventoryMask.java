@@ -34,7 +34,7 @@ public class VanillaInventoryMask implements GraveInventoryMask {
     }
 
     private Identifier[] createTags(ServerPlayerEntity player, PlayerInventory inventory, int slot, ItemStack stack) {
-        if (slot == inventory.selectedSlot) {
+        if (slot == inventory.getSelectedSlot()) {
             return new Identifier[]{ModelTags.EQUIPMENT_MAIN_HAND};
         }
 
@@ -70,7 +70,7 @@ public class VanillaInventoryMask implements GraveInventoryMask {
                     slot = inventory.getEmptySlot();
 
                     if (slot >= 0) {
-                        inventory.main.set(slot, stack.copy());
+                        inventory.getMainStacks().set(slot, stack.copy());
                         stack.setCount(0);
                         return true;
                     }

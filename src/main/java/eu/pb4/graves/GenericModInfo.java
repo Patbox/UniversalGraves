@@ -1,10 +1,12 @@
 package eu.pb4.graves;
 
 import net.fabricmc.loader.api.ModContainer;
+import net.fabricmc.loader.api.metadata.Person;
 import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 
 import javax.imageio.ImageIO;
+import java.net.URI;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -58,7 +60,7 @@ public class GenericModInfo {
             var output = new ArrayList<Text>();
 
             try {
-                about.add(Text.literal(container.getMetadata().getName()).setStyle(Style.EMPTY.withColor(0x00e6b4).withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,container.getMetadata().getContact().get("github").orElse("")))));
+                about.add(Text.literal(container.getMetadata().getName()).setStyle(Style.EMPTY.withColor(0x00e6b4).withBold(true).withClickEvent(new ClickEvent.OpenUrl(URI.create(container.getMetadata().getContact().get("github").orElse("https://pb4.eu"))))));
                 about.add(Text.translatable("text.graves.about.version", Text.literal(container.getMetadata().getVersion().getFriendlyString()).setStyle(Style.EMPTY.withColor(Formatting.WHITE))).setStyle(Style.EMPTY.withColor(0xf7e1a7)));
 
                 aboutBasic.addAll(about);
@@ -66,13 +68,13 @@ public class GenericModInfo {
                 aboutBasic.add(Text.of(container.getMetadata().getDescription()));
 
                 var contributors = new ArrayList<String>();
-                contributors.addAll(container.getMetadata().getAuthors().stream().map((p) -> p.getName()).collect(Collectors.toList()));
-                contributors.addAll(container.getMetadata().getContributors().stream().map((p) -> p.getName()).collect(Collectors.toList()));
+                contributors.addAll(container.getMetadata().getAuthors().stream().map(Person::getName).toList());
+                contributors.addAll(container.getMetadata().getContributors().stream().map(Person::getName).toList());
 
                 about.add(Text.literal("")
                         .append(Text.translatable("text.graves.about.contributors")
                                 .setStyle(Style.EMPTY.withColor(Formatting.AQUA)
-                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                        .withHoverEvent(new HoverEvent.ShowText(
                                                 Text.literal(String.join(", ", contributors)
                                         ))
                                 )))

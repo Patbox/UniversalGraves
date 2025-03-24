@@ -25,7 +25,7 @@ public record PositionedItemStack(ItemStack stack, int slot, @Nullable GraveInve
 
     public NbtCompound toNbt(RegistryWrapper.WrapperLookup lookup) {
         var nbt = new NbtCompound();
-        nbt.put(ITEM_TAG, stack.toNbtAllowEmpty(lookup));
+        nbt.put(ITEM_TAG, stack.isEmpty() ? new NbtCompound() : stack.toNbt(lookup));
         nbt.putString(MASK_TAG, GravesApi.getInventoryMaskId(inventoryMask).toString());
         nbt.putInt(SLOT_TAG, slot);
         if (optionalData != null) {
@@ -43,17 +43,17 @@ public record PositionedItemStack(ItemStack stack, int slot, @Nullable GraveInve
     }
 
     public static PositionedItemStack fromNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup, DataFixer dataFixer, int dataVersion, int currentDataVersion) {
-        var stackData = nbt.getCompound(ITEM_TAG);
+        var stackData = nbt.getCompoundOrEmpty(ITEM_TAG);
         if (dataVersion < currentDataVersion) {
             stackData = (NbtCompound) dataFixer.update(TypeReferences.ITEM_STACK, new Dynamic<>(NbtOps.INSTANCE, stackData), dataVersion, currentDataVersion).getValue();
         }
 
         return new PositionedItemStack(
-                ItemStack.fromNbtOrEmpty(lookup, stackData),
-                nbt.getInt(SLOT_TAG),
-                GravesApi.getDefaultedInventoryMask(Identifier.tryParse(nbt.getString(MASK_TAG))),
+                stackData.isEmpty() ? ItemStack.EMPTY : ItemStack.fromNbt(lookup, stackData).orElse(ItemStack.EMPTY),
+                nbt.getInt(SLOT_TAG, 0),
+                GravesApi.getDefaultedInventoryMask(Identifier.tryParse(nbt.getString(MASK_TAG, ""))),
                 nbt.get(DATA_TAG),
-                nbt.contains(TAGS_TAG, NbtElement.LIST_TYPE) ? decodeSet(nbt.getList(TAGS_TAG, NbtElement.STRING_TYPE)) : Set.of()
+                nbt.contains(TAGS_TAG) ? decodeSet(nbt.getListOrEmpty(TAGS_TAG)) : Set.of()
         );
     }
 
@@ -64,7 +64,7 @@ public record PositionedItemStack(ItemStack stack, int slot, @Nullable GraveInve
 
         var set = new HashSet<Identifier>();
         for (var entry : list) {
-            set.add(Identifier.tryParse(entry.asString()));
+            set.add(Identifier.tryParse(entry.asString().get()));
         }
 
         return set;

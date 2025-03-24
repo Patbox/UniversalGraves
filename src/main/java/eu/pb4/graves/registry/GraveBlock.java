@@ -15,6 +15,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
@@ -43,19 +44,14 @@ public class GraveBlock extends AbstractGraveBlock implements BlockEntityProvide
         return -1;
     }
 
-    public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
-        if (world.getServer() == null) {
-            return;
+    public void onStateReplaced(BlockState state, ServerWorld world, BlockPos pos,  boolean moved) {
+        BlockEntity blockEntity = world.getBlockEntity(pos);
+
+        if (blockEntity instanceof GraveBlockEntity grave && grave.getGrave() != null) {
+            grave.getGrave().destroyGrave(world.getServer(), null);
         }
 
-        if (state.getBlock() != newState.getBlock()) {
-            BlockEntity blockEntity = world.getBlockEntity(pos);
-
-            if (blockEntity instanceof GraveBlockEntity grave && grave.getGrave() != null) {
-                grave.getGrave().destroyGrave(world.getServer(), null);
-            }
-        }
-        super.onStateReplaced(state, world, pos, newState, moved);
+        super.onStateReplaced(state, world, pos,  moved);
     }
 
     @Override

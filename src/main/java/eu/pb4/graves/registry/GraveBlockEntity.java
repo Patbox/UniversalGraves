@@ -77,13 +77,13 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity implements GraveH
     public void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup) {
         super.readNbt(nbt, lookup);
         try {
-            if (nbt.contains("GraveId", NbtElement.LONG_TYPE)) {
-                this.graveId = nbt.getLong("GraveId");
+            if (nbt.contains("GraveId")) {
+                this.graveId = nbt.getLong("GraveId", -1);
             }
             this.fetchGraveData();
 
             if (this.visualData == null) {
-                this.visualData = VisualGraveData.fromNbt(nbt.getCompound("VisualData"), lookup);
+                this.visualData = VisualGraveData.fromNbt(nbt.getCompoundOrEmpty("VisualData"), lookup);
             }
             this.selfDestructTimer = 0;
             this.replacedBlockState = NbtHelper.toBlockState(Registries.BLOCK, (NbtCompound) Objects.requireNonNull(nbt.get("BlockState")));

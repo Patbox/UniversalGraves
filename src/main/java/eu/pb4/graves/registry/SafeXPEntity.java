@@ -29,7 +29,7 @@ public class SafeXPEntity extends ExperienceOrbEntity implements PolymerEntity {
         this.setPosition(x, y, z);
         this.setYaw((float)(this.random.nextDouble() * 360.0D));
         this.setVelocity((this.random.nextDouble() * 0.20000000298023224D - 0.10000000149011612D) * 2.0D, this.random.nextDouble() * 0.2D * 2.0D, (this.random.nextDouble() * 0.20000000298023224D - 0.10000000149011612D) * 2.0D);
-        ((ExperienceOrbEntityAccessor) this).setAmount(amount);
+        ((ExperienceOrbEntityAccessor) this).callSetValue(amount);
     }
 
     public SafeXPEntity(EntityType<Entity> entityType, World world) {
@@ -48,7 +48,7 @@ public class SafeXPEntity extends ExperienceOrbEntity implements PolymerEntity {
             if (player.experiencePickUpDelay == 0) {
                 player.experiencePickUpDelay = 2;
                 player.sendPickup(this, 1);
-                GraveUtils.grandExperience(player, this.getExperienceAmount());
+                GraveUtils.grandExperience(player, this.getValue());
 
                 this.discard();
             }
