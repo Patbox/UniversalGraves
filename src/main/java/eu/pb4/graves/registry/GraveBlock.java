@@ -44,16 +44,6 @@ public class GraveBlock extends AbstractGraveBlock implements BlockEntityProvide
         return -1;
     }
 
-    public void onStateReplaced(BlockState state, ServerWorld world, BlockPos pos,  boolean moved) {
-        BlockEntity blockEntity = world.getBlockEntity(pos);
-
-        if (blockEntity instanceof GraveBlockEntity grave && grave.getGrave() != null) {
-            grave.getGrave().destroyGrave(world.getServer(), null);
-        }
-
-        super.onStateReplaced(state, world, pos,  moved);
-    }
-
     @Override
     public BlockState onBreak(World world, BlockPos pos, BlockState state, PlayerEntity playerTemp) {
         if (!(playerTemp instanceof ServerPlayerEntity player)) {

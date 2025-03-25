@@ -102,6 +102,14 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity implements GraveH
         }
     }
 
+    @Override
+    public void onBlockReplaced(BlockPos pos, BlockState oldState) {
+        super.onBlockReplaced(pos, oldState);
+        if (this.getGrave() != null && this.world != null) {
+            this.getGrave().destroyGrave(world.getServer(), null);
+        }
+    }
+
     protected void updateForAllPlayers() {
         assert this.world != null;
     }
