@@ -310,7 +310,7 @@ public class GraveUtils {
             var eventResult = PlayerGraveCreationEvent.EVENT.invoker().shouldCreate(player);
 
             if (eventResult.canCreate()) {
-                var result = GraveUtils.findGravePosition(player, player.getServerWorld(), player.getBlockPos(), config.placement.maxPlacementDistance, config.placement.replaceAnyBlock);
+                var result = GraveUtils.findGravePosition(player, player.getWorld(), player.getBlockPos(), config.placement.maxPlacementDistance, config.placement.replaceAnyBlock);
 
                 if (result.result().canCreate()) {
                     var model = config.getGraveModel(player);
@@ -343,7 +343,7 @@ public class GraveUtils {
                     }
 
                     int finalExperience = experience;
-                    var world = player.getServerWorld();
+                    var world = player.getWorld();
 
                     var allowedUUID = new HashSet<UUID>();
 
@@ -395,7 +395,7 @@ public class GraveUtils {
                                 var graves = new ArrayList<>(GraveManager.INSTANCE.getByPlayer(player));
                                 graves.sort(Comparator.comparing(Grave::getCreationTime));
                                 while (graves.size() > config.placement.maxGraveCount) {
-                                    graves.remove(0).destroyGrave(player.server, null);
+                                    graves.removeFirst().destroyGrave(player.getServer(), null);
                                 }
                             }
                         } else {

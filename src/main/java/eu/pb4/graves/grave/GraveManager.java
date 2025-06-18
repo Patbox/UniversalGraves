@@ -84,7 +84,7 @@ public final class GraveManager extends PersistentState {
         }
         nbt.put("Graves", list);
         nbt.putInt("Version", 3);
-        nbt.putInt("GameVersion", SharedConstants.getGameVersion().getSaveVersion().getId());
+        nbt.putInt("GameVersion", SharedConstants.getGameVersion().dataVersion().id());
         nbt.putLong("CurrentGameTime", this.currentGameTime);
         nbt.putLong("CurrentGrave", this.currentGraveId);
 
@@ -101,7 +101,7 @@ public final class GraveManager extends PersistentState {
 
         for (var graveNbt : nbt.getListOrEmpty("Graves")) {
             Grave graveInfo = new Grave();
-            graveInfo.readNbt((NbtCompound) graveNbt, lookup, dataFixer, dataVersion, SharedConstants.getGameVersion().getSaveVersion().getId());
+            graveInfo.readNbt((NbtCompound) graveNbt, lookup, dataFixer, dataVersion, SharedConstants.getGameVersion().dataVersion().id());
             manager.add(graveInfo);
         }
         return manager;

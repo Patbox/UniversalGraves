@@ -11,6 +11,8 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -24,8 +26,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ServerPlayerEntity.class)
 public abstract class ServerPlayerEntityMixin extends PlayerEntity implements PlayerAdditions {
-    public ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile gameProfile) {
-        super(world, pos, yaw, gameProfile);
+    public ServerPlayerEntityMixin(World world, GameProfile gameProfile) {
+        super(world, gameProfile);
     }
 
     @Unique
@@ -37,22 +39,19 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Pl
     @Unique
     private boolean graves$isInvulnerable = false;
 
-    @Inject(method = "readCustomDataFromNbt", at = @At("TAIL"))
-    private void graves$loadNbt(NbtCompound nbt, CallbackInfo ci) {
-        if (nbt.contains("LastGraveId")) {
-            this.graves$location = nbt.getLong("LastGraveId", -1);
-        }
-
-        this.graves$hasCompass = nbt.getBoolean("HasGraveCompass", false);
+    @Inject(method = "readCustomData", at = @At("TAIL"))
+    private void graves$loadNbt(ReadView view, CallbackInfo ci) {
+        this.graves$location = view.getLong("LastGraveId", -1);
+        this.graves$hasCompass = view.getBoolean("HasGraveCompass", false);
     }
 
-    @Inject(method = "writeCustomDataToNbt", at = @At("TAIL"))
-    private void graves$writeNbt(NbtCompound nbt, CallbackInfo ci) {
+    @Inject(method = "writeCustomData", at = @At("TAIL"))
+    private void graves$writeNbt(WriteView view, CallbackInfo ci) {
         if (this.graves$location != -1) {
-            nbt.putLong("LastGraveId", this.graves$location);
+            view.putLong("LastGraveId", this.graves$location);
         }
 
-         nbt.putBoolean("HasGraveCompass", this.graves$hasCompass);
+         view.putBoolean("HasGraveCompass", this.graves$hasCompass);
     }
 
     @Inject(method = "copyFrom", at = @At("TAIL"))

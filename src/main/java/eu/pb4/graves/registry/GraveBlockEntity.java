@@ -17,10 +17,11 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import net.minecraft.text.Text;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Identifier;
@@ -65,28 +66,27 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity implements GraveH
     }
 
     @Override
-    protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup) {
-        super.writeNbt(nbt, lookup);
-        nbt.put("BlockState", NbtHelper.fromBlockState(this.replacedBlockState));
-        nbt.put("VisualData", this.getClientData().toNbt(lookup));
-        nbt.putLong("GraveId", this.graveId);
+    protected void writeData(WriteView view) {
+        super.writeData(view);
+        view.put("BlockState", NbtCompound.CODEC, NbtHelper.fromBlockState(this.replacedBlockState));
+        this.getClientData().writeData(view.get("VisualData"));
+        view.putLong("GraveId", this.graveId);
     }
 
 
     @Override
-    public void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup) {
-        super.readNbt(nbt, lookup);
+    public void readData(ReadView view) {
+        super.readData(view);
         try {
-            if (nbt.contains("GraveId")) {
-                this.graveId = nbt.getLong("GraveId", -1);
-            }
+            this.graveId = view.getLong("GraveId", -1);
+
             this.fetchGraveData();
 
             if (this.visualData == null) {
-                this.visualData = VisualGraveData.fromNbt(nbt.getCompoundOrEmpty("VisualData"), lookup);
+                this.visualData = VisualGraveData.readData(view.getReadView("VisualData"));
             }
             this.selfDestructTimer = 0;
-            this.replacedBlockState = NbtHelper.toBlockState(Registries.BLOCK, (NbtCompound) Objects.requireNonNull(nbt.get("BlockState")));
+            this.replacedBlockState = NbtHelper.toBlockState(Registries.BLOCK, (NbtCompound) Objects.requireNonNull(view.read(  "BlockState", NbtCompound.CODEC).orElse(new NbtCompound())));
         } catch (Exception e) {
             this.visualData = VisualGraveData.DEFAULT;
         }

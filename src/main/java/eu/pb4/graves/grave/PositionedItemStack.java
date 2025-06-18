@@ -2,6 +2,7 @@ package eu.pb4.graves.grave;
 
 import com.mojang.datafixers.DataFixer;
 import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.MapCodec;
 import eu.pb4.graves.GravesApi;
 import net.minecraft.datafixer.TypeReferences;
 import net.minecraft.item.ItemStack;
@@ -25,7 +26,7 @@ public record PositionedItemStack(ItemStack stack, int slot, @Nullable GraveInve
 
     public NbtCompound toNbt(RegistryWrapper.WrapperLookup lookup) {
         var nbt = new NbtCompound();
-        nbt.put(ITEM_TAG, stack.isEmpty() ? new NbtCompound() : stack.toNbt(lookup));
+        nbt.put(ITEM_TAG, ItemStack.OPTIONAL_CODEC, lookup.getOps(NbtOps.INSTANCE), stack);
         nbt.putString(MASK_TAG, GravesApi.getInventoryMaskId(inventoryMask).toString());
         nbt.putInt(SLOT_TAG, slot);
         if (optionalData != null) {
@@ -49,7 +50,7 @@ public record PositionedItemStack(ItemStack stack, int slot, @Nullable GraveInve
         }
 
         return new PositionedItemStack(
-                stackData.isEmpty() ? ItemStack.EMPTY : ItemStack.fromNbt(lookup, stackData).orElse(ItemStack.EMPTY),
+                stackData.decode(MapCodec.assumeMapUnsafe(ItemStack.OPTIONAL_CODEC)).orElse(ItemStack.EMPTY),
                 nbt.getInt(SLOT_TAG, 0),
                 GravesApi.getDefaultedInventoryMask(Identifier.tryParse(nbt.getString(MASK_TAG, ""))),
                 nbt.get(DATA_TAG),

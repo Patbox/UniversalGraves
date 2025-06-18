@@ -154,7 +154,7 @@ public class GraveGui extends PagedGui {
                             .setCallback((x, y, z) -> {
                                 playClickSound(player);
                                 this.actionTimeFetch = -1;
-                                if (!this.grave.moveTo(player.server, Location.fromEntity(player))) {
+                                if (!this.grave.moveTo(player.getServer(), Location.fromEntity(player))) {
                                     //player.sendMessage(config.texts);
                                     return;
                                 }

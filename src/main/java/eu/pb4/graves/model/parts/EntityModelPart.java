@@ -19,6 +19,8 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.storage.NbtReadView;
+import net.minecraft.util.ErrorReporter;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
@@ -49,7 +51,7 @@ public class EntityModelPart extends ModelPart<EntityElement<?>, EntityModelPart
         var entity = entityType == EntityType.PLAYER ? createPlayer(world) : entityType.create(world, SpawnReason.COMMAND);
 
         if (nbtCompound != null) {
-            entity.readNbt(this.nbtCompound);
+            entity.readData(NbtReadView.create(ErrorReporter.EMPTY, world.getRegistryManager(), this.nbtCompound));
         }
 
         if (entityPose != null) {
@@ -61,7 +63,7 @@ public class EntityModelPart extends ModelPart<EntityElement<?>, EntityModelPart
     }
 
     private PlayerEntity createPlayer(World world) {
-        return new PlayerEntity(world, BlockPos.ORIGIN, 0, new GameProfile(UUID.randomUUID(), "")) {
+        return new PlayerEntity(world, new GameProfile(UUID.randomUUID(), "")) {
             @Nullable
             @Override
             public GameMode getGameMode() {

@@ -4,6 +4,8 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.GlobalPos;
@@ -19,15 +21,24 @@ public record Location(Identifier world, BlockPos blockPos) {
         return this.blockPos.getZ();
     }
 
-    public NbtCompound writeNbt(NbtCompound nbt) {
-        nbt.putIntArray("Position", new int[]{this.x(), this.y(), this.z()});
-        nbt.putString("World", this.world().toString());
-        return nbt;
+    public void writeData(WriteView view) {
+        view.putIntArray("Position", new int[]{this.x(), this.y(), this.z()});
+        view.putString("World", this.world().toString());
     }
 
-    public static Location fromNbt(NbtCompound nbt) {
-        int[] pos = nbt.getIntArray("Position").orElse(new int[0]);
-        return new Location(Identifier.tryParse(nbt.getString("World", "")), new BlockPos(pos[0], pos[1], pos[2]));
+    public void writeData(NbtCompound view) {
+        view.putIntArray("Position", new int[]{this.x(), this.y(), this.z()});
+        view.putString("World", this.world().toString());
+    }
+
+    public static Location readData(ReadView view) {
+        int[] pos = view.getOptionalIntArray("Position").orElse(new int[0]);
+        return new Location(Identifier.tryParse(view.getString("World", "")), new BlockPos(pos[0], pos[1], pos[2]));
+    }
+
+    public static Location readData(NbtCompound view) {
+        int[] pos = view.getIntArray("Position").orElse(new int[0]);
+        return new Location(Identifier.tryParse(view.getString("World", "")), new BlockPos(pos[0], pos[1], pos[2]));
     }
 
     public static Location fromEntity(ServerPlayerEntity player) {

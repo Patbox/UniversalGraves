@@ -35,6 +35,8 @@ import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.*;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.text.Text;
+import net.minecraft.text.TextCodecs;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.AffineTransformation;
 import net.minecraft.util.math.BlockPos;
@@ -85,6 +87,10 @@ public class BaseGson {
                 .registerTypeHierarchyAdapter(WrappedDateFormat.class, new StringSerializer<>(WrappedDateFormat::of, WrappedDateFormat::pattern))
                 .registerTypeAdapter(ModelPart.class, new ModelPartSerializer())
                 .setLenient().create();
+    }
+
+    public static CodecSerializer<Text> text(RegistryWrapper.WrapperLookup lookup) {
+        return CodecSerializer.ofText(lookup);
     }
 
     private record TeleportationCostSerializer() implements JsonSerializer<GenericCost<Object>>, JsonDeserializer<GenericCost<Object>> {
@@ -191,7 +197,7 @@ public class BaseGson {
         public ItemStack deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
             if (jsonElement.isJsonObject()) {
                 if (jsonElement.getAsJsonObject().has("tag")) {
-                    jsonElement = Schemas.getFixer().update(TypeReferences.ITEM_STACK, new Dynamic<>(JsonOps.INSTANCE, jsonElement), 3700, SharedConstants.getGameVersion().getSaveVersion().getId()).getValue();
+                    jsonElement = Schemas.getFixer().update(TypeReferences.ITEM_STACK, new Dynamic<>(JsonOps.INSTANCE, jsonElement), 3700, SharedConstants.getGameVersion().dataVersion().id()).getValue();
                 }
 
                 return ItemStack.CODEC.decode(RegistryOps.of(JsonOps.INSTANCE, lookup), jsonElement).result().orElse(Pair.of(ItemStack.EMPTY, null)).getFirst();
@@ -225,9 +231,21 @@ public class BaseGson {
         }
     }
 
-    private record CodecSerializer<T>(Codec<T> codec, RegistryWrapper.WrapperLookup lookup) implements JsonSerializer<T>, JsonDeserializer<T> {
+    public record CodecSerializer<T>(Codec<T> codec, RegistryWrapper.WrapperLookup lookup) implements JsonSerializer<T>, JsonDeserializer<T> {
+        public static CodecSerializer<Text> ofText(RegistryWrapper.WrapperLookup lookup) {
+            return new CodecSerializer<>(TextCodecs.CODEC, lookup);
+        }
+
         public static <T> CodecSerializer<T> registry(Registry<T> registry, RegistryWrapper.WrapperLookup lookup) {
             return new CodecSerializer<>(registry.getCodec(), lookup);
+        }
+
+        public String toJsonString(T text) {
+            return serialize(text, Text.class, null).toString();
+        }
+
+        public T fromJson(String string) {
+            return deserialize(JsonParser.parseString(string), Text.class, null);
         }
 
         @Override

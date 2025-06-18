@@ -1,6 +1,7 @@
 package eu.pb4.graves.registry;
 
 import com.mojang.authlib.GameProfile;
+import eu.pb4.graves.config.BaseGson;
 import eu.pb4.graves.model.GraveModelHandler;
 import eu.pb4.graves.other.VisualGraveData;
 import eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment;
@@ -12,16 +13,18 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.*;
 import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
+import net.minecraft.text.PlainTextContent;
 import net.minecraft.text.Text;
+import net.minecraft.text.TextCodecs;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import java.util.*;
-import java.util.function.IntFunction;
 
 import static eu.pb4.graves.registry.AbstractGraveBlock.IS_LOCKED;
 
@@ -54,35 +57,40 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
     }
 
     @Override
-    protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup) {
-        super.writeNbt(nbt, lookup);
-        nbt.put("BlockState", NbtHelper.fromBlockState(this.replacedBlockState));
-        nbt.put("VisualData", this.visualData.toNbt(lookup));
-        nbt.putBoolean("AllowModification", this.isPlayerMade);
+    protected void writeData(WriteView view) {
+        super.writeData(view);
+        view.put("BlockState", NbtCompound.CODEC, NbtHelper.fromBlockState(this.replacedBlockState));
+        this.visualData.writeData(view.get("VisualData"));
+        view.putBoolean("AllowModification", this.isPlayerMade);
 
         if (this.textOverrides != null) {
-            var list = new NbtList();
-
+            var list = view.getListAppender("TextOverride", TextCodecs.CODEC);
             for (var text : this.textOverrides) {
-                list.add(NbtString.of(Text.Serialization.toJsonString(text, lookup)));
+                list.add(text);
             }
-
-            nbt.put("TextOverride", list);
         }
     }
 
 
     @Override
-    public void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup) {
-        super.readNbt(nbt, lookup);
+    public void readData(ReadView view) {
+        super.readData(view);
         try {
-            this.visualData = VisualGraveData.fromNbt(nbt.getCompoundOrEmpty("VisualData"), lookup);
-            this.replacedBlockState = NbtHelper.toBlockState(Registries.BLOCK, (NbtCompound) Objects.requireNonNull(nbt.get("BlockState")));
+            this.visualData = VisualGraveData.readData(view.getReadView("VisualData"));
+            this.replacedBlockState = NbtHelper.toBlockState(Registries.BLOCK, (NbtCompound) Objects.requireNonNull(view.read("BlockState", NbtCompound.CODEC).orElse(new NbtCompound())));
 
-            if (nbt.contains("TextOverride")) {
+
+            var texts = view.getTypedListView("TextOverride", TextCodecs.CODEC);
+
+            if (!texts.isEmpty()) {
                 var textOverrides = new ArrayList<>();
-                for (var text : nbt.getListOrEmpty("TextOverride")) {
-                    textOverrides.add(Text.Serialization.fromLenientJson(text.asString().get(), lookup));
+                for (var text : texts) {
+                    if (text.getSiblings().isEmpty() && text.getContent() instanceof PlainTextContent.Literal literal
+                            && literal.string().length() >= 2 && literal.string().charAt(0) == '"' && literal.string().charAt(literal.string().length() - 1) == '"') {
+                        text = Text.literal(literal.string().substring(1, literal.string().length() - 1));
+                    }
+
+                    textOverrides.add(text);
                 }
                 this.textOverrides = textOverrides.toArray(new Text[0]);
             }

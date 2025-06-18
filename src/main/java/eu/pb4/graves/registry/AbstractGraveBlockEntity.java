@@ -9,6 +9,8 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 
@@ -23,15 +25,15 @@ public abstract class AbstractGraveBlockEntity extends BlockEntity implements Mo
     }
 
     @Override
-    protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup) {
-        super.writeNbt(nbt, lookup);
-        nbt.putString("GraveModel", this.model);
+    protected void writeData(WriteView view) {
+        super.writeData(view);
+        view.putString("GraveModel", this.model);
     }
 
     @Override
-    public void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup) {
-        super.readNbt(nbt, lookup);
-        this.model = nbt.getString("GraveModel", "default");
+    public void readData(ReadView view) {
+        super.readData(view);
+        this.model = view.getString("GraveModel", "default");
         this.onModelChanged(this.model);
 
     }

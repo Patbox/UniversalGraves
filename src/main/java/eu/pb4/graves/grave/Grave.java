@@ -2,12 +2,12 @@ package eu.pb4.graves.grave;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.datafixers.DataFixer;
+import eu.pb4.graves.config.BaseGson;
 import eu.pb4.graves.config.Config;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.config.data.WrappedText;
 import eu.pb4.graves.mixin.PlayerEntityAccessor;
 import eu.pb4.graves.other.*;
-import eu.pb4.graves.registry.GraveBlock;
 import eu.pb4.graves.registry.GraveBlockEntity;
 import eu.pb4.graves.registry.GravesRegistry;
 import eu.pb4.graves.ui.GraveGui;
@@ -149,12 +149,12 @@ public final class Grave {
         nbt.putLong("CreationTime", this.creationTime);
         nbt.putInt("ItemCount", this.itemCount);
         nbt.putInt("MinecraftDay", this.minecraftDay);
-        nbt.putString("DeathCause", Text.Serialization.toJsonString(this.deathCause, lookup));
+        nbt.putString("DeathCause", BaseGson.text(lookup).toJsonString(this.deathCause));
         nbt.putString("Type", this.type.name());
         nbt.putBoolean("IsProtectionEnabled", this.isProtectionEnabled);
         nbt.putBoolean("RequirePayment", this.requirePayment);
 
-        this.location.writeNbt(nbt);
+        this.location.writeData(nbt);
 
         var allowedUUIDs = new NbtList();
         for (var uuid : this.allowedUUIDs) {
@@ -187,8 +187,8 @@ public final class Grave {
             this.creationTime = nbt.getLong("CreationTime", 0);
             this.itemCount = nbt.getInt("ItemCount", 0);
             this.minecraftDay = nbt.getInt("MinecraftDay", 0);
-            this.deathCause = Text.Serialization.fromLenientJson(nbt.getString("DeathCause", ""), lookup);
-            this.location = Location.fromNbt(nbt);
+            this.deathCause = BaseGson.text(lookup).fromJson(nbt.getString("DeathCause", ""));
+            this.location = Location.readData(nbt);
             this.allowedUUIDs.clear();
             this.requirePayment = nbt.getBoolean("RequirePayment", false);
 
@@ -332,7 +332,7 @@ public final class Grave {
             if (!cfg.texts.graveUnlocked.isEmpty()) {
                 player.sendMessage(cfg.texts.graveUnlocked.with(cfg.interactions.cost.getPlaceholders()));
             }
-            if (player.server.getWorld(RegistryKey.of(RegistryKeys.WORLD, this.location.world())).getBlockEntity(location.blockPos()) instanceof GraveBlockEntity entity) {
+            if (player.getServer().getWorld(RegistryKey.of(RegistryKeys.WORLD, this.location.world())).getBlockEntity(location.blockPos()) instanceof GraveBlockEntity entity) {
                 entity.setModelId(entity.getGraveModelId());
             }
 
