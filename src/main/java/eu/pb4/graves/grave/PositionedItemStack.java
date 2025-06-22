@@ -50,7 +50,7 @@ public record PositionedItemStack(ItemStack stack, int slot, @Nullable GraveInve
         }
 
         return new PositionedItemStack(
-                stackData.decode(MapCodec.assumeMapUnsafe(ItemStack.OPTIONAL_CODEC)).orElse(ItemStack.EMPTY),
+                stackData.decode(MapCodec.assumeMapUnsafe(ItemStack.OPTIONAL_CODEC), lookup.getOps(NbtOps.INSTANCE)).orElse(ItemStack.EMPTY),
                 nbt.getInt(SLOT_TAG, 0),
                 GravesApi.getDefaultedInventoryMask(Identifier.tryParse(nbt.getString(MASK_TAG, ""))),
                 nbt.get(DATA_TAG),
