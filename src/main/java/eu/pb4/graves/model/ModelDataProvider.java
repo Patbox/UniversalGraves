@@ -1,6 +1,7 @@
 package eu.pb4.graves.model;
 
 import com.mojang.authlib.GameProfile;
+import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Arm;
@@ -13,11 +14,9 @@ public interface ModelDataProvider {
     boolean isGravePlayerMade();
     boolean isGravePaymentRequired();
     Text getGravePlaceholder(String id);
-    GameProfile getGraveGameProfile();
+    ProfileComponent getGraveGameProfile();
     ItemStack getGraveSlotItem(int i);
     ItemStack getGraveTaggedItem(Identifier identifier);
     Arm getGraveMainArm();
     byte getGraveSkinModelLayers();
-
-    boolean isGravePlayerModelDelayed();
 }

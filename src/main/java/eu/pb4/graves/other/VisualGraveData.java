@@ -1,9 +1,9 @@
 package eu.pb4.graves.other;
 
-import com.mojang.authlib.GameProfile;
 import eu.pb4.graves.config.Config;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.grave.Grave;
+import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.storage.ReadView;
@@ -18,14 +18,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public record VisualGraveData(GameProfile gameProfile, byte visualSkinModelLayers, Arm mainArm, Text deathCause, long creationTime, Location location, int minecraftDay) {
-    public static final VisualGraveData DEFAULT = new VisualGraveData(Grave.DEFAULT_GAME_PROFILE, (byte) 0xFF, Arm.RIGHT, Grave.DEFAULT_DEATH_CAUSE, 0, new Location(Identifier.of("the_void"), BlockPos.ORIGIN), -1);
+public record VisualGraveData(ProfileComponent profile, byte visualSkinModelLayers, Arm mainArm, Text deathCause, long creationTime, Location location, int minecraftDay) {
+    public static final VisualGraveData DEFAULT = new VisualGraveData(Grave.DEFAULT_PROFILE_COMPONENT, (byte) 0xFF, Arm.RIGHT, Grave.DEFAULT_DEATH_CAUSE, 0, new Location(Identifier.of("the_void"), BlockPos.ORIGIN), -1);
 
     public Map<String, Text> getPlaceholders(MinecraftServer server) {
         Config config = ConfigManager.getConfig();
 
         Map<String, Text> values = new HashMap<>();
-        values.put("player", Text.literal(this.gameProfile != null && this.gameProfile.getName() != null ? this.gameProfile.getName() : "<No player!>"));
+        values.put("player", Text.literal(this.profile != null ? this.profile.getName().orElse("<No player!>") : "<No player!>"));
         values.put("protection_time", Text.literal("" + (config.protection.protectionTime > -1 ? config.getFormattedTime(0) : config.texts.infinityText)));
         values.put("break_time", Text.literal("" + (config.protection.breakingTime > -1 ? config.getFormattedTime(0) : config.texts.infinityText)));
         values.put("xp", Text.literal("0"));
@@ -41,7 +41,7 @@ public record VisualGraveData(GameProfile gameProfile, byte visualSkinModelLayer
     }
 
     public void writeData(WriteView view) {
-        view.put("GameProfile", NbtCompound.CODEC, LegacyNbtHelper.writeGameProfile(new NbtCompound(), this.gameProfile));
+        view.put("GameProfile", ProfileComponent.CODEC, this.profile);
         view.put("DeathCause", TextCodecs.CODEC, this.deathCause);
         view.putLong("CreationTime", this.creationTime);
         view.putInt("MinecraftDay", this.minecraftDay);
@@ -53,7 +53,7 @@ public record VisualGraveData(GameProfile gameProfile, byte visualSkinModelLayer
 
     public static VisualGraveData readData(ReadView view) {
         return new VisualGraveData(
-                LegacyNbtHelper.toGameProfile(view.read("GameProfile", NbtCompound.CODEC).orElse(new NbtCompound())),
+                LegacyNbtHelper.readProfileComponentOrLegacyGameProfile(view.getReadView("GameProfile")).orElse(Grave.DEFAULT_PROFILE_COMPONENT),
                 view.getByte("SkinModelParts", (byte) 0xFF),
                 view.getByte("MainArm", (byte) 0) == Arm.LEFT.getId() ? Arm.LEFT : Arm.RIGHT,
                 view.read("DeathCause", TextCodecs.CODEC).orElse(Text.empty()),

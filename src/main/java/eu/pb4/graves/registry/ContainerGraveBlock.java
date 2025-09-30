@@ -9,6 +9,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -81,7 +82,7 @@ public class ContainerGraveBlock extends VisualGraveBlock {
                 } else if (itemStack.getItem() == Items.PLAYER_HEAD) {
                     if (itemStack.contains(DataComponentTypes.PROFILE)) {
                         grave.setVisualData(new VisualGraveData(
-                                itemStack.get(DataComponentTypes.PROFILE).gameProfile(),
+                                itemStack.get(DataComponentTypes.PROFILE),
                                 grave.getGraveSkinModelLayers(),
                                 grave.getGraveMainArm(),
                                 grave.getGrave().deathCause(),
@@ -89,7 +90,7 @@ public class ContainerGraveBlock extends VisualGraveBlock {
                                 grave.getGrave().location(), grave.getGrave().minecraftDay()), grave.replacedBlockState);
                     } else {
                         grave.setVisualData(new VisualGraveData(
-                                new GameProfile(Util.NIL_UUID, "Player"),
+                                ProfileComponent.ofStatic(new GameProfile(Util.NIL_UUID, "Player")),
                                 grave.getGraveSkinModelLayers(),
                                 grave.getGraveMainArm(),
                                 grave.getGrave().deathCause(),

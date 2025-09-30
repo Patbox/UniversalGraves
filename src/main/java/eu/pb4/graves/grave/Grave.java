@@ -6,12 +6,13 @@ import eu.pb4.graves.config.BaseGson;
 import eu.pb4.graves.config.Config;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.graves.config.data.WrappedText;
-import eu.pb4.graves.mixin.PlayerEntityAccessor;
+import eu.pb4.graves.mixin.PlayerLikeEntityAccessor;
 import eu.pb4.graves.other.*;
 import eu.pb4.graves.registry.GraveBlockEntity;
 import eu.pb4.graves.registry.GravesRegistry;
 import eu.pb4.graves.ui.GraveGui;
 import me.lucko.fabric.api.permissions.v0.Permissions;
+import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
@@ -41,6 +42,7 @@ import java.util.*;
 public final class Grave {
     public static final Text DEFAULT_DEATH_CAUSE = Text.literal("Unknown cause");
     public static final GameProfile DEFAULT_GAME_PROFILE = new GameProfile(UUID.fromString("9586e5ab-157a-4658-ad80-b07552a9ca63"), "Herobrine");
+    public static final ProfileComponent DEFAULT_PROFILE_COMPONENT = ProfileComponent.ofStatic(DEFAULT_GAME_PROFILE);
     public static final Grave SOMETHING_BROKE_AGAIN = new Grave();
 
     @Nullable
@@ -137,7 +139,7 @@ public final class Grave {
     }
 
     public static Grave createBlock(ServerPlayerEntity player, Identifier world, BlockPos position, int xp, Text deathCause, Collection<UUID> allowedUUIDs, Collection<PositionedItemStack> itemStacks, int minecraftDay) {
-        return new Grave(GraveManager.INSTANCE.requestId(), player.getGameProfile(), player.getDataTracker().get(PlayerEntityAccessor.getPLAYER_MODEL_PARTS()), player.getMainArm(), position, world, GraveType.BLOCK, System.currentTimeMillis() / 1000, GraveManager.INSTANCE.getCurrentGameTime(), xp, deathCause, allowedUUIDs, itemStacks, true, minecraftDay);
+        return new Grave(GraveManager.INSTANCE.requestId(), player.getGameProfile(), player.getDataTracker().get(PlayerLikeEntityAccessor.getPLAYER_MODE_CUSTOMIZATION_ID()), player.getMainArm(), position, world, GraveType.BLOCK, System.currentTimeMillis() / 1000, GraveManager.INSTANCE.getCurrentGameTime(), xp, deathCause, allowedUUIDs, itemStacks, true, minecraftDay);
     }
 
     public NbtCompound writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup) {
@@ -247,7 +249,7 @@ public final class Grave {
         long breakTime = GraveManager.INSTANCE.getBreakingTime() > -1 ? getTimeLeft(GraveManager.INSTANCE.getBreakingTime(), config.protection.useRealTime) : Long.MAX_VALUE;
 
         Map<String, Text> values = new HashMap<>();
-        values.put("player", Text.literal(this.gameProfile != null && this.gameProfile.getName() != null ? this.gameProfile.getName() : "<No player!>"));
+        values.put("player", Text.literal(this.gameProfile != null && this.gameProfile.name() != null ? this.gameProfile.name() : "<No player!>"));
         values.put("protection_time", Text.literal("" + (GraveManager.INSTANCE.getProtectionTime() > -1 ? config.getFormattedTime(protectionTime) : config.texts.infinityText)));
         values.put("break_time", Text.literal("" + (GraveManager.INSTANCE.getBreakingTime() > -1 ? config.getFormattedTime(breakTime) : config.texts.infinityText)));
         values.put("xp", Text.literal("" + this.xp));
@@ -306,15 +308,15 @@ public final class Grave {
     }
 
     public boolean canTakeFrom(PlayerEntity entity) {
-        return this.canTakeFrom(entity.getGameProfile()) || (entity.isCreative() && Permissions.check(entity.getCommandSource((ServerWorld) entity.getWorld()), "graves.can_open_others", 3));
+        return this.canTakeFrom(entity.getGameProfile()) || (entity.isCreative() && Permissions.check(entity.getCommandSource((ServerWorld) entity.getEntityWorld()), "graves.can_open_others", 3));
     }
 
     public boolean hasAccess(PlayerEntity entity) {
-        return hasAccess(entity.getGameProfile()) || (entity.isCreative() && Permissions.check(entity.getCommandSource((ServerWorld) entity.getWorld()), "graves.can_open_others", 3));
+        return hasAccess(entity.getGameProfile()) || (entity.isCreative() && Permissions.check(entity.getCommandSource((ServerWorld) entity.getEntityWorld()), "graves.can_open_others", 3));
     }
 
     public boolean hasAccess(GameProfile profile) {
-        return !this.isProtected() || (this.gameProfile != null && this.gameProfile.getId().equals(profile.getId())) || this.allowedUUIDs.contains(profile.getId());
+        return !this.isProtected() || (this.gameProfile != null && this.gameProfile.id().equals(profile.id())) || this.allowedUUIDs.contains(profile.id());
     }
 
     public boolean payForUnlock(ServerPlayerEntity player) {
@@ -332,7 +334,7 @@ public final class Grave {
             if (!cfg.texts.graveUnlocked.isEmpty()) {
                 player.sendMessage(cfg.texts.graveUnlocked.with(cfg.interactions.cost.getPlaceholders()));
             }
-            if (player.getServer().getWorld(RegistryKey.of(RegistryKeys.WORLD, this.location.world())).getBlockEntity(location.blockPos()) instanceof GraveBlockEntity entity) {
+            if (player.getEntityWorld().getServer().getWorld(RegistryKey.of(RegistryKeys.WORLD, this.location.world())).getBlockEntity(location.blockPos()) instanceof GraveBlockEntity entity) {
                 entity.setModelId(entity.getGraveModelId());
             }
 
@@ -345,6 +347,10 @@ public final class Grave {
 
     public GameProfile getProfile() {
         return this.gameProfile != null ? this.gameProfile : DEFAULT_GAME_PROFILE;
+    }
+
+    public ProfileComponent getProfileComponent() {
+        return this.gameProfile != null ? ProfileComponent.ofStatic(this.gameProfile) : DEFAULT_PROFILE_COMPONENT;
     }
 
     public int getXp() {
@@ -476,7 +482,7 @@ public final class Grave {
         }
         this.itemCount = i;
 
-        this.visualData = new VisualGraveData(this.getProfile(), this.skinModelParts, this.mainArm, this.deathCause, this.creationTime, this.location, this.minecraftDay);
+        this.visualData = new VisualGraveData(this.getProfileComponent(), this.skinModelParts, this.mainArm, this.deathCause, this.creationTime, this.location, this.minecraftDay);
     }
 
     public boolean isRemoved() {
@@ -501,7 +507,7 @@ public final class Grave {
         }
 
         var config = ConfigManager.getConfig();
-        var owner = this.gameProfile != null ? server.getPlayerManager().getPlayer(this.gameProfile.getId()) : null;
+        var owner = this.gameProfile != null ? server.getPlayerManager().getPlayer(this.gameProfile.id()) : null;
 
         GraveManager.INSTANCE.remove(this);
         this.isRemoved = true;
@@ -562,7 +568,7 @@ public final class Grave {
         if (!this.utilProtectionChangeMessage && !this.isProtected()) {
             this.utilProtectionChangeMessage = true;
             if (!config.texts.messageProtectionEnded.isEmpty()) {
-                ServerPlayerEntity player = this.gameProfile != null ? server.getPlayerManager().getPlayer(this.gameProfile.getId()) : null;
+                ServerPlayerEntity player = this.gameProfile != null ? server.getPlayerManager().getPlayer(this.gameProfile.id()) : null;
                 if (player != null) {
                     player.sendMessage(config.texts.messageProtectionEnded.with(this.getPlaceholders(server)));
                 }
@@ -612,8 +618,8 @@ public final class Grave {
                 }
                 GraveUtils.grandExperience(player, this.xp);
                 this.xp = 0;
-                this.tryBreak(player.getServer(), player);
-                this.updateSelf(player.getServer());
+                this.tryBreak(player.getEntityWorld().getServer(), player);
+                this.updateSelf(player.getEntityWorld().getServer());
                 GraveManager.INSTANCE.markDirty();
             }
         } catch (Exception e) {
@@ -652,6 +658,6 @@ public final class Grave {
     }
 
     public boolean isOwner(ServerPlayerEntity player) {
-        return this.gameProfile != null && player.getUuid().equals(this.gameProfile.getId());
+        return this.gameProfile != null && player.getUuid().equals(this.gameProfile.id());
     }
 }

@@ -7,6 +7,7 @@ import net.minecraft.nbt.NbtByte;
 import net.minecraft.nbt.NbtInt;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Style;
+import net.minecraft.text.StyleSpriteSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -17,7 +18,7 @@ import java.util.function.Supplier;
 
 public final class GraveTextures {
     private static final Identifier IDENTIFIER = Identifier.of("universal_graves", "has_rp");
-    private static final Supplier<Text> DEV_TEXTURE = () -> Text.literal("-1.").setStyle(Style.EMPTY.withColor(Formatting.WHITE).withFont(Identifier.of("universal_graves", "gui")));
+    private static final Supplier<Text> DEV_TEXTURE = () -> Text.literal("-1.").setStyle(Style.EMPTY.withColor(Formatting.WHITE).withFont(new StyleSpriteSource.Font(Identifier.of("universal_graves", "gui"))));
     private static final Supplier<Text> TEXTURE = GravesMod.DEV ? DEV_TEXTURE : Suppliers.memoize(DEV_TEXTURE::get);
 
     public static Text get(ServerPlayerEntity player, Text text) {

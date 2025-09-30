@@ -39,7 +39,7 @@ public class GraveGui extends PagedGui {
         this.hasAccess = grave.hasAccess(player);
         this.canTake = grave.canTakeFrom(player);
         this.canFetch = canFetch;
-        this.setTitle(ConfigManager.getConfig().ui.graveTitle.with(grave.getPlaceholders(player.getWorld().getServer())));
+        this.setTitle(ConfigManager.getConfig().ui.graveTitle.with(grave.getPlaceholders(player.getEntityWorld().getServer())));
         this.inventory = this.grave.asInventory();
         this.currentGraveSize = this.inventory.size();
         this.previousUi = GuiHelpers.getCurrentGui(player);
@@ -71,7 +71,7 @@ public class GraveGui extends PagedGui {
             this.updateDisplay();
         } else if (this.ticker % 20 == 0) {
             if (this.canTake) {
-                this.grave.tryBreak(this.player.getServer(), this.player);
+                this.grave.tryBreak(this.player.getEntityWorld().getServer(), this.player);
             }
             this.updateDisplay();
         }
@@ -81,7 +81,7 @@ public class GraveGui extends PagedGui {
     @Override
     public void onClose() {
         this.grave.updateDisplay();
-        this.grave.updateSelf(this.player.getServer());
+        this.grave.updateSelf(this.player.getEntityWorld().getServer());
         super.onClose();
     }
 
@@ -104,7 +104,7 @@ public class GraveGui extends PagedGui {
 
         return switch (id) {
             case 0 -> {
-                var placeholders = grave.getPlaceholders(this.player.getServer());
+                var placeholders = grave.getPlaceholders(this.player.getEntityWorld().getServer());
 
                 yield GuiSlot.of(ConfigManager.getConfig().ui.graveInfoIcon.get(this.grave.isProtected())
                         .builder(placeholders)
@@ -154,7 +154,7 @@ public class GraveGui extends PagedGui {
                             .setCallback((x, y, z) -> {
                                 playClickSound(player);
                                 this.actionTimeFetch = -1;
-                                if (!this.grave.moveTo(player.getServer(), Location.fromEntity(player))) {
+                                if (!this.grave.moveTo(player.getEntityWorld().getServer(), Location.fromEntity(player))) {
                                     //player.sendMessage(config.texts);
                                     return;
                                 }
@@ -222,7 +222,7 @@ public class GraveGui extends PagedGui {
                 return GuiSlot.of(config.ui.breakGraveButton.get(false).builder()
                         .setCallback((x, y, z) -> {
                             playClickSound(player);
-                            this.grave.destroyGrave(this.player.getServer(), this.player);
+                            this.grave.destroyGrave(this.player.getEntityWorld().getServer(), this.player);
                             this.actionTimeRemoveProtect = -1;
                             this.close();
                         })

@@ -1,14 +1,14 @@
 package eu.pb4.graves.mixin;
 
+import net.minecraft.entity.PlayerLikeEntity;
 import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.player.PlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(PlayerEntity.class)
-public interface PlayerEntityAccessor {
+@Mixin(PlayerLikeEntity.class)
+public interface PlayerLikeEntityAccessor {
     @Accessor
-    static TrackedData<Byte> getPLAYER_MODEL_PARTS() {
+    static TrackedData<Byte> getPLAYER_MODE_CUSTOMIZATION_ID() {
         throw new UnsupportedOperationException();
     }
 }

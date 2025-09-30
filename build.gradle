@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.10.+'
+	id 'fabric-loom' version '1.11.+'
 	id 'maven-publish'
 	id "com.modrinth.minotaur" version "2.+"
 	id 'com.matthewprenger.cursegradle' version '1.4.0'
@@ -63,16 +63,16 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 
-	modImplementation include("eu.pb4:sgui:1.10.0+1.21.6")
-	modImplementation include("eu.pb4:placeholder-api:2.7.0+1.21.6")
-	modImplementation include('xyz.nucleoid:server-translations-api:2.5.1+1.21.5')
-	modImplementation include('eu.pb4:polymer-core:0.13.2+1.21.6')
-	modImplementation include('eu.pb4:polymer-resource-pack:0.13.2+1.21.6')
-	modImplementation include('eu.pb4:polymer-virtual-entity:0.13.2+1.21.6')
-	modImplementation include('eu.pb4:predicate-api:0.6.0+1.21.2')
+	modImplementation include("eu.pb4:sgui:1.11.0+1.21.9")
+	modImplementation include("eu.pb4:placeholder-api:2.8.0+1.21.9")
+	modImplementation include('xyz.nucleoid:server-translations-api:2.5.2+1.21.9-pre3')
+	modImplementation include('eu.pb4:polymer-core:0.14.0-rc.2+1.21.9-rc1')
+	modImplementation include('eu.pb4:polymer-resource-pack:0.14.0-rc.2+1.21.9-rc1')
+	modImplementation include('eu.pb4:polymer-virtual-entity:0.14.0-rc.2+1.21.9-rc1')
+	modImplementation include('eu.pb4:predicate-api:0.6.1+1.21.9')
 	modImplementation include("eu.pb4:common-protection-api:1.0.0")
 
-	modImplementation include("me.lucko:fabric-permissions-api:0.3.4-patbox")
+	modImplementation include("me.lucko:fabric-permissions-api:0.4.2-patbox.1")
 
 	modCompileOnly "dev.emi:trinkets:3.10.0"
 	modCompileOnly "maven.modrinth:inventorio:1.10.3+1.20.2"
@@ -156,7 +156,7 @@ curseforge {
 			releaseType = "release"
 			changelog = System.getenv("CHANGELOG")
 			changelogType = "markdown"
-			addGameVersion((project.minecraft_version.contains("-") ? ((String) project.minecraft_version.split("-")[0] + "-Snapshot") : project.minecraft_version))
+			addGameVersion((project.minecraft_version.contains("-") ? ((String) project.minecraft_version.split("-")[0] + "-snapshot") : project.minecraft_version))
 			addGameVersion "Fabric"
 			addGameVersion "Quilt"
 

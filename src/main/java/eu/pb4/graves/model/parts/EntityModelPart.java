@@ -48,7 +48,11 @@ public class EntityModelPart extends ModelPart<EntityElement<?>, EntityModelPart
 
     @Override
     public EntityElement<?> construct(ServerWorld world) {
-        var entity = entityType == EntityType.PLAYER ? createPlayer(world) : entityType.create(world, SpawnReason.COMMAND);
+        if (entityType == EntityType.PLAYER) {
+            entityType = EntityType.MANNEQUIN;
+        }
+
+        var entity = entityType.create(world, SpawnReason.COMMAND);
 
         if (nbtCompound != null) {
             entity.readData(NbtReadView.create(ErrorReporter.EMPTY, world.getRegistryManager(), this.nbtCompound));
@@ -57,79 +61,13 @@ public class EntityModelPart extends ModelPart<EntityElement<?>, EntityModelPart
         if (entityPose != null) {
             entity.setPose(this.entityPose);
         }
-        var base = entityType == EntityType.PLAYER ? new PlayerElement((PlayerEntity) entity, world) : new EntityElement<>(entity, world);
+        var base = new EntityElement<>(entity, world);
         base.setOffset(this.position);
         return base;
-    }
-
-    private PlayerEntity createPlayer(World world) {
-        return new PlayerEntity(world, new GameProfile(UUID.randomUUID(), "")) {
-            @Nullable
-            @Override
-            public GameMode getGameMode() {
-                return null;
-            }
-
-            @Override
-            public boolean isSpectator() {
-                return false;
-            }
-
-            @Override
-            public boolean isCreative() {
-                return false;
-            }
-        };
     }
 
     @Override
     public ModelPartType type() {
         return ModelPartType.ENTITY;
-    }
-
-    public static class PlayerElement extends EntityElement<PlayerEntity> {
-        private final int extraId = VirtualEntityUtils.requestEntityId();
-        private final UUID extraUuid = UUID.randomUUID();
-        private GameProfile profile;
-
-        public PlayerElement(PlayerEntity entity, ServerWorld world) {
-            super(entity, world);
-            this.profile = new GameProfile(entity.getUuid(), "");
-        }
-
-        @Override
-        public IntList getEntityIds() {
-            return IntList.of(this.extraId, this.entity().getId());
-        }
-
-        @Override
-        public void startWatching(ServerPlayerEntity player, Consumer<Packet<ClientPlayPacketListener>> packetConsumer) {
-            var entry = new PlayerListS2CPacket.Entry(this.entity().getUuid(), this.profile, false, -1, GameMode.SURVIVAL, null, false, 0, null);
-            {
-                var packet = PolymerEntityUtils.createMutablePlayerListPacket(EnumSet.of(PlayerListS2CPacket.Action.ADD_PLAYER, PlayerListS2CPacket.Action.UPDATE_GAME_MODE, PlayerListS2CPacket.Action.UPDATE_LISTED));
-                packet.getEntries().add(entry);
-                packetConsumer.accept(packet);
-            }
-            super.startWatching(player, packetConsumer);
-
-            packetConsumer.accept(new EntitySpawnS2CPacket(extraId, extraUuid,
-                    this.entity().getX(), this.entity().getY(), this.entity().getZ(), 0, 0, EntityType.ITEM_DISPLAY, 0, Vec3d.ZERO, 0));
-            packetConsumer.accept(VirtualEntityUtils.createRidePacket(this.entity().getId(), new int[] { this.extraId }));
-        }
-
-        @Override
-        public void stopWatching(ServerPlayerEntity player, Consumer<Packet<ClientPlayPacketListener>> packetConsumer) {
-            super.stopWatching(player, packetConsumer);
-            packetConsumer.accept(new PlayerRemoveS2CPacket(List.of(this.entity().getUuid())));
-        }
-
-        public void copyTexture(GameProfile profile) {
-            var texture = Iterables.getFirst(profile.getProperties().get("textures"), null);
-            if (texture != null && texture.hasSignature()) {
-                this.profile.getProperties().put("textures", texture);
-            } else {
-                this.profile.getProperties().removeAll("textures");
-            }
-        }
     }
 }

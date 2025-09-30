@@ -66,9 +66,9 @@ public class Commands {
     }
 
     private static int list(CommandContext<ServerCommandSource> context, boolean canModify) throws CommandSyntaxException {
-        ServerPlayerEntity player = context.getSource().getPlayer();
+        ServerPlayerEntity player = context.getSource().getPlayerOrThrow();
         try {
-            new GraveListGui(player, player.getGameProfile(), canModify, Permissions.check(context.getSource(), "universal_graves.fetch_grave", 3)).open();
+            new GraveListGui(player, player.getPlayerConfigEntry(), canModify, Permissions.check(context.getSource(), "universal_graves.fetch_grave", 3)).open();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -77,9 +77,9 @@ public class Commands {
 
     private static int listOthers(CommandContext<ServerCommandSource> context, boolean canModify) throws CommandSyntaxException {
         ServerPlayerEntity player = context.getSource().getPlayer();
-        List<GameProfile> profiles = new ArrayList<>(context.getArgument("player", GameProfileArgumentType.GameProfileArgument.class).getNames(context.getSource()));
+        var profiles = new ArrayList<>(context.getArgument("player", GameProfileArgumentType.GameProfileArgument.class).getNames(context.getSource()));
 
-        if (profiles.size() == 0) {
+        if (profiles.isEmpty()) {
             context.getSource().sendFeedback(() -> Text.literal("This player doesn't exist!"), false);
             return 0;
         } else if (profiles.size() > 1) {
@@ -87,7 +87,7 @@ public class Commands {
             return 0;
         }
         try {
-            new GraveListGui(player, profiles.get(0), canModify, canModify && Permissions.check(context.getSource(), "universal_graves.fetch_grave.others", 3)).open();
+            new GraveListGui(player, profiles.getFirst(), canModify, canModify && Permissions.check(context.getSource(), "universal_graves.fetch_grave.others", 3)).open();
         } catch (Exception e) {
             e.printStackTrace();
         }

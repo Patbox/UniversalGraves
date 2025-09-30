@@ -43,7 +43,7 @@ public class SafeXPEntity extends ExperienceOrbEntity implements PolymerEntity {
 
     @Override
     public void onPlayerCollision(PlayerEntity player) {
-        if (!this.getWorld().isClient) {
+        if (!this.getEntityWorld().isClient()) {
             // Clones vanilla logic to make sure other mods don't modify it
             if (player.experiencePickUpDelay == 0) {
                 player.experiencePickUpDelay = 2;

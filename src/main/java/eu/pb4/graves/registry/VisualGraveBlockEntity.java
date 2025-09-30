@@ -1,7 +1,6 @@
 package eu.pb4.graves.registry;
 
 import com.mojang.authlib.GameProfile;
-import eu.pb4.graves.config.BaseGson;
 import eu.pb4.graves.model.GraveModelHandler;
 import eu.pb4.graves.other.VisualGraveData;
 import eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment;
@@ -10,6 +9,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.*;
 import net.minecraft.registry.Registries;
@@ -212,8 +212,8 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
     }
 
     @Override
-    public GameProfile getGraveGameProfile() {
-        return this.getGrave().gameProfile();
+    public ProfileComponent getGraveGameProfile() {
+        return this.getGrave().profile();
     }
 
     @Override
@@ -234,11 +234,6 @@ public class VisualGraveBlockEntity extends AbstractGraveBlockEntity {
     @Override
     public byte getGraveSkinModelLayers() {
         return this.getGrave().visualSkinModelLayers();
-    }
-
-    @Override
-    public boolean isGravePlayerModelDelayed() {
-        return false;
     }
 
     @Override

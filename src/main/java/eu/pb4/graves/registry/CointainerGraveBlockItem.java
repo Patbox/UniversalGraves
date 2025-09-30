@@ -2,15 +2,15 @@ package eu.pb4.graves.registry;
 
 import com.mojang.authlib.GameProfile;
 import eu.pb4.graves.config.ConfigManager;
-import eu.pb4.graves.mixin.PlayerEntityAccessor;
+import eu.pb4.graves.mixin.PlayerLikeEntityAccessor;
 import eu.pb4.graves.other.VisualGraveData;
 import eu.pb4.polymer.core.api.item.PolymerItem;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 import net.minecraft.item.tooltip.TooltipType;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -27,12 +27,12 @@ public class CointainerGraveBlockItem extends BlockItem implements PolymerItem {
 
     protected boolean postPlacement(BlockPos pos, World world, @Nullable PlayerEntity player, ItemStack stack, BlockState state) {
         boolean bl = super.postPlacement(pos, world, player, stack, state);
-        if (!world.isClient && !bl && player instanceof ServerPlayerEntity serverPlayer && world.getBlockEntity(pos) instanceof VisualGraveBlockEntity grave) {
+        if (!world.isClient() && !bl && player instanceof ServerPlayerEntity serverPlayer && world.getBlockEntity(pos) instanceof VisualGraveBlockEntity grave) {
             grave.openEditScreen(serverPlayer);
 
             grave.setVisualData(new VisualGraveData(
-                    !player.isSneaking() ? player.getGameProfile() : new GameProfile(MathHelper.randomUuid(), ""),
-                    player.getDataTracker().get(PlayerEntityAccessor.getPLAYER_MODEL_PARTS()),
+                    ProfileComponent.ofStatic(!player.isSneaking() ? player.getGameProfile() : new GameProfile(MathHelper.randomUuid(), "")),
+                    player.getDataTracker().get(PlayerLikeEntityAccessor.getPLAYER_MODE_CUSTOMIZATION_ID()),
                     player.getMainArm(),
                     grave.getGrave().deathCause(),
                     grave.getGrave().creationTime(),

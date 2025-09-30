@@ -15,6 +15,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
@@ -243,8 +244,8 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity implements GraveH
     }
 
     @Override
-    public GameProfile getGraveGameProfile() {
-        return this.getGrave() != null ? this.data.getProfile() : Grave.DEFAULT_GAME_PROFILE;
+    public ProfileComponent getGraveGameProfile() {
+        return this.getGrave() != null ? this.data.getProfileComponent() : Grave.DEFAULT_PROFILE_COMPONENT;
     }
 
     @Override
@@ -275,10 +276,5 @@ public class GraveBlockEntity extends AbstractGraveBlockEntity implements GraveH
     @Override
     public byte getGraveSkinModelLayers() {
         return this.getGrave() != null ? this.data.visibleSkinModelParts() : (byte) 0xFF;
-    }
-
-    @Override
-    public boolean isGravePlayerModelDelayed() {
-        return this.getGrave() != null && this.data.delayPlayerModel();
     }
 }

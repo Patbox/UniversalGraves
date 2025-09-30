@@ -53,7 +53,7 @@ import java.util.*;
 import java.util.function.Function;
 
 public class GraveUtils {
-    public static final ChunkTicketType GRAVE_TICKED = new ChunkTicketType(5, false, ChunkTicketType.Use.LOADING);
+    public static final ChunkTicketType GRAVE_TICKED = new ChunkTicketType(5, 0);
 
     public static final TagKey<Block> REPLACEABLE_TAG = TagKey.of(RegistryKeys.BLOCK, Identifier.of("universal_graves", "replaceable"));
     public static final TagKey<Enchantment> BLOCKED_ENCHANTMENTS_TAG = TagKey.of(RegistryKeys.ENCHANTMENT, Identifier.of("universal_graves", "blocked_enchantments"));
@@ -220,7 +220,7 @@ public class GraveUtils {
         var pos = grave.getLocation();
         var movingText = config.teleportation.allowMovingDuringTeleportation || player.isCreative() ? config.teleportation.text.teleportTimerTextAllowMoving : config.teleportation.text.teleportTimerText;
 
-        MinecraftServer server = Objects.requireNonNull(player.getServer(), "server; running on client?");
+        MinecraftServer server = Objects.requireNonNull(player.getEntityWorld().getServer(), "server; running on client?");
         ServerWorld world = server.getWorld(RegistryKey.of(RegistryKeys.WORLD, pos.world()));
         if (world != null) {
             player.sendMessage(movingText.with(Map.of("time",
@@ -232,7 +232,7 @@ public class GraveUtils {
                 double z = pos.z();
 
                 // If any movement occurs, the teleport request will be cancelled.
-                final Vec3d currentPosition = player.getPos();
+                final Vec3d currentPosition = player.getEntityPos();
 
                 // Non-final to allow for decrementing.
                 int teleportTicks = player.isCreative() ? 1 : config.teleportation.teleportTime * 20;
@@ -241,7 +241,7 @@ public class GraveUtils {
                 @Override
                 public void run() {
                     if (--teleportTicks >= 0) {
-                        if (!config.teleportation.allowMovingDuringTeleportation && !player.getPos().equals(currentPosition)) {
+                        if (!config.teleportation.allowMovingDuringTeleportation && !player.getEntityPos().equals(currentPosition)) {
                             player.sendMessage(config.teleportation.text.teleportCancelledText.text());
                             player.playSoundToPlayer(SoundEvents.ENTITY_SHULKER_HURT_CLOSED,
                                     SoundCategory.MASTER, 1f, 0.5f);
@@ -275,7 +275,7 @@ public class GraveUtils {
 
 
         if (damageWorld.getGameRules().getBoolean(GameRules.KEEP_INVENTORY)
-                || config.placement.blacklistedWorlds.contains(player.getWorld().getRegistryKey().getValue())
+                || config.placement.blacklistedWorlds.contains(player.getEntityWorld().getRegistryKey().getValue())
                 || config.placement.maxGraveCount == 0
         ) {
             return;
@@ -284,7 +284,7 @@ public class GraveUtils {
         WrappedText text = null;
         var placeholders = Map.of(
                 "position", Text.literal(player.getBlockPos().toShortString()),
-                "world", GraveUtils.toWorldName(player.getWorld().getRegistryKey().getValue())
+                "world", GraveUtils.toWorldName(player.getEntityWorld().getRegistryKey().getValue())
         );
 
         if (source.getAttacker() != null) {
@@ -310,7 +310,7 @@ public class GraveUtils {
             var eventResult = PlayerGraveCreationEvent.EVENT.invoker().shouldCreate(player);
 
             if (eventResult.canCreate()) {
-                var result = GraveUtils.findGravePosition(player, player.getWorld(), player.getBlockPos(), config.placement.maxPlacementDistance, config.placement.replaceAnyBlock);
+                var result = GraveUtils.findGravePosition(player, player.getEntityWorld(), player.getBlockPos(), config.placement.maxPlacementDistance, config.placement.replaceAnyBlock);
 
                 if (result.result().canCreate()) {
                     var model = config.getGraveModel(player);
@@ -343,7 +343,7 @@ public class GraveUtils {
                     }
 
                     int finalExperience = experience;
-                    var world = player.getWorld();
+                    var world = player.getEntityWorld();
 
                     var allowedUUID = new HashSet<UUID>();
 
@@ -388,14 +388,14 @@ public class GraveUtils {
                             graveBlockEntity.setModelId(model);
                             world.markDirty(gravePos);
                             text2 = config.texts.messageGraveCreated;
-                            placeholders2 = grave.getPlaceholders(player.getServer());
+                            placeholders2 = grave.getPlaceholders(player.getEntityWorld().getServer());
 
 
                             if (config.placement.maxGraveCount > -1) {
                                 var graves = new ArrayList<>(GraveManager.INSTANCE.getByPlayer(player));
                                 graves.sort(Comparator.comparing(Grave::getCreationTime));
                                 while (graves.size() > config.placement.maxGraveCount) {
-                                    graves.removeFirst().destroyGrave(player.getServer(), null);
+                                    graves.removeFirst().destroyGrave(player.getEntityWorld().getServer(), null);
                                 }
                             }
                         } else {

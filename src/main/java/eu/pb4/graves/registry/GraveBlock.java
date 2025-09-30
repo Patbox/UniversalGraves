@@ -57,7 +57,7 @@ public class GraveBlock extends AbstractGraveBlock implements BlockEntityProvide
                 if (ConfigManager.getConfig().interactions.breakingTakesItems && grave.isOwner(player)) {
                     grave.quickEquip(player);
                 }
-                grave.destroyGrave(player.getServer(), player);
+                grave.destroyGrave(player.getEntityWorld().getServer(), player);
                 if (ConfigManager.getConfig().placement.restoreBlockAfterPlayerBreaking) {
                     graveBlockEntity.breakBlock();
                 }
@@ -113,7 +113,7 @@ public class GraveBlock extends AbstractGraveBlock implements BlockEntityProvide
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        return type == GraveBlockEntity.BLOCK_ENTITY_TYPE && !world.isClient ? GraveBlockEntity::tick : null;
+        return type == GraveBlockEntity.BLOCK_ENTITY_TYPE && !world.isClient() ? GraveBlockEntity::tick : null;
     }
 
     @Override

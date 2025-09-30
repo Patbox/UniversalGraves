@@ -212,7 +212,7 @@ public class Config {
         public Item gravestoneItemBase = Items.SKELETON_SKULL;
         @SerializedName("gravestone_item_nbt")
         public ComponentMap gravestoneItemNbt = ComponentMap.EMPTY;
-        public class CheckedModel {
+        public static class CheckedModel {
             @SerializedName("require")
             public MinecraftPredicate predicate = BuiltinPredicates.operatorLevel(0);
             @SerializedName("model")

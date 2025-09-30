@@ -11,8 +11,8 @@
   "text.graves.admin_graves": "Alle Gräber",
   "text.graves.gui_title": "Deine Gräber",
   "text.graves.no_longer_protected": "Dein Grab bei %s (%s), welches %s Gegenstände enthält, ist nicht mehr geschützt!",
-  "text.graves.expired": "Dein Grab bei %s (%s), welches %s Gegenstände enhält, ist abgelaufen!",
-  "text.graves.somebody_broke": "Dein Grab bei %s (%s), welches %s Gegenstände enhält, wurde geöffnet!",
+  "text.graves.expired": "Dein Grab bei %s (%s), welches %s Gegenstände enthält, ist abgelaufen!",
+  "text.graves.somebody_broke": "Dein Grab bei %s (%s), welches %s Gegenstände enthält, wurde geöffnet!",
   "text.graves.created_at": "Grab bei %s (%s) wurde erstellt",
   "text.graves.created_at_expire": "Grabstein erstellt bei %s (%s). Er verfällt in %s",
   "text.graves.creation_failed": "Konnte kein Grab erstellen! Deine Gegenstände wurden bei %s (%s) fallen gelassen",
@@ -52,6 +52,7 @@
   "gamerule.universal_graves:protection_time": "Zeit, die das Grab gegen andere Spieler geschützt bleibt",
   "gamerule.universal_graves:breaking_time": "Ablaufzeit des Grabes",
   "text.graves.cost.level": "XP Level",
+  "text.graves.cost.creative": "Kreativ",
   "text.graves.cost.free": "Kostenlos",
   "text.graves.cost.item": "Items",
   "screen.graves.settings": "Universal Graves Einstellungen"

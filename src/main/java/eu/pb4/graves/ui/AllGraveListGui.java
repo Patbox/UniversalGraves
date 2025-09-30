@@ -37,7 +37,7 @@ public class AllGraveListGui extends PagedGui {
 
             var grave = this.graves.get(id);
 
-            var placeholders = grave.getPlaceholders(this.player.getServer());
+            var placeholders = grave.getPlaceholders(this.player.getEntityWorld().getServer());
 
             var element = config.ui.listAllGraveIcon.get(grave.isProtected())
                     .builder(placeholders)

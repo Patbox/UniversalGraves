@@ -42,7 +42,7 @@ public record Location(Identifier world, BlockPos blockPos) {
     }
 
     public static Location fromEntity(ServerPlayerEntity player) {
-        return new Location(player.getWorld().getRegistryKey().getValue(), player.getBlockPos());
+        return new Location(player.getEntityWorld().getRegistryKey().getValue(), player.getBlockPos());
     }
 
     public GlobalPos asGlobalPos() {
