@@ -9,6 +9,7 @@ import eu.pb4.graves.config.data.WrappedText;
 import eu.pb4.graves.mixin.PlayerLikeEntityAccessor;
 import eu.pb4.graves.other.*;
 import eu.pb4.graves.registry.GraveBlockEntity;
+import eu.pb4.graves.registry.GraveCompassComponent;
 import eu.pb4.graves.registry.GravesRegistry;
 import eu.pb4.graves.ui.GraveGui;
 import me.lucko.fabric.api.permissions.v0.Permissions;
@@ -16,6 +17,7 @@ import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.*;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryWrapper;
@@ -604,6 +606,15 @@ public final class Grave {
                     return;
                 }
 
+                GraveCompassComponent compassData = null;
+                int compassCount = 0;
+                for (ItemStack itemStack : player.getInventory()) {
+                    if (itemStack.get(GraveCompassComponent.TYPE) instanceof GraveCompassComponent component && component.graveId() == this.id) {
+                        compassCount = itemStack.getCount();
+                        compassData = component;
+                        itemStack.setCount(0);
+                    }
+                }
                 for (var item : this.items) {
                     if (!item.isEmpty() && item.inventoryMask() != null) {
                         item.inventoryMask().moveToPlayerExactly(player, item.stack(), item.slot(), item.optionalData());
@@ -620,6 +631,9 @@ public final class Grave {
                 this.xp = 0;
                 this.tryBreak(player.getEntityWorld().getServer(), player);
                 this.updateSelf(player.getEntityWorld().getServer());
+                if (compassData != null && compassData.convertToVanilla()) {
+                    player.giveItemStack(new ItemStack(Items.COMPASS, compassCount));
+                }
                 GraveManager.INSTANCE.markDirty();
             }
         } catch (Exception e) {

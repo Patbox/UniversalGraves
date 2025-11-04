@@ -61,6 +61,7 @@ public class GraveCompassItem extends Item implements PolymerItem {
         return null;
     }
 
+    // The compass is also removed in Grave#quickEquip to preserve the grave items correct slots in the player inventory as he died.
     @Override
     public void inventoryTick(ItemStack stack, ServerWorld world, Entity entity, @Nullable EquipmentSlot slot) {
         if (entity instanceof ServerPlayerEntity player && !stack.isEmpty()) {
