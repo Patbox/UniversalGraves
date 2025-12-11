@@ -2,13 +2,14 @@ package eu.pb4.graves.compat;
 
 import eu.pb4.graves.GravesApi;
 import eu.pb4.graves.grave.GraveInventoryMask;
-import io.wispforest.accessories.api.*;
+import io.wispforest.accessories.api.AccessoriesCapability;
+import io.wispforest.accessories.api.core.AccessoryRegistry;
+import io.wispforest.accessories.api.events.DropRule;
 import io.wispforest.accessories.api.events.OnDropCallback;
 import io.wispforest.accessories.api.slot.SlotReference;
-import io.wispforest.accessories.impl.ExpandedSimpleContainer;
+import io.wispforest.accessories.impl.core.ExpandedContainer;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.Identifier;
@@ -33,13 +34,12 @@ public record AccessoriesCompat() implements GraveInventoryMask {
         }
 
         cap.getContainers().forEach((s, accessoriesContainer) -> {
-            var defRule = accessoriesContainer.slotType() != null ? Objects.requireNonNull(accessoriesContainer.slotType()).dropRule() : DropRule.DEFAULT;
-            addToGrave(player, consumer, s, accessoriesContainer.getAccessories(), "", defRule);
-            addToGrave(player, consumer, s, accessoriesContainer.getCosmeticAccessories(), "cosmetic", defRule);
+            addToGrave(player, consumer, s, accessoriesContainer.getAccessories(), "", DropRule.DEFAULT);
+            addToGrave(player, consumer, s, accessoriesContainer.getCosmeticAccessories(), "cosmetic", DropRule.DEFAULT);
         });
     }
 
-    private void addToGrave(ServerPlayer player, ItemConsumer consumer, String slotName, ExpandedSimpleContainer accessories, String type, DropRule defaultDropRule) {
+    private void addToGrave(ServerPlayer player, ItemConsumer consumer, String slotName, ExpandedContainer accessories, String type, DropRule defaultDropRule) {
         var dmg = player.getLastDamageSource();
         if (dmg == null) {
             dmg = player.damageSources().generic();
@@ -47,12 +47,12 @@ public record AccessoriesCompat() implements GraveInventoryMask {
         for (var i = 0; i < accessories.getContainerSize(); i++) {
             var stack = accessories.getItem(i);
             if (stack.isEmpty() || !GravesApi.canAddItem(player, stack)) {
-                return;
+                continue;
             }
 
             var ref = SlotReference.of(player, slotName, i);
 
-            var dropRule = AccessoriesAPI.getOrDefaultAccessory(stack).getDropRule(stack, ref, dmg);
+            var dropRule = AccessoryRegistry.getAccessoryOrDefault(stack).getDropRule(stack, ref, dmg);
 
             dropRule = OnDropCallback.EVENT.invoker().onDrop(dropRule, stack, ref, dmg);
 
@@ -116,7 +116,7 @@ public record AccessoriesCompat() implements GraveInventoryMask {
     }
 
     @Nullable
-    private ExpandedSimpleContainer getInventory(ServerPlayer player, String type, String slotId) {
+    private ExpandedContainer getInventory(ServerPlayer player, String type, String slotId) {
         var cap = AccessoriesCapability.get(player);
         if (cap == null) {
             return null;
