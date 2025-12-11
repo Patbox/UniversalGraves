@@ -76,7 +76,7 @@ dependencies {
 
 	modCompileOnly "dev.emi:trinkets:3.10.0"
 	modCompileOnly "maven.modrinth:inventorio:1.10.3+1.20.2"
-	modCompileOnly "io.wispforest:accessories-fabric:1.0.0-beta.11+1.21"
+	modCompileOnly "io.wispforest:accessories-fabric:1.4.0-beta+1.21.10"
 
 	modCompileOnly "maven.modrinth:goml-reserved:1.13.1+1.21"
 	modCompileOnly 'com.jamieswhiteshirt:rtree-3i-lite:0.3.0'
