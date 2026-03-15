@@ -43,7 +43,7 @@ public class DefaultGraveModels {
             head.transformation = new Transformation(
                     new Matrix4f().scale(0.8f)
             );
-            head.transformation.getTranslation();
+            head.transformation.translation();
             head.billboardMode = Display.BillboardConstraints.CENTER;
 
             var skull = head.copy();
@@ -73,7 +73,7 @@ public class DefaultGraveModels {
             lock.transformation = new Transformation(
                     new Matrix4f().translate(0, -0.44f, 0.3f).scale(0.35f, 0.35f, 0.1f)
             );
-            lock.transformation.getTranslation();
+            lock.transformation.translation();
             lock.viewRange = 0.2f;
             lock.billboardMode = Display.BillboardConstraints.CENTER;
 
@@ -89,7 +89,7 @@ public class DefaultGraveModels {
                     new Matrix4f().translate(0, -0.31f, 0.3f).scale(0.35f)
             );
             lockText.textShadow = true;
-            lockText.transformation.getTranslation();
+            lockText.transformation.translation();
             lockText.viewRange = 0.2f;
             lockText.billboardMode = Display.BillboardConstraints.CENTER;
 
@@ -146,7 +146,7 @@ public class DefaultGraveModels {
             lock.transformation = new Transformation(
                     new Matrix4f().translate(0, -0.44f, 0.3f).scale(0.35f, 0.35f, 0.1f)
             );
-            lock.transformation.getTranslation();
+            lock.transformation.translation();
             lock.viewRange = 0.2f;
             lock.billboardMode = Display.BillboardConstraints.CENTER;
 
@@ -162,7 +162,7 @@ public class DefaultGraveModels {
                     new Matrix4f().translate(0, -0.31f, 0.3f).scale(0.35f)
             );
             lockText.textShadow = true;
-            lockText.transformation.getTranslation();
+            lockText.transformation.translation();
             lockText.viewRange = 0.2f;
             lockText.billboardMode = Display.BillboardConstraints.CENTER;
 
@@ -230,7 +230,7 @@ public class DefaultGraveModels {
             head.transformation = new Transformation(
                     new Matrix4f().rotateY(Mth.HALF_PI).translate(0, -0.42f, 0).rotateX(-Mth.PI / 3).scale(0.35f)
             );
-            head.transformation.getTranslation();
+            head.transformation.translation();
 
             head.tags.add(ModelTags.IF_REQUIRE_PAYMENT);
             head.itemStack = IconItem.of(IconItem.Texture.REMOVE_PROTECTION);
@@ -244,7 +244,7 @@ public class DefaultGraveModels {
                     new Matrix4f().rotateY(Mth.HALF_PI).translate(0, -0.29f, 0).rotateX(-Mth.PI / 3).scale(0.35f)
             );
             head.textShadow = true;
-            head.transformation.getTranslation();
+            head.transformation.translation();
 
             head.tags.add(ModelTags.IF_REQUIRE_PAYMENT);
             head.text = TaggedText.of("<yellow>${cost}");
@@ -311,7 +311,7 @@ public class DefaultGraveModels {
             head.transformation = new Transformation(
                     new Matrix4f().rotateY(Mth.HALF_PI).translate(0, -0.42f, 0).rotateX(-Mth.PI / 3).scale(0.35f)
             );
-            head.transformation.getTranslation();
+            head.transformation.translation();
 
             head.tags.add(ModelTags.IF_REQUIRE_PAYMENT);
             head.itemStack = IconItem.of(IconItem.Texture.REMOVE_PROTECTION);
@@ -325,7 +325,7 @@ public class DefaultGraveModels {
                     new Matrix4f().rotateY(Mth.HALF_PI).translate(0, -0.29f, 0).rotateX(-Mth.PI / 3).scale(0.35f)
             );
             head.textShadow = true;
-            head.transformation.getTranslation();
+            head.transformation.translation();
 
             head.tags.add(ModelTags.IF_REQUIRE_PAYMENT);
             head.text = TaggedText.of("<yellow>${cost}");
@@ -355,7 +355,7 @@ public class DefaultGraveModels {
             tool.transformation = new Transformation(
                     new Matrix4f().translate(0.4f, -0.495f, -0.2f).rotateY(330 * Mth.DEG_TO_RAD).rotateZ(5 * Mth.DEG_TO_RAD).rotateX(Mth.HALF_PI).scale(0.5f)
             );
-            tool.transformation.getTranslation();
+            tool.transformation.translation();
 
             tool.tags.add(ModelTags.ITEM);
 
@@ -366,7 +366,7 @@ public class DefaultGraveModels {
             tool.transformation = new Transformation(
                     new Matrix4f().translate(-0.35f, -0.43f, -0.05f).rotateY(80 * Mth.DEG_TO_RAD).rotateZ(-30 * Mth.DEG_TO_RAD).rotateX(-160 * Mth.DEG_TO_RAD).scale(0.5f)
             );
-            tool.transformation.getTranslation();
+            tool.transformation.translation();
 
             tool.tags.add(ModelTags.ITEM);
 
@@ -378,7 +378,7 @@ public class DefaultGraveModels {
             head.transformation = new Transformation(
                     new Matrix4f().translate(0, -0.35f, 0).rotateX(-Mth.PI / 12).rotateZ(-Mth.PI / 64)
             );
-            head.transformation.getTranslation();
+            head.transformation.translation();
 
             var skull = head.copy();
 
@@ -399,7 +399,7 @@ public class DefaultGraveModels {
             head.transformation = new Transformation(
                     new Matrix4f().translate(0, -0.44f, 0.42f).rotateX(-Mth.PI / 3).scale(0.35f)
             );
-            head.transformation.getTranslation();
+            head.transformation.translation();
 
             head.tags.add(ModelTags.IF_REQUIRE_PAYMENT);
             head.itemStack = IconItem.of(IconItem.Texture.REMOVE_PROTECTION);
@@ -413,7 +413,7 @@ public class DefaultGraveModels {
                     new Matrix4f().translate(0, -0.31f, 0.42f).rotateX(-Mth.PI / 3).scale(0.35f)
             );
             head.textShadow = true;
-            head.transformation.getTranslation();
+            head.transformation.translation();
 
             head.tags.add(ModelTags.IF_REQUIRE_PAYMENT);
             head.text = TaggedText.of("<yellow>${cost}");
@@ -438,7 +438,7 @@ public class DefaultGraveModels {
     private static void addGenericText(GraveModel model, Consumer<TextDisplayModelPart> baseModifier) {
         var customText = new TextDisplayModelPart();
         baseModifier.accept(customText);
-        customText.transformation.getTranslation();
+        customText.transformation.translation();
 
         var vis = customText.copy();
         var mainText = customText.copy();

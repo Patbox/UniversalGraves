@@ -25,20 +25,20 @@ public record WrappedText(String input, TextNode textNode, Component text) {
             return EMPTY;
         }
 
-        return new WrappedText(input, PARSER.parseNode(input), PARSER.parseNode(input).toText());
+        return new WrappedText(input, PARSER.parseNode(input), PARSER.parseNode(input).toComponent());
     }
 
     public Component with(Map<String, Component> textMap) {
         return with(textMap::get);
     }
     public Component with(Function<String, Component> textMap) {
-        return this.textNode.toText(ParserContext.of(DYNAMIC_NODES, textMap));
+        return this.textNode.toComponent(ParserContext.of(DYNAMIC_NODES, textMap));
     }
     public Component with(PlaceholderContext context, Map<String, Component> textMap) {
         return with(context, textMap::get);
     }
     public Component with(PlaceholderContext context, Function<String, Component> textMap) {
-        return this.textNode.toText(ParserContext.of(DYNAMIC_NODES, textMap).with(PlaceholderContext.KEY, context));
+        return this.textNode.toComponent(ParserContext.of(DYNAMIC_NODES, textMap).with(PlaceholderContext.COMMON_KEY, context));
     }
 
     public boolean isEmpty() {

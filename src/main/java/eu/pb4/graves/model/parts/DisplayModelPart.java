@@ -11,7 +11,7 @@ import net.minecraft.world.entity.EntityDimensions;
 
 public abstract class DisplayModelPart<T extends DisplayElement, G extends DisplayModelPart<T, G>> extends ModelPart<T, G> {
     @SerializedName("transformation")
-    public Transformation transformation = Transformation.identity();
+    public Transformation transformation = Transformation.IDENTITY;
     @SerializedName("billboard")
     public Display.BillboardConstraints billboardMode = Display.BillboardConstraints.FIXED;
     @SerializedName("brightness")

@@ -124,7 +124,7 @@ public class ContainerGraveBlock extends VisualGraveBlock {
                         public void onClose() {
                             super.onClose();
                             player.connection.send(new ClientboundSoundPacket(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(SoundEvents.BARREL_CLOSE), SoundSource.BLOCKS,
-                                    pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 1, world.random.nextFloat() * 0.1F + 0.9F, world.random.nextLong()));
+                                    pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 1, world.getRandom().nextFloat() * 0.1F + 0.9F, world.getRandom().nextLong()));
                         }
                     };
                     gui.setTitle(this.getName());
@@ -133,7 +133,7 @@ public class ContainerGraveBlock extends VisualGraveBlock {
                     }
                     gui.open();
                     player.connection.send(new ClientboundSoundPacket(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(SoundEvents.BARREL_OPEN), SoundSource.BLOCKS,
-                            pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 1, world.random.nextFloat() * 0.1F + 0.9F, world.random.nextLong()));
+                            pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 1, world.getRandom().nextFloat() * 0.1F + 0.9F, world.getRandom().nextLong()));
                 }
 
                 return InteractionResult.SUCCESS_SERVER;

@@ -132,7 +132,7 @@ public class GraveModelHandler extends ElementHolder {
 
             this.textsWithPlaceholders.add(new TextsWithPlaceholders(node, textDisplayElement));
 
-            textDisplayElement.setText(node.toText(ParserContext.of(WrappedText.DYNAMIC_NODES, this.dataPrivider::getGravePlaceholder)));
+            textDisplayElement.setText(node.toComponent(ParserContext.of(WrappedText.DYNAMIC_NODES, this.dataPrivider::getGravePlaceholder)));
         }
 
         if (part instanceof ItemDisplayModelPart itemDisplayModelPart && element instanceof ItemDisplayElement itemDisplayElement) {
@@ -230,7 +230,7 @@ public class GraveModelHandler extends ElementHolder {
             if (this.world.getGameTime() % 20 == 0) {
                 var placeholders = (Function<String, Component>) this.dataPrivider::getGravePlaceholder;
                 for (var text : textsWithPlaceholders) {
-                    text.displayElement.setText(text.node().toText(ParserContext.of(WrappedText.DYNAMIC_NODES, placeholders)));
+                    text.displayElement.setText(text.node().toComponent(ParserContext.of(WrappedText.DYNAMIC_NODES, placeholders)));
                 }
 
                 for (int i = 0; i < this.itemDisplays.size(); i++) {

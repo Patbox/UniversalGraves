@@ -8,8 +8,8 @@ import eu.pb4.graves.other.Location;
 import eu.pb4.graves.other.OutputSlot;
 import eu.pb4.graves.registry.GraveCompassItem;
 import eu.pb4.sgui.api.ClickType;
-import eu.pb4.sgui.api.GuiHelpers;
-import eu.pb4.sgui.api.gui.GuiInterface;
+import eu.pb4.sgui.api.SguiUtils;
+import eu.pb4.sgui.api.gui.GuiLike;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -21,7 +21,7 @@ public class GraveGui extends PagedGui {
     private final Container inventory;
     private boolean canTake;
     private final boolean canFetch;
-    private final GuiInterface previousUi;
+    private final GuiLike previousUi;
     private final boolean canModify;
     private final boolean canTeleport;
     private final boolean hasAccess;
@@ -41,12 +41,12 @@ public class GraveGui extends PagedGui {
         this.setTitle(ConfigManager.getConfig().ui.graveTitle.with(grave.getPlaceholders(player.level().getServer())));
         this.inventory = this.grave.asInventory();
         this.currentGraveSize = this.inventory.getContainerSize();
-        this.previousUi = GuiHelpers.getCurrentGui(player);
+        this.previousUi = SguiUtils.getCurrentGui(player);
         this.updateDisplay();
     }
 
     @Override
-    public boolean onAnyClick(int index, ClickType type, net.minecraft.world.inventory.ClickType action) {
+    public boolean onAnyClick(int index, ClickType type, net.minecraft.world.inventory.ContainerInput action) {
         return super.onAnyClick(index, type, action);
     }
 

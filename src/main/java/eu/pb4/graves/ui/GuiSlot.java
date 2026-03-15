@@ -4,16 +4,16 @@ import eu.pb4.graves.GraveTextures;
 import eu.pb4.graves.config.ConfigManager;
 import eu.pb4.sgui.api.elements.GuiElement;
 import eu.pb4.sgui.api.elements.GuiElementBuilderInterface;
-import eu.pb4.sgui.api.elements.GuiElementInterface;
+import eu.pb4.sgui.api.elements.SimpleGuiElement;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-public record GuiSlot(@Nullable GuiElementInterface element, @Nullable Slot slot) {
-    private static final GuiSlot EMPTY = GuiSlot.of(new GuiElement(ItemStack.EMPTY, GuiElementInterface.EMPTY_CALLBACK));
+public record GuiSlot(@Nullable GuiElement element, @Nullable Slot slot) {
+    private static final GuiSlot EMPTY = GuiSlot.of(new SimpleGuiElement(ItemStack.EMPTY, GuiElement.EMPTY_CALLBACK));
 
-    public static GuiSlot of(GuiElementInterface element) {
+    public static GuiSlot of(GuiElement element) {
         return new GuiSlot(element, null);
     }
 

@@ -376,7 +376,7 @@ public class GraveUtils {
                     var fluidState = world.getFluidState(gravePos);
                     world.setBlockAndUpdate(gravePos, GravesRegistry.TEMP_BLOCK.defaultBlockState());
 
-                    world.getChunkSource().addTicketWithRadius(GRAVE_TICKED, new ChunkPos(gravePos), 2);
+                    world.getChunkSource().addTicketWithRadius(GRAVE_TICKED, ChunkPos.containing(gravePos), 2);
 
                     GravesMod.DO_ON_NEXT_TICK.add(() -> {
                         WrappedText text2;
