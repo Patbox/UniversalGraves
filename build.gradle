@@ -8,12 +8,14 @@ plugins {
 version = project.mod_version
 group = project.maven_group
 
-base { archivesName = project.archives_base_name }
-
+base {
+	archivesName = project.archives_base_name
+}
 
 loom {
 	accessWidenerPath = file("src/main/resources/universalgraves.accesswidener")
 }
+
 repositories {
 	// Add repositories to retrieve artifacts from in here.
 	// You should only use this when depending on other mods because
@@ -140,5 +142,58 @@ publishing {
 		// Notice: This block does NOT have the same function as the block in the top level.
 		// The repositories here will be used for publishing your artifact, not for
 		// retrieving dependencies.
+	}
+}
+
+curseforge {
+	if (System.getenv("CURSEFORGE")) {
+		apiKey = System.getenv("CURSEFORGE")
+
+		project {
+			id = "497175"
+			releaseType = "release"
+			changelog = System.getenv("CHANGELOG")
+			changelogType = "markdown"
+			addGameVersion((project.minecraft_version.contains("-") ? ((String) project.minecraft_version.split("-")[0] + "-snapshot") : project.minecraft_version))
+			addGameVersion "Fabric"
+			addGameVersion "Quilt"
+
+			relations {
+				requiredDependency "polymer"
+			}
+
+			mainArtifact(jar)
+
+			afterEvaluate {
+				uploadTask.dependsOn("jar")
+			}
+		}
+	}
+
+	options {
+		forgeGradleIntegration = false
+	}
+
+	jar {
+		finalizedBy project.tasks.curseforge
+	}
+}
+
+if (System.getenv("MODRINTH")) {
+	modrinth {
+		token = System.getenv("MODRINTH")
+		projectId = 'yn9u3ypm'
+		versionNumber = "" + version // The version of the mod to upload.
+		uploadFile = jar // This links to a task that builds your mod jar and sets "uploadFile" to the mod jar.
+		gameVersions = [((String) project.minecraft_version)]
+		changelog = System.getenv("CHANGELOG")
+		loaders = ["fabric"/*, "quilt"*/]
+		dependencies {
+			required.project "polymer"
+		}
+	}
+
+	jar {
+		finalizedBy project.tasks.modrinth
 	}
 }
