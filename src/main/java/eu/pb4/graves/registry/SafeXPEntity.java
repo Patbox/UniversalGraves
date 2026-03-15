@@ -4,6 +4,7 @@ import eu.pb4.graves.mixin.ExperienceOrbEntityAccessor;
 
 import eu.pb4.graves.other.GraveUtils;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -16,7 +17,6 @@ import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import xyz.nucleoid.packettweaker.PacketContext;
 
 public class SafeXPEntity extends ExperienceOrb implements PolymerEntity {
     public static EntityType<Entity> TYPE = FabricEntityTypeBuilder.create().entityFactory(SafeXPEntity::new).fireImmune().disableSummon().dimensions(EntityDimensions.fixed(0.5F, 0.5F)).trackRangeChunks(6).trackedUpdateRate(20).build(
