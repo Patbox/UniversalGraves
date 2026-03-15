@@ -5,6 +5,8 @@ import eu.pb4.graves.grave.Grave;
 import eu.pb4.graves.grave.GraveManager;
 import eu.pb4.graves.other.PlayerAdditions;
 import eu.pb4.polymer.core.api.item.PolymerItem;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -23,7 +25,6 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.LodestoneTracker;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -56,7 +57,7 @@ public class GraveCompassItem extends Item implements PolymerItem {
 
 
     @Override
-    public @Nullable Identifier getPolymerItemModel(ItemStack stack, PacketContext context) {
+    public @Nullable Identifier getPolymerItemModel(ItemStack stack, PacketContext context, HolderLookup.Provider lookup) {
         return null;
     }
 
@@ -92,8 +93,8 @@ public class GraveCompassItem extends Item implements PolymerItem {
     }
 
     @Override
-    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipFlag tooltipType, PacketContext context) {
-        var clientStack = PolymerItem.super.getPolymerItemStack(itemStack, tooltipType, context);
+    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipFlag tooltipType, PacketContext context, HolderLookup.Provider lookup) {
+        var clientStack = PolymerItem.super.getPolymerItemStack(itemStack, tooltipType, context, lookup);
         if (itemStack.has(GraveCompassComponent.TYPE)) {
             var grave = GraveManager.INSTANCE.getId(itemStack.get(GraveCompassComponent.TYPE).graveId());
             if (grave != null) {

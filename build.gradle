@@ -1,18 +1,19 @@
 plugins {
-	id 'fabric-loom' version '1.13.+'
+	id 'java'
+	id 'net.fabricmc.fabric-loom' version "${loom_version}"
 	id 'maven-publish'
 	id "com.modrinth.minotaur" version "2.+"
 	id 'com.matthewprenger.cursegradle' version '1.4.0'
 }
-
-sourceCompatibility = JavaVersion.VERSION_21
-targetCompatibility = JavaVersion.VERSION_21
-
-archivesBaseName = project.archives_base_name
 version = project.mod_version
 group = project.maven_group
 
+base { archivesName = project.archives_base_name }
 
+
+loom {
+//	accessWidenerPath = file("src/main/resources/universalgraves.accesswidener")
+}
 repositories {
 	// Add repositories to retrieve artifacts from in here.
 	// You should only use this when depending on other mods because
@@ -49,40 +50,35 @@ repositories {
 	mavenLocal()
 }
 
-loom {
-	accessWidenerPath = file("src/main/resources/universalgraves.accesswidener")
-}
-
 dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings loom.officialMojangMappings()
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 
-	modImplementation include("eu.pb4:sgui:1.11.0+1.21.9")
-	modImplementation include("eu.pb4:placeholder-api:2.8.1+1.21.10")
-	modImplementation include('xyz.nucleoid:server-translations-api:2.5.2+1.21.9-pre3')
-	modImplementation 'eu.pb4:polymer-core:0.15.0-beta.4+1.21.11-rc2'
-	modImplementation 'eu.pb4:polymer-resource-pack:0.15.0-beta.4+1.21.11-rc2'
-	modImplementation 'eu.pb4:polymer-virtual-entity:0.15.0-beta.4+1.21.11-rc2'
-	modImplementation include('eu.pb4:predicate-api:0.7.0+1.21.11')
-	modImplementation include("eu.pb4:common-protection-api:1.0.0")
+	implementation include("com.github.x3rt:sgui:26.1-SNAPSHOT")
+	implementation include("eu.pb4:placeholder-api:3.0.0-beta.1+26.1")
+//	modImplementation include('xyz.nucleoid:server-translations-api:2.5.2+1.21.9-pre3')
+	implementation 'com.github.x3rt.polymer:polymer-core:dev~26.1-jitpack-SNAPSHOT'
+	implementation 'com.github.x3rt.polymer:polymer-resource-pack:dev~26.1-jitpack-SNAPSHOT'
+	implementation 'com.github.x3rt.polymer:polymer-virtual-entity:dev~26.1-jitpack-SNAPSHOT'
+	implementation include('com.github.x3rt:PredicateAPI:26.1-SNAPSHOT')
+	implementation include("eu.pb4:common-protection-api:1.0.0")
 
-	modImplementation include("me.lucko:fabric-permissions-api:0.6.0-patbox")
+//	implementation include("me.lucko:fabric-permissions-api:0.6.0-patbox")
 
-	modCompileOnly "dev.emi:trinkets:3.10.0"
-	modCompileOnly "maven.modrinth:inventorio:1.10.3+1.20.2"
-	modCompileOnly "io.wispforest:accessories-fabric:1.4.0-beta+1.21.10"
+	compileOnly "dev.emi:trinkets:3.10.0"
+	compileOnly "maven.modrinth:inventorio:1.10.3+1.20.2"
+	compileOnly "io.wispforest:accessories-fabric:1.4.0-beta+1.21.10"
 
-	modCompileOnly "maven.modrinth:goml-reserved:1.13.1+1.21"
-	modCompileOnly 'com.jamieswhiteshirt:rtree-3i-lite:0.3.0'
-	modCompileOnly "org.ladysnake.cardinal-components-api:cardinal-components-base:6.1.0"
+	compileOnly "maven.modrinth:goml-reserved:1.13.1+1.21"
+	compileOnly 'com.jamieswhiteshirt:rtree-3i-lite:0.3.0'
+	compileOnly "org.ladysnake.cardinal-components-api:cardinal-components-base:6.1.0"
 
-	modCompileOnly("com.terraformersmc:modmenu:7.2.2")
+	compileOnly("com.terraformersmc:modmenu:7.2.2")
 
 	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
 	// You may need to force-disable transitiveness on them.
@@ -104,7 +100,7 @@ tasks.withType(JavaCompile).configureEach {
 	it.options.encoding = "UTF-8"
 
 	// Minecraft 1.17 (21w19a) upwards uses Java 16.
-	it.options.release = 21
+	it.options.release = 25
 }
 
 java {
@@ -112,11 +108,16 @@ java {
 	// if it is present.
 	// If you remove this line, sources will not be generated.
 	withSourcesJar()
+
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
 }
 
+
 jar {
+	inputs.property "archivesName", project.base.archivesName
 	from("LICENSE") {
-		rename { "${it}_${project.archivesBaseName}"}
+		rename { "${it}_${inputs.properties.archivesName}"}
 	}
 
 	from("src/main/resources/data/universal_graves/lang") {
@@ -127,14 +128,9 @@ jar {
 // configure the maven publication
 publishing {
 	publications {
-		mavenJava(MavenPublication) {
-			// add all the jars that should be included when publishing to maven
-			artifact(remapJar) {
-				builtBy remapJar
-			}
-			artifact(sourcesJar) {
-				builtBy remapSourcesJar
-			}
+		create("mavenJava", MavenPublication) {
+			artifactId = project.archives_base_name
+			from components.java
 		}
 	}
 
@@ -144,58 +140,5 @@ publishing {
 		// Notice: This block does NOT have the same function as the block in the top level.
 		// The repositories here will be used for publishing your artifact, not for
 		// retrieving dependencies.
-	}
-}
-
-curseforge {
-	if (System.getenv("CURSEFORGE")) {
-		apiKey = System.getenv("CURSEFORGE")
-
-		project {
-			id = "497175"
-			releaseType = "release"
-			changelog = System.getenv("CHANGELOG")
-			changelogType = "markdown"
-			addGameVersion((project.minecraft_version.contains("-") ? ((String) project.minecraft_version.split("-")[0] + "-snapshot") : project.minecraft_version))
-			addGameVersion "Fabric"
-			addGameVersion "Quilt"
-
-			relations {
-				requiredDependency "polymer"
-			}
-
-			mainArtifact(remapJar)
-
-			afterEvaluate {
-				uploadTask.dependsOn("remapJar")
-			}
-		}
-	}
-
-	options {
-		forgeGradleIntegration = false
-	}
-
-	remapJar {
-		finalizedBy project.tasks.curseforge
-	}
-}
-
-if (System.getenv("MODRINTH")) {
-	modrinth {
-		token = System.getenv("MODRINTH")
-		projectId = 'yn9u3ypm'
-		versionNumber = "" + version // The version of the mod to upload.
-		uploadFile = remapJar // This links to a task that builds your mod jar and sets "uploadFile" to the mod jar.
-		gameVersions = [((String) project.minecraft_version)]
-		changelog = System.getenv("CHANGELOG")
-		loaders = ["fabric"/*, "quilt"*/]
-		dependencies {
-			required.project "polymer"
-		}
-	}
-
-	remapJar {
-		finalizedBy project.tasks.modrinth
 	}
 }

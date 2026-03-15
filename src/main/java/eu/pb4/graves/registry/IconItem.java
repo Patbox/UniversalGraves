@@ -4,8 +4,9 @@ import com.mojang.serialization.Codec;
 import eu.pb4.polymer.core.api.item.PolymerItem;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.api.utils.PolymerUtils;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
+import net.minecraft.core.HolderLookup;
 import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -38,15 +39,15 @@ public final class IconItem extends Item implements PolymerItem {
     }
 
     @Override
-    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipFlag tooltipType, PacketContext context) {
-        var stack = PolymerItemUtils.createItemStack(itemStack, tooltipType, context);
+    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipFlag tooltipType, PacketContext context, HolderLookup.Provider lookup) {
+        var stack = PolymerItemUtils.createItemStack(itemStack, tooltipType, context, lookup);
         var texture = itemStack.getOrDefault(TEXTURE, Texture.INVALID);
         stack.set(DataComponents.PROFILE, PolymerUtils.createProfileComponent(texture.texture, null));
         return stack;
     }
 
     @Override
-    public @Nullable Identifier getPolymerItemModel(ItemStack stack, PacketContext context) {
+    public @Nullable Identifier getPolymerItemModel(ItemStack stack, PacketContext context, HolderLookup.Provider lookup) {
         return null;
     }
 
