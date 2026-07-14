@@ -1,0 +1,68 @@
+{
+  "text.graves.grave_of": "Graven til %s",
+  "text.graves.items_xp": "Gjenstander: %s XP: %s",
+  "text.graves.items": "Gjenstander: %s",
+  "text.graves.protected_time": "Beskyttet i %s",
+  "text.graves.protected_time_sign": "Beskyttet i",
+  "text.graves.break_time": "Brytes om %s",
+  "text.graves.break_time_sign": "Brytes om",
+  "text.graves.not_protected": "Ikke beskyttet!",
+  "text.graves.players_grave": "%s sin grav",
+  "text.graves.admin_graves": "Alle graver",
+  "text.graves.gui_title": "Dine graver",
+  "text.graves.no_longer_protected": "Graven din ved %s (%s) med %s gjenstand(er) er ikke lenger beskyttet!",
+  "text.graves.expired": "Graven din ved %s (%s) med %s gjenstand(er) har utløpt!",
+  "text.graves.somebody_broke": "Graven din ved %s (%s) med %s gjenstand(er) har blitt brutt opp!",
+  "text.graves.created_at": "Opprettet grav ved %s (%s)",
+  "text.graves.created_at_expire": "Opprettet grav ved %s (%s). Den vil utløpe om %s",
+  "text.graves.creation_failed": "Kunne ikke opprette grav! Gjenstandene dine ble sluppet ved %s (%s)",
+  "text.graves.creation_failed_void": "Grav ble ikke opprettet fordi du døde i tomrommet!",
+  "text.graves.creation_failed_pvp": "Grav ble ikke opprettet fordi en spiller drepte deg! Gjenstandene dine ble sluppet ved %s (%s)",
+  "text.graves.creation_failed_claim": "Grav ble ikke opprettet fordi du var i et kravområde! Gjenstandene dine ble sluppet ved %s (%s)",
+  "text.graves.grave_unlock_payment.no_access": "Du har ikke tilgang til denne graven!",
+  "text.graves.grave_unlock_payment.accepted": "Du har låst opp graven!",
+  "text.graves.grave_unlock_payment.failed": "Du har ikke nok valuta til å låse opp graven! Krever: %s",
+
+  "text.graves.damage_source_info": "Du ble skadet av: %s",
+  "text.graves.damage_source_info.enabled": "Visning av neste skadekilde er aktivert! Skriv kommandoen igjen for å deaktivere.",
+  "text.graves.damage_source_info.disabled": "Visning av skadekilde er deaktivert!",
+
+  "text.graves.about.version": "Versjon: %s",
+  "text.graves.about.contributors": "Bidragsytere",
+
+  "text.graves.gui.next_page": "Neste side",
+  "text.graves.gui.previous_page": "Forrige side",
+  "text.graves.gui.remove_protection": "Fjern beskyttelse",
+  "text.graves.gui.break_grave": "Bryt opp graven",
+  "text.graves.gui.quick_pickup": "Ta alle gjenstander",
+  "text.graves.gui.teleport": "Teleporter til grav",
+  "text.graves.gui.cost.not_enough": "Ikke nok ressurser!",
+  "text.graves.gui.cost": "Kostnad:",
+  "text.graves.gui.teleport.cost": "Kostnad:",
+  "text.graves.gui.unlock_grave": "Lås opp grav",
+  "text.graves.gui.fetch": "Flytt graven til posisjonen din",
+  "text.graves.gui.fetch_failed": "Kunne ikke flytte graven til posisjonen din!",
+
+  "text.graves.gui.cant_reverse": "Du kan ikke angre denne handlingen!",
+  "text.graves.gui.click_to_confirm": "Klikk igjen for å bekrefte",
+
+  "text.graves.teleport.teleport_timer": "Teleporteres om %s sekunder, ikke rør deg!",
+  "text.graves.teleport.teleport_timer_moving": "Teleporteres om %s sekunder",
+  "text.graves.teleport.teleport_location": "Teleporterer til %s",
+  "text.graves.teleport.teleport_cancelled": "Teleportering avbrutt",
+
+  "item.universal_graves.grave_compass": "Gravkompass",
+  "block.universal_graves.grave": "Grav",
+  "block.universal_graves.visual_grave": "Tømt grav",
+  "block.universal_graves.container_grave": "Gravstein",
+
+  "gamerule.universal_graves:protection_time": "Tid graven er beskyttet mot andre spillere",
+  "gamerule.universal_graves:breaking_time": "Tidsfrist for gravens utløp",
+
+  "text.graves.cost.level": "XP-nivåer",
+  "text.graves.cost.creative": "Kreativ",
+  "text.graves.cost.free": "Gratis",
+  "text.graves.cost.item": "Gjenstander",
+
+  "screen.graves.settings": "Innstillinger for Universal Graves"
+}
