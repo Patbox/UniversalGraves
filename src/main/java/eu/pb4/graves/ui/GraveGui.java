@@ -23,7 +23,7 @@ public class GraveGui extends PagedGui {
     private final GuiLike previousUi;
     private final boolean canModify;
     private final boolean canTeleport;
-    private final boolean hasAccess;
+    private final boolean hasProtectionAccess;
     private int ticker = 0;
     private int actionTimeRemoveProtect = -1;
     private int actionTimeFetch = -1;
@@ -34,7 +34,7 @@ public class GraveGui extends PagedGui {
         this.grave = grave;
         this.canModify = canModify;
         this.canTeleport = ConfigManager.getConfig().teleportation.cost.type() != GenericCost.Type.CREATIVE || player.isCreative();
-        this.hasAccess = grave.hasAccess(player);
+        this.hasProtectionAccess = grave.hasProtectionAccess(player);
         this.canTake = grave.canTakeFrom(player);
         this.canFetch = canFetch;
         this.setTitle(ConfigManager.getConfig().ui.graveTitle.with(grave.getPlaceholders(player.level().getServer())));
@@ -175,9 +175,11 @@ public class GraveGui extends PagedGui {
 
     private GuiSlot getUnlockGrave() {
         var config = ConfigManager.getConfig();
-        if (this.grave.isPaymentRequired() && (config.interactions.allowRemoteGraveUnlocking || FabricPermissionBridge.checkPermission(player, id("can_unlock_remotely"), PermissionLevel.ADMINS))) {
-            return GuiSlot.of(ConfigManager.getConfig().ui.unlockButton.get(config.interactions.cost.checkCost(player))
-                    .builder(ConfigManager.getConfig().interactions.cost.getPlaceholders())
+        if (this.grave.isPaymentRequired(player) && this.grave.canPayForUnlock(player)
+                && (this.canModify || config.interactions.allowRemoteGraveUnlocking || FabricPermissionBridge.checkPermission(player, id("can_unlock_remotely"), PermissionLevel.ADMINS))) {
+            var cost = this.grave.getUnlockCost(player);
+            return GuiSlot.of(ConfigManager.getConfig().ui.unlockButton.get(cost.checkCost(player))
+                    .builder(cost.getPlaceholders())
                     .setCallback(() -> {
                         if (this.grave.payForUnlock(player)) {
                             this.canTake = this.grave.canTakeFrom(player);
@@ -194,7 +196,11 @@ public class GraveGui extends PagedGui {
 
     private GuiSlot getRemoveProtection() {
         var config = ConfigManager.getConfig();
-        if (this.grave.isProtected() && (this.hasAccess && (config.interactions.allowRemoteProtectionRemoval || FabricPermissionBridge.checkPermission(player, id("can_remove_protection_remotely"), PermissionLevel.ADMINS)))) {
+        if (!config.interactions.allowNonOwnerPaidUnlock
+                && this.grave.isProtected()
+                && this.hasProtectionAccess
+                && (config.interactions.allowRemoteProtectionRemoval
+                || FabricPermissionBridge.checkPermission(player, id("can_remove_protection_remotely"), PermissionLevel.ADMINS))) {
             if (this.actionTimeRemoveProtect != -1) {
                 return GuiSlot.of(config.ui.removeProtectionButton.get(false).builder()
                         .setCallback(() -> {
@@ -215,7 +221,8 @@ public class GraveGui extends PagedGui {
             }
         }
 
-        if (this.canModify || (this.canTake && (config.interactions.allowRemoteGraveBreaking || FabricPermissionBridge.checkPermission(player, id("can_break_remotely"), PermissionLevel.ADMINS)))) {
+        if (this.canTake && (this.canModify || config.interactions.allowRemoteGraveBreaking
+                || FabricPermissionBridge.checkPermission(player, id("can_break_remotely"), PermissionLevel.ADMINS))) {
             if (this.actionTimeRemoveProtect != -1) {
                 return GuiSlot.of(config.ui.breakGraveButton.get(false).builder()
                         .setCallback(() -> {

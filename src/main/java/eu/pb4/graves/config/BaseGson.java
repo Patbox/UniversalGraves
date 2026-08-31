@@ -12,8 +12,10 @@ import eu.pb4.graves.config.data.WrappedText;
 import eu.pb4.graves.model.TaggedText;
 import eu.pb4.graves.model.parts.ModelPart;
 import eu.pb4.graves.model.parts.ModelPartType;
-import eu.pb4.graves.other.GravesXPCalculation;
+import eu.pb4.graves.other.DynamicLevelUnlockCost;
 import eu.pb4.graves.other.GenericCost;
+import eu.pb4.graves.other.GraveUnlockCost;
+import eu.pb4.graves.other.GravesXPCalculation;
 import eu.pb4.predicate.api.GsonPredicateSerializer;
 import eu.pb4.predicate.api.MinecraftPredicate;
 import net.minecraft.SharedConstants;
@@ -82,6 +84,7 @@ public class BaseGson {
 
                 .registerTypeHierarchyAdapter(GravesXPCalculation.class, new StringSerializer<>(GravesXPCalculation::byName, GravesXPCalculation::configName))
                 .registerTypeHierarchyAdapter(GenericCost.class, new TeleportationCostSerializer())
+                .registerTypeHierarchyAdapter(GraveUnlockCost.class, new GraveUnlockCostSerializer())
                 .registerTypeHierarchyAdapter(IconData.class, new IconDataSerializer())
                 .registerTypeHierarchyAdapter(WrappedText.class, new StringSerializer<>(WrappedText::of, WrappedText::input))
                 .registerTypeHierarchyAdapter(TaggedText.class, new CodecSerializer<>(TaggedText.CODEC, lookup))
@@ -123,6 +126,60 @@ public class BaseGson {
             obj.addProperty("count", teleportationCost.count());
 
             return obj;
+        }
+    }
+
+    private record GraveUnlockCostSerializer() implements JsonSerializer<GraveUnlockCost>, JsonDeserializer<GraveUnlockCost> {
+        @Override
+        public GraveUnlockCost deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context) throws JsonParseException {
+            if (!jsonElement.isJsonObject()) {
+                return new GraveUnlockCost.Static(new GenericCost<>(GenericCost.Type.FREE, null, 0));
+            }
+
+            var object = jsonElement.getAsJsonObject();
+            var typeName = object.has("type") ? object.get("type").getAsString() : "creative";
+            if (!typeName.equals("dynamic_level")) {
+                return new GraveUnlockCost.Static(context.deserialize(jsonElement, GenericCost.class));
+            }
+
+            return new DynamicLevelUnlockCost(
+                    getInt(object, "stack_divisor", 3),
+                    getInt(object, "enchantment_divisor", 4),
+                    DynamicLevelUnlockCost.EnchantmentCostMode.fromConfig(getString(object, "enchantment_cost_mode", "levels")),
+                    getInt(object, "minimum_cost", 1),
+                    getDouble(object, "owner_multiplier", 1),
+                    getDouble(object, "non_owner_multiplier", 3)
+            );
+        }
+
+        @Override
+        public JsonElement serialize(GraveUnlockCost cost, Type type, JsonSerializationContext context) {
+            if (cost instanceof GraveUnlockCost.Static staticCost) {
+                return context.serialize(staticCost.cost(), GenericCost.class);
+            }
+
+            var dynamicCost = (DynamicLevelUnlockCost) cost;
+            var object = new JsonObject();
+            object.addProperty("type", "dynamic_level");
+            object.addProperty("stack_divisor", dynamicCost.stackDivisor());
+            object.addProperty("enchantment_divisor", dynamicCost.enchantmentDivisor());
+            object.addProperty("enchantment_cost_mode", dynamicCost.enchantmentCostMode().configName());
+            object.addProperty("minimum_cost", dynamicCost.minimumCost());
+            object.addProperty("owner_multiplier", dynamicCost.ownerMultiplier());
+            object.addProperty("non_owner_multiplier", dynamicCost.nonOwnerMultiplier());
+            return object;
+        }
+
+        private static int getInt(JsonObject object, String key, int fallback) {
+            return object.has(key) ? object.get(key).getAsInt() : fallback;
+        }
+
+        private static double getDouble(JsonObject object, String key, double fallback) {
+            return object.has(key) ? object.get(key).getAsDouble() : fallback;
+        }
+
+        private static String getString(JsonObject object, String key, String fallback) {
+            return object.has(key) ? object.get(key).getAsString() : fallback;
         }
     }
 

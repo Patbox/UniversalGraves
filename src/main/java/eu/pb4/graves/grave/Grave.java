@@ -56,6 +56,7 @@ public final class Grave {
     private int itemCount;
     private Component deathCause;
     private final Set<UUID> allowedUUIDs;
+    private final Set<UUID> paidUnlockUUIDs;
     private final NonNullList<PositionedItemStack> items;
     private Location location;
     private GraveType type;
@@ -74,13 +75,14 @@ public final class Grave {
     private boolean delayPlayerModel = false;
 
     public Grave() {
-        this.requirePayment = !ConfigManager.getConfig().interactions.cost.isFree();
+        this.requirePayment = ConfigManager.getConfig().interactions.cost.requiresPayment();
         this.gameProfile = DEFAULT_GAME_PROFILE;
         this.creationTime = Long.MAX_VALUE;
         this.xp = 0;
         this.itemCount = 0;
         this.deathCause = DEFAULT_DEATH_CAUSE;
         this.allowedUUIDs = new HashSet<>();
+        this.paidUnlockUUIDs = new HashSet<>();
         this.items = NonNullList.create();
         this.type = GraveType.VIRTUAL;
         this.location = new Location(ServerLevel.OVERWORLD.identifier(), BlockPos.ZERO);
@@ -91,7 +93,7 @@ public final class Grave {
     }
 
     public Grave(long id, @Nullable GameProfile profile, byte visibleLayers, HumanoidArm arm, BlockPos position, Identifier world, GraveType type, long creationTime, long gameCreationTime, int xp, Component deathCause, Collection<UUID> allowedUUIDs, Collection<PositionedItemStack> itemStacks, boolean isProtectionEnabled, int minecraftDay) {
-        this.requirePayment = !ConfigManager.getConfig().interactions.cost.isFree();
+        this.requirePayment = ConfigManager.getConfig().interactions.cost.requiresPayment();
         this.gameProfile = profile;
         this.creationTime = creationTime;
         this.gameCreationTime = gameCreationTime;
@@ -99,6 +101,7 @@ public final class Grave {
         this.xp = xp;
         this.deathCause = deathCause;
         this.allowedUUIDs = new HashSet<>(allowedUUIDs);
+        this.paidUnlockUUIDs = new HashSet<>();
         this.location = new Location(world, position);
         this.items = NonNullList.of(PositionedItemStack.EMPTY, itemStacks.toArray(new PositionedItemStack[0]));
         this.utilProtectionChangeMessage = !this.isProtected();
@@ -168,6 +171,12 @@ public final class Grave {
 
         nbt.put("AllowedUUIDs", allowedUUIDs);
 
+        var paidUnlockUUIDs = new ListTag();
+        for (var uuid : this.paidUnlockUUIDs) {
+            paidUnlockUUIDs.add(UUIDUtil.LENIENT_CODEC.encodeStart(NbtOps.INSTANCE, uuid).getOrThrow());
+        }
+        nbt.put("PaidUnlockUUIDs", paidUnlockUUIDs);
+
         var items = new ListTag();
         for (var item : this.items) {
             items.add(item.toNbt(lookup));
@@ -195,6 +204,7 @@ public final class Grave {
             this.deathCause = BaseGson.text(lookup).fromJson(nbt.getStringOr("DeathCause", ""));
             this.location = Location.readData(nbt);
             this.allowedUUIDs.clear();
+            this.paidUnlockUUIDs.clear();
             this.requirePayment = nbt.getBooleanOr("RequirePayment", false);
 
             if (nbt.contains("Type")) {
@@ -217,6 +227,9 @@ public final class Grave {
 
             for (var nbtUUID : nbt.getListOrEmpty("AllowedUUIDs")) {
                 this.allowedUUIDs.add(UUIDUtil.AUTHLIB_CODEC.decode(NbtOps.INSTANCE, nbtUUID).getOrThrow().getFirst());
+            }
+            for (var nbtUUID : nbt.getListOrEmpty("PaidUnlockUUIDs")) {
+                this.paidUnlockUUIDs.add(UUIDUtil.AUTHLIB_CODEC.decode(NbtOps.INSTANCE, nbtUUID).getOrThrow().getFirst());
             }
 
             for (var item : nbt.getListOrEmpty("Items")) {
@@ -264,7 +277,7 @@ public final class Grave {
         values.put("creation_date", Component.literal(config.texts.fullDateFormat.format().format(new Date(this.creationTime * 1000))));
         values.put("since_creation", Component.literal(config.getFormattedTime(System.currentTimeMillis() / 1000 - this.creationTime)));
         values.put("id", Component.literal("" + this.id));
-        values.put("cost", config.interactions.cost.toText());
+        values.put("cost", config.interactions.cost.baseQuote(this).toText());
         return values;
     }
 
@@ -307,11 +320,11 @@ public final class Grave {
     }
 
     public boolean canTakeFrom(GameProfile profile) {
-        return !this.requirePayment && this.hasAccess(profile);
+        return !this.isPaymentRequired(profile.id()) && this.hasAccess(profile);
     }
 
     public boolean canTakeFrom(NameAndId profile) {
-        return !this.requirePayment && this.hasAccess(profile);
+        return !this.isPaymentRequired(profile.id()) && this.hasAccess(profile);
     }
 
     public boolean canTakeFrom(Player entity) {
@@ -323,35 +336,66 @@ public final class Grave {
     }
 
     public boolean hasAccess(GameProfile profile) {
-        return !this.isProtected() || (this.gameProfile != null && this.gameProfile.id().equals(profile.id())) || this.allowedUUIDs.contains(profile.id());
+        return this.hasProtectionAccess(profile) || this.paidUnlockUUIDs.contains(profile.id());
     }
 
     public boolean hasAccess(NameAndId profile) {
+        return this.hasProtectionAccess(profile) || this.paidUnlockUUIDs.contains(profile.id());
+    }
+
+    public boolean hasProtectionAccess(Player entity) {
+        return this.hasProtectionAccess(entity.getGameProfile()) || (entity.isCreative() && FabricPermissionBridge.checkPermission(entity.createCommandSourceStackForNameResolution((ServerLevel) entity.level()), id("can_open_others"), PermissionLevel.ADMINS));
+    }
+
+    public boolean hasProtectionAccess(GameProfile profile) {
         return !this.isProtected() || (this.gameProfile != null && this.gameProfile.id().equals(profile.id())) || this.allowedUUIDs.contains(profile.id());
+    }
+
+    public boolean hasProtectionAccess(NameAndId profile) {
+        return !this.isProtected() || (this.gameProfile != null && this.gameProfile.id().equals(profile.id())) || this.allowedUUIDs.contains(profile.id());
+    }
+
+    public boolean canPayForUnlock(ServerPlayer player) {
+        if (!this.isPaymentRequired(player)) {
+            return false;
+        }
+
+        var interactions = ConfigManager.getConfig().interactions;
+        return this.hasProtectionAccess(player) || interactions.allowNonOwnerPaidUnlock;
+    }
+
+    public GenericCost<?> getUnlockCost(ServerPlayer player) {
+        return ConfigManager.getConfig().interactions.cost.quote(this, player);
     }
 
     public boolean payForUnlock(ServerPlayer player) {
         var cfg = ConfigManager.getConfig();
-        if (!hasAccess(player.getGameProfile())) {
+        if (!this.canPayForUnlock(player)) {
             if (!cfg.texts.cantPayForThisGrave.isEmpty()) {
                 player.sendSystemMessage(cfg.texts.cantPayForThisGrave.text());
             }
             return false;
         }
 
-        if (cfg.interactions.cost.checkCost(player)) {
-            cfg.interactions.cost.takeCost(player);
-            this.requirePayment = false;
-            if (!cfg.texts.graveUnlocked.isEmpty()) {
-                player.sendSystemMessage(cfg.texts.graveUnlocked.with(cfg.interactions.cost.getPlaceholders()));
+        var cost = cfg.interactions.cost.quote(this, player);
+        if (cost.takeCost(player)) {
+            if (cfg.interactions.allowNonOwnerPaidUnlock) {
+                this.paidUnlockUUIDs.add(player.getUUID());
+            } else {
+                this.requirePayment = false;
             }
-            if (player.level().getServer().getLevel(ResourceKey.create(Registries.DIMENSION, this.location.world())).getBlockEntity(location.blockPos()) instanceof GraveBlockEntity entity) {
+            GraveManager.INSTANCE.setDirty();
+            if (!cfg.texts.graveUnlocked.isEmpty()) {
+                player.sendSystemMessage(cfg.texts.graveUnlocked.with(cost.getPlaceholders()));
+            }
+            var world = player.level().getServer().getLevel(ResourceKey.create(Registries.DIMENSION, this.location.world()));
+            if (world != null && world.getBlockEntity(location.blockPos()) instanceof GraveBlockEntity entity) {
                 entity.setModelId(entity.getGraveModelId());
             }
 
             return true;
         }
-        player.sendSystemMessage(cfg.texts.graveNotEnoughCost.with(cfg.interactions.cost.getPlaceholders()));
+        player.sendSystemMessage(cfg.texts.graveNotEnoughCost.with(cost.getPlaceholders()));
 
         return false;
     }
@@ -504,6 +548,14 @@ public final class Grave {
         return this.requirePayment;
     }
 
+    public boolean isPaymentRequired(ServerPlayer player) {
+        return this.isPaymentRequired(player.getUUID());
+    }
+
+    private boolean isPaymentRequired(UUID uuid) {
+        return this.requirePayment && !this.paidUnlockUUIDs.contains(uuid);
+    }
+
     public byte visibleSkinModelParts() {
         return skinModelParts;
     }
@@ -611,7 +663,7 @@ public final class Grave {
     public void quickEquip(ServerPlayer player) {
         try {
             if (player.isAlive() && this.hasAccess(player)) {
-                if (this.requirePayment && !this.payForUnlock(player)) {
+                if (this.isPaymentRequired(player) && !this.payForUnlock(player)) {
                     return;
                 }
 

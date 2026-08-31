@@ -78,14 +78,17 @@ public class GraveBlock extends AbstractGraveBlock implements EntityBlock {
             return InteractionResult.PASS;
         }
 
-        if (blockEntity instanceof GraveBlockEntity graveBlockEntity && graveBlockEntity.getGrave() != null && graveBlockEntity.getGrave().hasAccess(player)) {
+        if (blockEntity instanceof GraveBlockEntity graveBlockEntity && graveBlockEntity.getGrave() != null
+                && (graveBlockEntity.getGrave().hasAccess(player) || graveBlockEntity.getGrave().canPayForUnlock(player))) {
             try {
                 var grave = graveBlockEntity.getGrave();
 
                 grave.updateSelf(world.getServer());
 
                 if (!grave.isRemoved()) {
-                    if (ConfigManager.getConfig().interactions.shiftClickTakesItems && (player.isShiftKeyDown() || !ConfigManager.getConfig().interactions.clickGraveToOpenGui)) {
+                    if ((grave.canTakeFrom(player) || grave.hasProtectionAccess(player))
+                            && ConfigManager.getConfig().interactions.shiftClickTakesItems
+                            && (player.isShiftKeyDown() || !ConfigManager.getConfig().interactions.clickGraveToOpenGui)) {
                         grave.quickEquip(player);
                     } else if (!player.isShiftKeyDown()) {
                         grave.openUi(player, true, false);
