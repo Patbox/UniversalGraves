@@ -1,6 +1,7 @@
 package eu.pb4.graves.compat;
 
 import eu.pb4.trinkets.api.TrinketDropRule;
+import eu.pb4.trinkets.api.TrinketSlotReference;
 import eu.pb4.trinkets.api.TrinketsApi;
 import eu.pb4.graves.GravesApi;
 import eu.pb4.graves.grave.GraveInventoryMask;
@@ -11,7 +12,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 
 public record TrinketsUpdatedCompat() implements GraveInventoryMask {
-    private static final String INVENTORY_TAG = "InvId";
+    private static final String INVENTORY_TAG = "slot_ref";
 
     public static void register() {
         GravesApi.registerInventoryMask(Identifier.fromNamespaceAndPath("universal_graves", "trinkets_updated"), new TrinketsUpdatedCompat());
@@ -19,28 +20,26 @@ public record TrinketsUpdatedCompat() implements GraveInventoryMask {
 
     @Override
     public void addToGrave(ServerPlayer player, ItemConsumer consumer) {
-        TrinketsApi.getAttachment(player).forEach((ref, stack) -> {
+        TrinketsApi.getAttachment(player).forEachDroppable((slot, stack) -> {
             if (stack.isEmpty() || !GravesApi.canAddItem(player, stack)) {
                 return;
             }
-
-            var dropRule = TrinketsApi.getDropRule(stack, ref, player, false);
-
-            if (dropRule == TrinketDropRule.DROP) {
-                var nbt = new CompoundTag();
-                nbt.putString(INVENTORY_TAG, ref.inventory().slotType().getId());
-
-                consumer.addItem(stack.copy(), ref.index(), nbt);
-                ref.set(ItemStack.EMPTY);
-            }
+            var nbt = new CompoundTag();
+            nbt.store(INVENTORY_TAG, TrinketSlotReference.CODEC, slot.reference());
+            consumer.addItem(stack.copy(), 0, nbt);
+            slot.set(ItemStack.EMPTY);
         });
     }
 
     @Override
     public boolean moveToPlayerExactly(ServerPlayer player, ItemStack stack, int slot, Tag extraData) {
-        var inventoryId = ((CompoundTag) extraData).getStringOr(INVENTORY_TAG, "");
+        var inventoryId = ((CompoundTag) extraData).read(INVENTORY_TAG, TrinketSlotReference.CODEC);
 
-        var access = TrinketsApi.getAttachment(player).getSlotAccess(inventoryId, slot);
+        if (inventoryId.isEmpty()) {
+            return false;
+        }
+
+        var access = TrinketsApi.getAttachment(player).getSlotAccess(inventoryId.orElseThrow());
 
         if (access != null) {
             if (access.get().isEmpty()) {

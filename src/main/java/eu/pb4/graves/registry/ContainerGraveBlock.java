@@ -1,6 +1,7 @@
 package eu.pb4.graves.registry;
 
 import com.mojang.authlib.GameProfile;
+import eu.pb4.graves.mixin.PlayerLikeEntityAccessor;
 import eu.pb4.graves.other.VisualGraveData;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import net.minecraft.core.BlockPos;
@@ -12,6 +13,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.Util;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
@@ -22,7 +26,6 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -57,6 +60,19 @@ public class ContainerGraveBlock extends VisualGraveBlock {
             var optional = world.getBlockEntity(pos, ContainerGraveBlockEntity.BLOCK_ENTITY_TYPE);
             if (optional.isPresent()) {
                 optional.get().textOverrides = new Component[]{Component.empty(), Component.empty(), Component.empty(), Component.empty()};
+                
+                if (!world.isClientSide() && placer instanceof ServerPlayer serverPlayer) {
+                    VisualGraveBlockEntity grave = optional.get();
+                    grave.openEditScreen(serverPlayer);
+
+                    grave.setVisualData(new VisualGraveData(
+                            ResolvableProfile.createResolved(!serverPlayer.isShiftKeyDown() ? serverPlayer.getGameProfile() : new GameProfile(Mth.createInsecureUUID(RandomSource.create()), "")),
+                            serverPlayer.getEntityData().get(PlayerLikeEntityAccessor.getDATA_PLAYER_MODE_CUSTOMISATION()),
+                            serverPlayer.getMainArm(),
+                            grave.getGrave().deathCause(),
+                            grave.getGrave().creationTime(),
+                            grave.getGrave().location(), grave.getGrave().minecraftDay()), grave.replacedBlockState);
+                }
             }
         }
     }
@@ -68,7 +84,7 @@ public class ContainerGraveBlock extends VisualGraveBlock {
     }
 
     @Override
-    public InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player entity,  BlockHitResult hit) {
+    public InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player entity, BlockHitResult hit) {
         if (entity instanceof ServerPlayer player && !player.isShiftKeyDown()) {
             var blockEntityOptional = world.getBlockEntity(pos, ContainerGraveBlockEntity.BLOCK_ENTITY_TYPE);
 
@@ -102,7 +118,7 @@ public class ContainerGraveBlock extends VisualGraveBlock {
                 } else if (itemStack.getItem() == Items.SPONGE || itemStack.getItem() == Items.WET_SPONGE) {
                     world.setBlockAndUpdate(pos, state.setValue(IS_LOCKED, true));
                     grave.updateModel();
-                } else if (itemStack.getItem() instanceof ShovelItem) {
+                } else if (itemStack.is(ItemTags.SHOVELS)) {
                     int val = state.getValue(BlockStateProperties.ROTATION_16) + (player.isShiftKeyDown() ? -1 : 1);
                     if (val < 0) {
                         val = RotationSegment.getMaxSegmentIndex();

@@ -39,10 +39,7 @@ public class VisualGraveBlock extends AbstractGraveBlock implements EntityBlock 
         builder.add(BlockStateProperties.ROTATION_16, IS_LOCKED, WATERLOGGED);
     }
 
-    public PushReaction getPistonBehavior(BlockState state) {
-        return PushReaction.BLOCK;
-    }
-
+    @Override
     public FluidState getFluidState(BlockState state) {
         return state.getValue(BlockStateProperties.WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }

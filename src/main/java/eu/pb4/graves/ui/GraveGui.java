@@ -10,6 +10,7 @@ import eu.pb4.sgui.api.gui.GuiLike;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.permissions.PermissionLevel;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.Items;
 
@@ -111,7 +112,7 @@ public class GraveGui extends PagedGui {
                             if (!cursor.isEmpty() && cursor.is(Items.COMPASS)) {
                                 cursor.shrink(1);
 
-                                player.getInventory().placeItemBackInInventory(GraveCompassItem.create(this.grave.getId(), true));
+                                player.getInventory().placeItemBackInInventory(GraveCompassItem.create(this.grave.getId(), true), Prediction.SERVER_ONLY);
                             }
                         })
                 );

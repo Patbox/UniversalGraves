@@ -6,6 +6,7 @@ import eu.pb4.graves.registry.GraveCompassItem;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -64,7 +65,7 @@ public abstract class ServerPlayerMixin extends Player implements PlayerAddition
     @Inject(method = "initInventoryMenu", at = @At("TAIL"))
     private void graves$onSpawn(CallbackInfo ci) {
         if (this.graves$location != -1 && !this.graves$hasCompass && ConfigManager.getConfig().interactions.giveGraveCompass) {
-            this.getInventory().placeItemBackInInventory(GraveCompassItem.create(this.graves$location, false));
+            this.getInventory().placeItemBackInInventory(GraveCompassItem.create(this.graves$location, false), Prediction.SERVER_ONLY);
             this.graves$hasCompass = true;
         }
     }

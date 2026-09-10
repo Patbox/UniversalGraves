@@ -2,8 +2,7 @@ plugins {
 	id 'java'
 	id 'net.fabricmc.fabric-loom' version "${loom_version}"
 	id 'maven-publish'
-	id "com.modrinth.minotaur" version "2.+"
-	id 'com.matthewprenger.cursegradle' version '1.4.0'
+	id "me.modmuss50.mod-publish-plugin" version "2.2.0"
 }
 version = project.mod_version
 group = project.maven_group
@@ -61,17 +60,17 @@ dependencies {
 	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
 
-	implementation include("eu.pb4:sgui:2.1.0+26.2")
-	implementation include("eu.pb4:placeholder-api:3.1.0-beta.1+26.2")
-	implementation include('xyz.nucleoid:server-translations-api:3.1.0+26.2')
-	implementation 'eu.pb4:polymer-core:0.17.0+26.2-rc-2'
-	implementation 'eu.pb4:polymer-resource-pack:0.17.0+26.2-rc-2'
-	implementation 'eu.pb4:polymer-virtual-entity:0.17.0+26.2-rc-2'
-	implementation include('eu.pb4:predicate-api:0.9.0+26.2')
+	implementation include("eu.pb4:sgui:2.2.0+26.3")
+	implementation include("eu.pb4:placeholder-api:3.2.0+26.3")
+	implementation include('xyz.nucleoid:server-translations-api:3.2.0+26.3')
+	implementation 'eu.pb4:polymer-core:0.18.0+26.3-rc-1'
+	implementation 'eu.pb4:polymer-resource-pack:0.18.0+26.3-rc-1'
+	implementation 'eu.pb4:polymer-virtual-entity:0.18.0+26.3-rc-1'
+	implementation include('eu.pb4:predicate-api:0.10.0+26.3')
 	implementation include("eu.pb4:common-protection-api:2.0.0")
 
 	//compileOnly "dev.emi:trinkets:3.10.0"
-	compileOnly "eu.pb4:trinkets:4.1.0-beta.1+26.2"
+	compileOnly "eu.pb4:trinkets:4.1.0+26.2"
 	compileOnly "me.lucko:fabric-permissions-api:0.7.0"
 	//compileOnly "maven.modrinth:inventorio:1.10.3+1.20.2"
 	//compileOnly "io.wispforest:accessories-fabric:1.4.0-beta+1.21.10"
@@ -145,54 +144,43 @@ publishing {
 	}
 }
 
-/*curseforge {
-	if (System.getenv("CURSEFORGE")) {
-		apiKey = System.getenv("CURSEFORGE")
+publishMods {
+	changelog = System.getenv("CHANGELOG")
+	type = project.mod_version.contains("-") ? BETA : STABLE
+	file = jar.archiveFile
+	modLoaders.add("fabric")
 
-		project {
-			id = "497175"
-			releaseType = "release"
-			changelog = System.getenv("CHANGELOG")
-			changelogType = "markdown"
-			addGameVersion((project.minecraft_version.contains("-") ? ((String) project.minecraft_version.split("-")[0] + "-snapshot") : project.minecraft_version))
-			addGameVersion "Fabric"
+	if (System.getenv("CURSEFORGE") && "true" == project.curseforge_release) {
+		curseforge {
+			projectId = "497175"
+			accessToken = System.getenv("CURSEFORGE")
+			client = true
+			server = true
 
-			relations {
-				requiredDependency "polymer"
+			minecraftVersions.add((project.minecraft_version.contains("-") ? ((String) project.minecraft_version.split("-")[0] + "-snapshot") : project.minecraft_version))
+			for (String a : project.mc_extra_supported.split(",")) {
+				if (!a.strip().isEmpty()) {
+					minecraftVersions.add(a.strip())
+				}
 			}
 
-			mainArtifact(jar)
-
-			afterEvaluate {
-				uploadTask.dependsOn("jar")
-			}
+			requires("polymer")
 		}
 	}
 
-	options {
-		forgeGradleIntegration = false
-	}
+	if (System.getenv("MODRINTH")) {
+		modrinth {
+			accessToken = System.getenv("MODRINTH")
+			projectId = 'yn9u3ypm'
 
-	jar {
-		finalizedBy project.tasks.curseforge
-	}
-}*/
+			minecraftVersions.add(project.minecraft_version);
+			for (String a : project.mc_extra_supported.split(",")) {
+				if (!a.strip().isEmpty()) {
+					minecraftVersions.add(a.strip())
+				}
+			}
 
-if (System.getenv("MODRINTH")) {
-	modrinth {
-		token = System.getenv("MODRINTH")
-		projectId = 'yn9u3ypm'
-		versionNumber = "" + version // The version of the mod to upload.
-		uploadFile = jar // This links to a task that builds your mod jar and sets "uploadFile" to the mod jar.
-		gameVersions = [((String) project.minecraft_version)]
-		changelog = System.getenv("CHANGELOG")
-		loaders = ["fabric"]
-		dependencies {
-			required.project "polymer"
+			requires("polymer")
 		}
-	}
-
-	jar {
-		finalizedBy project.tasks.modrinth
 	}
 }

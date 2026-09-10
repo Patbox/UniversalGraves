@@ -29,23 +29,6 @@ public class CointainerGraveBlockItem extends BlockItem implements PolymerItem {
         super(block, settings);
     }
 
-    protected boolean updateCustomBlockEntityTag(BlockPos pos, Level world, @Nullable Player player, ItemStack stack, BlockState state) {
-        boolean bl = super.updateCustomBlockEntityTag(pos, world, player, stack, state);
-        if (!world.isClientSide() && !bl && player instanceof ServerPlayer serverPlayer && world.getBlockEntity(pos) instanceof VisualGraveBlockEntity grave) {
-            grave.openEditScreen(serverPlayer);
-
-            grave.setVisualData(new VisualGraveData(
-                    ResolvableProfile.createResolved(!player.isShiftKeyDown() ? player.getGameProfile() : new GameProfile(Mth.createInsecureUUID(RandomSource.create()), "")),
-                    player.getEntityData().get(PlayerLikeEntityAccessor.getDATA_PLAYER_MODE_CUSTOMISATION()),
-                    player.getMainArm(),
-                    grave.getGrave().deathCause(),
-                    grave.getGrave().creationTime(),
-                    grave.getGrave().location(), grave.getGrave().minecraftDay()), grave.replacedBlockState);
-        }
-
-        return bl;
-    }
-
     @Override
     public Item getPolymerItem(ItemStack itemStack, PacketContext context) {
         return ConfigManager.getConfig().model.gravestoneItemBase;

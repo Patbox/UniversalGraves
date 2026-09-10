@@ -87,7 +87,7 @@ public record GenericCost<T>(Type<T> type, T object, int count) {
 
                 if (c >= count) {
                     if (take) {
-                        player.getInventory().clearOrCountMatchingItems((i) -> !i.isEmpty() && ItemStack.isSameItemSameComponents(i, object), count, GraveUtils.EMPTY_INVENTORY);
+                        player.getInventory().clearOrCountMatchingItems((i) -> !i.isEmpty() && ItemStack.isSameItemSameComponents(i, object), false, count, GraveUtils.EMPTY_INVENTORY);
                     }
                     return true;
                 } else {

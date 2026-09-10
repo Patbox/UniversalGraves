@@ -30,7 +30,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew build publishMods
         env:
           MODRINTH: ${{ secrets.MODRINTH }}
           CURSEFORGE: ${{ secrets.CURSEFORGE }}
