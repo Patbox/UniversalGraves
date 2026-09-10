@@ -150,7 +150,7 @@ publishMods {
 	file = jar.archiveFile
 	modLoaders.add("fabric")
 
-	if (System.getenv("CURSEFORGE") && "true" == project.curseforge_release) {
+	if (System.getenv("CURSEFORGE")) {
 		curseforge {
 			projectId = "497175"
 			accessToken = System.getenv("CURSEFORGE")
