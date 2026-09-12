@@ -8,6 +8,7 @@ import eu.pb4.graves.config.data.Variant;
 import eu.pb4.graves.config.data.WrappedDateFormat;
 import eu.pb4.graves.config.data.WrappedText;
 import eu.pb4.graves.other.GenericCost;
+import eu.pb4.graves.other.GraveUnlockCost;
 import eu.pb4.graves.other.GravesXPCalculation;
 import eu.pb4.graves.registry.IconItem;
 import eu.pb4.predicate.api.BuiltinPredicates;
@@ -64,7 +65,9 @@ public class Config {
 
     public static class Interactions {
         @SerializedName("unlocking_cost")
-        public GenericCost<?> cost = new GenericCost<>(GenericCost.Type.FREE, null, 0);
+        public GraveUnlockCost cost = new GraveUnlockCost.Static(new GenericCost<>(GenericCost.Type.FREE, null, 0));
+        @SerializedName("allow_non_owner_paid_unlock")
+        public boolean allowNonOwnerPaidUnlock = false;
         @SerializedName("give_death_compass")
         public boolean giveGraveCompass = true;
         @SerializedName("enable_use_death_compass_to_open_gui")

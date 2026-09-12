@@ -1,1 +1,3 @@
 sabling graves when killed by selected entity.
+- Added dynamic grave unlock costs and optional per-player paid access for non-owners.
+- Fixed protected non-owner graves being rejected before their paid-unlock menu could open.

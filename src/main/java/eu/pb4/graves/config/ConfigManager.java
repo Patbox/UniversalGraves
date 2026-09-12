@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ConfigManager {
-    public static final int VERSION = 4;
+    public static final int VERSION = 5;
     private static final Path BASE_CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("universal-graves/");
     private static final Path CONFIG_PATH = BASE_CONFIG_PATH.resolve("config.json");
     private static final Path MODELS_PATH = BASE_CONFIG_PATH.resolve("models/");

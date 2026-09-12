@@ -8,6 +8,7 @@
   "text.graves.break_time_sign": "Se destruirá en",
   "text.graves.not_protected": "No protegida!",
   "text.graves.players_grave": "Tumba de %s",
+  "text.graves.admin_graves": "Todas las tumbas",
   "text.graves.gui_title": "Tus tumbas",
   "text.graves.no_longer_protected": "Tu tumba en %s (%s) que contiene %s ítem(s) ya no está protegida!",
   "text.graves.expired": "Tu tumba en %s (%s) que contenía %s ítem(s) ha expirado!",
@@ -18,6 +19,9 @@
   "text.graves.creation_failed_void": "La tumba no fue creada porque has muerto en el vacío!",
   "text.graves.creation_failed_pvp": "La tumba no fue creada porque un jugador te mató! Tus ítems fueron soltados en %s (%s)",
   "text.graves.creation_failed_claim": "La tumba no fue creada porque estabas en terreno protegido! Tus ítems fueron soltados en %s (%s)",
+  "text.graves.grave_unlock_payment.no_access": "No puedes pagar para acceder a esta tumba!",
+  "text.graves.grave_unlock_payment.accepted": "Has pagado el acceso a la tumba!",
+  "text.graves.grave_unlock_payment.failed": "No tienes recursos suficientes para acceder a la tumba! Necesitas: %s",
 
   "text.graves.damage_source_info": "Has sido dañado por: %s",
   "text.graves.damage_source_info.enabled": "Se activó la visualización de la fuente del próximo daño! Usa este comando otra vez para desactivarla.",
@@ -32,8 +36,10 @@
   "text.graves.gui.break_grave": "Destruir Tumba",
   "text.graves.gui.quick_pickup": "Coger Todos los Ítems",
   "text.graves.gui.teleport": "Teletransportar hacia la tumba",
-  "text.graves.gui.teleport.not_enough": "Recursos insuficientes!",
-  "text.graves.gui.cost": "Costo:",
+  "text.graves.gui.cost.not_enough": "Recursos insuficientes!",
+  "text.graves.gui.cost": "Coste:",
+  "text.graves.gui.teleport.cost": "Coste:",
+  "text.graves.gui.unlock_grave": "Pagar para acceder",
   "text.graves.gui.fetch": "Mover tumba hacia tu posición",
   "text.graves.gui.fetch_failed": "No se pudo mover la tumba hacia tu posición!",
 
@@ -48,6 +54,7 @@
   "item.universal_graves.grave_compass": "Brújula de Tumba",
   "block.universal_graves.grave": "Tumba",
   "block.universal_graves.visual_grave": "Lápida",
+  "block.universal_graves.container_grave": "Lápida",
 
   "gamerule.universal_graves:protection_time": "Tiempo de protección de la tumba contra otros jugadores",
   "gamerule.universal_graves:breaking_time": "Tiempo de expiración de la tumba",
@@ -55,5 +62,7 @@
   "text.graves.cost.level": "Niveles de Experiencia",
   "text.graves.cost.creative": "Creativo",
   "text.graves.cost.free": "Gratis",
-  "text.graves.cost.item": "Ítems"
+  "text.graves.cost.item": "Ítems",
+
+  "screen.graves.settings": "Ajustes de Universal Graves"
 }

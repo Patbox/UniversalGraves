@@ -11,8 +11,8 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.storage.WritableLevelData;
@@ -26,7 +26,7 @@ public abstract class ServerLevelMixin extends Level {
     @Inject(method = "mayInteract", at = @At("HEAD"), cancellable = true)
     private void grave_disallowGraveBreaking(Entity entity, BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
         if (this.getBlockEntity(pos) instanceof GraveBlockEntity grave && grave.getGrave() != null) {
-            cir.setReturnValue(entity instanceof Player player && grave.getGrave().hasAccess(player));
+            cir.setReturnValue(entity instanceof ServerPlayer player && grave.getGrave().canOpen(player));
         }
     }
 }
