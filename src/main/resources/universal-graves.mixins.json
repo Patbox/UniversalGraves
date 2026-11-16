@@ -12,6 +12,7 @@
     "MannequinEntityAccessor",
     "PlayerInventoryAccessor",
     "PlayerLikeEntityAccessor",
+    "PlayerListMixin",
     "ServerLevelMixin",
     "ServerPlayerMixin",
     "datafixer.DimensionStorageFileFixMixin",

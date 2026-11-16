@@ -62,8 +62,8 @@ public abstract class ServerPlayerMixin extends Player implements PlayerAddition
         this.graves$hasCompass = false;
     }
 
-    @Inject(method = "initInventoryMenu", at = @At("TAIL"))
-    private void graves$onSpawn(CallbackInfo ci) {
+    @Override
+    public void graves$tryGiveCompass() {
         if (this.graves$location != -1 && !this.graves$hasCompass && ConfigManager.getConfig().interactions.giveGraveCompass) {
             this.getInventory().placeItemBackInInventory(GraveCompassItem.create(this.graves$location, false), Prediction.SERVER_ONLY);
             this.graves$hasCompass = true;
