@@ -13,4 +13,6 @@ public interface PlayerAdditions {
     void graves$setLastGrave(long graveId);
 
     void graves$setInvulnerable(boolean value);
+
+    void graves$tryGiveCompass();
 }
